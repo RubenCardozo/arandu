@@ -1,0 +1,142 @@
+<!-- SIDE NAVIGATION BAR -->
+<aside class="fixed left-0 top-0 z-40 flex flex-col bg-brand-charcoal h-screen w-64 border-r border-brand-charcoal text-brand-paper">
+  <div class="p-6 flex flex-col gap-4">
+    <div class="h-[44px] w-[44px] bg-brand-sage flex items-center justify-center overflow-hidden">
+      <img alt="Arandu Logo" class="w-full h-full object-cover" src="/logo.png">
+    </div>
+    <div>
+      <h1 class="font-serif text-[32px] leading-[0.9] uppercase text-brand-paper">Arandu</h1>
+      <p class="font-mono text-[9px] opacity-70 mt-1 uppercase tracking-widest">Panel de Control</p>
+    </div>
+  </div>
+  <nav class="flex-1 mt-4">
+    <ul class="flex flex-col">
+      <li>
+        <a routerLink="/dashboard" routerLinkActive="bg-brand-sage font-bold" class="flex items-center gap-4 px-6 py-4 text-brand-paper transition-all">
+          <span class="font-mono text-xs">📊</span>
+          <span class="font-sans text-sm">Dashboard</span>
+        </a>
+      </li>
+      <li>
+        <a routerLink="/contenido" routerLinkActive="bg-brand-sage font-bold" class="flex items-center gap-4 px-6 py-4 text-brand-paper/80 hover:bg-brand-sage/50 transition-all">
+          <span class="font-mono text-xs">✏️</span>
+          <span class="font-sans text-sm">Contenido</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+  <div class="p-6 border-t border-brand-paper/10">
+    <a routerLink="/contenido" class="w-full block text-center py-3 bg-brand-paper text-brand-charcoal font-mono text-[10px] font-bold uppercase hover:bg-brand-sage hover:text-brand-paper transition-all">
+      NUEVO POST
+    </a>
+  </div>
+  <div class="p-6 mt-auto">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-10 h-10 bg-brand-sage overflow-hidden">
+        <img alt="Arandu Logo" class="w-full h-full object-cover" src="/logo.png">
+      </div>
+      <div>
+        <p class="font-mono text-[10px] leading-none uppercase">Administrador</p>
+        <p class="text-[9px] opacity-60 font-mono">Editor Jefe</p>
+      </div>
+    </div>
+    <button (click)="logout()" class="flex items-center gap-2 text-brand-paper/60 hover:text-brand-red font-mono text-[10px] uppercase">
+      <span>🚪</span> Salir
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT AREA -->
+<main class="ml-64 min-h-screen bg-brand-paper text-brand-charcoal">
+
+  <!-- Header -->
+  <header class="w-full px-8 py-8 border-b border-brand-charcoal flex justify-between items-end bg-brand-paper flex-wrap gap-4">
+    <div>
+      <span class="font-mono text-[10px] text-brand-red mb-2 block uppercase tracking-widest">RESUMEN EN VIVO</span>
+      <h2 class="font-serif text-4xl uppercase tracking-tighter">Panel de Control</h2>
+    </div>
+    <div class="text-right">
+      <p class="font-mono text-[9px] opacity-50 uppercase">Base de Datos</p>
+      <p class="font-mono text-[10px] font-bold uppercase" [ngClass]="loading ? 'text-brand-charcoal/40' : 'text-brand-sage'">
+        {{ loading ? 'CARGANDO...' : 'CONECTADA ✓' }}
+      </p>
+    </div>
+  </header>
+
+  <!-- Loading spinner -->
+  <div *ngIf="loading" class="flex items-center justify-center h-64">
+    <p class="font-mono text-sm text-brand-charcoal/40 uppercase tracking-widest animate-pulse">Cargando datos...</p>
+  </div>
+
+  <!-- DASHBOARD CONTENT -->
+  <div *ngIf="!loading" class="p-8 space-y-8">
+
+    <!-- STAT CARDS ROW -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+
+      <div class="border border-brand-charcoal p-6 bg-brand-paper hover:shadow-sm transition-all">
+        <p class="font-mono text-[9px] opacity-50 uppercase tracking-widest mb-3">Artículos</p>
+        <p class="font-serif text-5xl font-bold">{{ totalArticulos }}</p>
+        <p class="font-mono text-[10px] text-brand-sage mt-2 uppercase">Editorial</p>
+      </div>
+
+      <div class="border border-brand-charcoal p-6 bg-brand-paper hover:shadow-sm transition-all">
+        <p class="font-mono text-[9px] opacity-50 uppercase tracking-widest mb-3">Empleos</p>
+        <p class="font-serif text-5xl font-bold">{{ totalEmpleos }}</p>
+        <p class="font-mono text-[10px] text-brand-sage mt-2 uppercase">Clasificados</p>
+      </div>
+
+      <div class="border border-brand-charcoal p-6 bg-brand-paper hover:shadow-sm transition-all">
+        <p class="font-mono text-[9px] opacity-50 uppercase tracking-widest mb-3">Servicios</p>
+        <p class="font-serif text-5xl font-bold">{{ totalServicios }}</p>
+        <p class="font-mono text-[10px] text-brand-sage mt-2 uppercase">Anuncios</p>
+      </div>
+
+      <div class="border border-brand-charcoal p-6 bg-brand-paper hover:shadow-sm transition-all">
+        <p class="font-mono text-[9px] opacity-50 uppercase tracking-widest mb-3">Comercios</p>
+        <p class="font-serif text-5xl font-bold">{{ totalRestaurantes }}</p>
+        <p class="font-mono text-[10px] text-brand-sage mt-2 uppercase">Directorio</p>
+      </div>
+
+    </div>
+
+    <!-- LAST ARTICLE + ACTIVITY FEED -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+      <!-- Last published article -->
+      <section class="lg:col-span-8 border border-brand-charcoal p-6 bg-brand-paper">
+        <h3 class="font-mono text-xs font-bold border-l-4 border-brand-sage pl-3 mb-6 uppercase tracking-wider">Último Contenido Publicado</h3>
+        <div *ngIf="ultimoArticulo; else sinArticulo">
+          <span class="font-mono text-[10px] text-brand-red uppercase tracking-widest">{{ ultimoArticulo.category }}</span>
+          <p class="font-serif text-3xl font-semibold mt-2 mb-2 leading-tight">{{ ultimoArticulo.title }}</p>
+          <p class="font-mono text-[10px] text-brand-charcoal/50 uppercase">Publicado el {{ ultimoArticulo.date }}</p>
+          <a routerLink="/contenido" class="inline-block mt-6 px-6 py-3 bg-brand-sage text-brand-paper font-mono text-[10px] font-bold uppercase hover:bg-brand-charcoal transition-all">
+            PUBLICAR NUEVO CONTENIDO →
+          </a>
+        </div>
+        <ng-template #sinArticulo>
+          <p class="font-sans text-brand-charcoal/50 mb-6">Todavía no hay artículos publicados en el sistema.</p>
+          <a routerLink="/contenido" class="inline-block px-6 py-3 bg-brand-sage text-brand-paper font-mono text-[10px] font-bold uppercase hover:bg-brand-charcoal transition-all">
+            PUBLICAR PRIMER CONTENIDO →
+          </a>
+        </ng-template>
+      </section>
+
+      <!-- Activity feed -->
+      <section class="lg:col-span-4 border border-brand-charcoal p-6 bg-brand-paper flex flex-col">
+        <h3 class="font-mono text-xs font-bold border-l-4 border-brand-red pl-3 mb-6 uppercase tracking-wider">Actividad Reciente</h3>
+        <div class="space-y-5 overflow-y-auto max-h-72">
+          <div *ngFor="let act of activities" class="relative pl-6 border-l border-brand-charcoal/20">
+            <div [ngClass]="act.alert ? 'bg-brand-red' : 'bg-brand-charcoal'" class="absolute -left-[4.5px] top-0 w-2 h-2"></div>
+            <p class="font-mono text-[9px] opacity-50 mb-1">{{ act.time }}</p>
+            <p class="font-sans text-xs" [ngClass]="act.alert ? 'text-brand-red font-bold' : ''">
+              <span class="font-bold">{{ act.user }}:</span> {{ act.text }}
+            </p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+</main>

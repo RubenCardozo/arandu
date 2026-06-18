@@ -1,0 +1,53 @@
+<main class="min-h-screen flex items-center justify-center py-12 px-4 bg-brand-paper">
+  <div class="w-full max-w-md bg-brand-paper border-2 border-brand-charcoal relative z-10 p-8 md:p-12">
+    <div class="absolute top-0 left-0 w-2 h-full bg-brand-sage"></div>
+    
+    <div class="text-center mb-8 border-b border-brand-charcoal/20 pb-6">
+      <div class="flex justify-center items-center gap-3 mb-3">
+        <img alt="Arandu Logo" class="h-8 w-auto object-contain" src="/logo.png">
+        <span class="font-serif text-2xl font-bold text-brand-sage uppercase">Arandu</span>
+      </div>
+      <h1 class="font-serif text-3xl font-bold italic">Portal del Administrador</h1>
+      <p class="font-sans text-xs text-brand-charcoal/60 mt-1">Inicia sesión para gestionar el contenido y ver las métricas.</p>
+    </div>
+
+    <!-- Error message -->
+    <div *ngIf="errorMessage" class="mb-6 p-4 bg-brand-red/10 border border-brand-red text-brand-red font-sans text-xs">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Login Form -->
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+      <div class="space-y-1">
+        <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase" for="email">CORREO ELECTRÓNICO</label>
+        <input 
+          formControlName="email"
+          [ngClass]="emailInvalid ? 'border-brand-red' : 'border-brand-charcoal'"
+          class="w-full bg-transparent border-0 border-b py-2 px-0 font-sans text-base placeholder:text-brand-charcoal/30 focus:outline-none focus:border-brand-sage focus:ring-0" 
+          id="email" 
+          type="email" 
+          placeholder="admin@ginebralatina.ch">
+        <p *ngIf="emailInvalid" class="mt-1 font-mono text-[9px] text-brand-red uppercase">Ingresa un correo válido.</p>
+      </div>
+
+      <div class="space-y-1">
+        <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase" for="password">CONTRASEÑA</label>
+        <input 
+          formControlName="password"
+          [ngClass]="passwordInvalid ? 'border-brand-red' : 'border-brand-charcoal'"
+          class="w-full bg-transparent border-0 border-b py-2 px-0 font-sans text-base placeholder:text-brand-charcoal/30 focus:outline-none focus:border-brand-sage focus:ring-0" 
+          id="password" 
+          type="password" 
+          placeholder="••••••••••••">
+        <p *ngIf="passwordInvalid" class="mt-1 font-mono text-[9px] text-brand-red uppercase">La contraseña es requerida.</p>
+      </div>
+
+      <button 
+        [disabled]="loading"
+        class="w-full py-3 mt-4 bg-brand-charcoal text-brand-paper font-mono text-[11px] font-bold uppercase tracking-widest hover:bg-brand-sage transition-all duration-150 disabled:opacity-50" 
+        type="submit">
+        {{ loading ? 'INICIANDO SESIÓN...' : 'INGRESAR AL PANEL' }}
+      </button>
+    </form>
+  </div>
+</main>

@@ -1,0 +1,5 @@
+/* Contenido component stylesheet */
+input:focus, textarea:focus, select:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}

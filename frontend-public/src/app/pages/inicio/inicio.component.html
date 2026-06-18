@@ -1,0 +1,142 @@
+<div class="flex justify-center items-start gap-8 max-w-[1600px] mx-auto relative px-4 md:px-8">
+  <!-- Left Ad Banner -->
+  <aside class="ad-gutter mt-12 hidden xl:block w-[160px] shrink-0 sticky top-[100px] h-[600px]">
+    <div class="w-full h-full border border-brand-charcoal bg-[#efeeeb] flex flex-col p-4">
+      <span class="font-mono text-[9px] text-brand-charcoal/60 uppercase tracking-widest mb-4">PUBLICIDAD</span>
+      <div class="flex-grow flex flex-col justify-center items-center text-center">
+        <span class="font-serif text-xl italic mb-4">Apoya el periodismo independiente</span>
+        <div class="w-full h-40 bg-brand-charcoal/10 mb-4 border border-brand-charcoal"></div>
+        <p class="font-sans text-[10px] text-brand-charcoal/80 uppercase tracking-wider">Únete al colectivo Arandu</p>
+      </div>
+      <div class="mt-auto pt-4 border-t border-brand-charcoal/20">
+        <span class="font-mono text-[9px] text-brand-charcoal/50">REF: GEN_SOPORT_26</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="w-full max-w-[1280px] py-12 shrink-0">
+    <!-- Hero Section -->
+    <section class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-20 border-b border-brand-charcoal/20 pb-16">
+      <div class="md:col-span-8 flex flex-col justify-center">
+        <div class="flex gap-4 items-center mb-6">
+          <span class="px-3 py-1 bg-brand-red text-white font-mono text-[10px] font-bold rounded-full">{{ heroArticle.category }}</span>
+          <span class="font-mono text-[11px] text-brand-charcoal/80 uppercase tracking-widest">{{ heroArticle.date }} — POR {{ heroArticle.author }}</span>
+        </div>
+        <h1 class="font-serif text-5xl md:text-7xl font-semibold leading-[1.05] tracking-tighter mb-8">
+          {{ heroArticle.title }}
+        </h1>
+        <p class="font-sans text-xl md:text-2xl text-brand-charcoal/80 leading-relaxed mb-10 max-w-2xl">
+          {{ heroArticle.description }}
+        </p>
+        <div class="flex flex-wrap gap-4">
+          <a routerLink="/editorial" class="bg-brand-charcoal text-brand-paper px-8 py-3 font-mono text-xs font-bold uppercase tracking-widest hover:bg-brand-sage transition-colors text-center">
+            Ver Editorial
+          </a>
+          <a routerLink="/anuncios" class="border border-brand-charcoal px-8 py-3 font-mono text-xs font-bold uppercase tracking-widest hover:bg-brand-charcoal/5 transition-colors text-center">
+            Ver Clasificados
+          </a>
+        </div>
+      </div>
+      <div class="md:col-span-4 aspect-[3/4] relative overflow-hidden group border border-brand-charcoal">
+        <img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" [alt]="heroArticle.title" [src]="heroArticle.imageUrl">
+        <div class="absolute inset-0 border-[12px] border-brand-paper/20 pointer-events-none"></div>
+      </div>
+    </section>
+
+    <!-- Main Headlines Grid -->
+    <section class="mb-24">
+      <div class="flex justify-between items-end mb-8 border-b-2 border-brand-charcoal pb-2">
+        <h2 class="font-mono text-lg font-bold tracking-widest uppercase">Titulares Principales</h2>
+        <a routerLink="/editorial" class="font-mono text-xs text-brand-sage font-bold hover:underline">VER TODAS LAS SECCIONES</a>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-0 border border-brand-charcoal overflow-hidden">
+        <!-- Card Loop -->
+        <article *ngFor="let headline of headlines; let last = last" 
+          [class.border-r]="!last" 
+          class="p-8 border-brand-charcoal flex flex-col hover:bg-brand-charcoal/5 transition-colors group">
+          <span class="font-mono text-[10px] font-bold mb-4 uppercase tracking-widest" [ngClass]="headline.colorClass">{{ headline.category }}</span>
+          <h3 class="font-serif text-3xl font-medium mb-4 group-hover:text-brand-sage transition-colors leading-tight">{{ headline.title }}</h3>
+          <p class="font-sans text-sm text-brand-charcoal/70 mb-6 leading-relaxed flex-grow">{{ headline.description }}</p>
+          <div class="flex justify-between items-center pt-6 border-t border-brand-charcoal/10">
+            <span class="font-mono text-[10px] text-brand-charcoal/60 uppercase tracking-widest">{{ headline.readTime }}</span>
+            <span class="text-xl">→</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Sidebar / Modules Section -->
+    <section class="grid grid-cols-1 md:grid-cols-12 gap-12">
+      <!-- Latest Reports -->
+      <div class="md:col-span-8">
+        <div class="mb-8 border-b border-brand-charcoal pb-2">
+          <h2 class="font-mono text-sm font-bold tracking-widest uppercase">Últimos Informes</h2>
+        </div>
+        <div class="space-y-12">
+          <div *ngFor="let report of reports" class="grid grid-cols-1 sm:grid-cols-4 gap-6 group cursor-pointer border border-transparent hover:border-brand-charcoal/10 p-2 transition-all">
+            <div class="sm:col-span-1 border border-brand-charcoal/20 overflow-hidden">
+              <img class="w-full aspect-square object-cover grayscale group-hover:grayscale-0 transition-all duration-500" [alt]="report.title" [src]="report.imageUrl">
+            </div>
+            <div class="sm:col-span-3 flex flex-col justify-center">
+              <div class="flex justify-between mb-2">
+                <span class="font-mono text-[10px] font-bold text-brand-charcoal uppercase tracking-widest">{{ report.category }}</span>
+                <span class="font-mono text-[10px] text-brand-charcoal/50">{{ report.reportId }}</span>
+              </div>
+              <h4 class="font-serif text-2xl font-semibold mb-2 group-hover:underline leading-snug">{{ report.title }}</h4>
+              <p class="font-sans text-sm text-brand-charcoal/70 leading-relaxed">{{ report.description }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebars -->
+      <aside class="md:col-span-4 space-y-16">
+        <!-- Data Stories Module -->
+        <div class="p-6 bg-brand-charcoal text-brand-paper">
+          <h3 class="font-mono text-xs font-bold tracking-widest uppercase mb-6 border-b border-brand-paper/20 pb-2">Visualizaciones</h3>
+          <ul class="space-y-6">
+            <li *ngFor="let story of dataStories">
+              <p class="font-mono text-[10px] text-brand-paper/60 mb-1 uppercase tracking-widest">Datos Abiertos</p>
+              <a href="#" class="font-serif text-xl leading-snug hover:text-brand-sage transition-colors block">{{ story.title }}</a>
+            </li>
+          </ul>
+          <button class="w-full mt-8 border border-brand-paper/20 py-3 font-mono text-[10px] font-bold uppercase tracking-widest hover:bg-brand-paper hover:text-brand-charcoal transition-colors">
+            EXPLORAR EL HUB DE DATOS
+          </button>
+        </div>
+
+        <!-- From the Archive Module -->
+        <div class="border border-brand-charcoal p-6">
+          <h3 class="font-mono text-xs font-bold tracking-widest uppercase mb-6 border-b border-brand-charcoal/20 pb-2">Desde los Archivos</h3>
+          <div class="space-y-6">
+            <div *ngFor="let arch of archiveItems" class="flex gap-4 items-start">
+              <span class="font-mono text-lg text-brand-sage font-bold">{{ arch.year }}</span>
+              <div>
+                <h5 class="font-serif text-lg font-bold leading-tight">{{ arch.title }}</h5>
+                <p class="font-sans text-xs text-brand-charcoal/70 mt-1">{{ arch.desc }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <!-- Right Ad Banner -->
+  <aside class="ad-gutter mt-12 hidden xl:block w-[160px] shrink-0 sticky top-[100px] h-[600px]">
+    <div class="w-full h-full border border-brand-charcoal bg-[#efeeeb] flex flex-col p-4">
+      <span class="font-mono text-[9px] text-brand-charcoal/60 uppercase tracking-widest mb-4">PUBLICIDAD</span>
+      <div class="flex-grow flex flex-col justify-center items-center text-center">
+        <span class="font-serif text-xl italic mb-4">Exposición Memoria 2026</span>
+        <div class="w-full h-40 bg-brand-charcoal mb-4 border border-brand-charcoal flex items-center justify-center">
+          <span class="text-brand-paper font-mono text-[10px] tracking-widest text-center px-2">ENTRADAS DISPONIBLES</span>
+        </div>
+        <p class="font-sans text-[10px] text-brand-charcoal/80 uppercase tracking-wider">El futuro de los archivos locales</p>
+      </div>
+      <div class="mt-auto pt-4 border-t border-brand-charcoal/20">
+        <span class="font-mono text-[9px] text-brand-charcoal/50">EVNT: MEM_EXPO</span>
+      </div>
+    </div>
+  </aside>
+</div>

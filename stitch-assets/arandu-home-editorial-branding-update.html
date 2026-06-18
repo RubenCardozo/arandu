@@ -1,0 +1,302 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Arandu | Digital Archive &amp; Investigations</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&amp;family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&amp;family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-variant": "#e3e2e0",
+                        "inverse-on-surface": "#f1f1ee",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-container": "#858383",
+                        "on-secondary-fixed": "#012110",
+                        "background": "#faf9f6",
+                        "primary-container": "#1c1b1b",
+                        "error": "#ba1a1a",
+                        "secondary": "#466550",
+                        "on-error-container": "#93000a",
+                        "outline-variant": "#c4c7c7",
+                        "tertiary-fixed": "#e6e2df",
+                        "tertiary-container": "#1c1b1a",
+                        "surface-container-high": "#e9e8e5",
+                        "on-surface": "#1a1c1a",
+                        "secondary-fixed": "#c7ebd0",
+                        "secondary-container": "#c5e8cd",
+                        "on-tertiary-fixed": "#1c1b1a",
+                        "on-secondary": "#ffffff",
+                        "surface-container": "#efeeeb",
+                        "on-tertiary": "#ffffff",
+                        "surface-dim": "#dbdad7",
+                        "surface-tint": "#5f5e5e",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-container": "#868382",
+                        "on-surface-variant": "#444748",
+                        "tertiary": "#000000",
+                        "primary-fixed": "#e5e2e1",
+                        "inverse-surface": "#2f312f",
+                        "on-tertiary-fixed-variant": "#484645",
+                        "outline": "#747878",
+                        "surface": "#faf9f6",
+                        "inverse-primary": "#c8c6c5",
+                        "primary": "#000000",
+                        "on-error": "#ffffff",
+                        "surface-bright": "#faf9f6",
+                        "on-secondary-fixed-variant": "#2e4d39",
+                        "tertiary-fixed-dim": "#cac6c4",
+                        "surface-container-low": "#f4f3f1",
+                        "on-secondary-container": "#4a6a54",
+                        "on-background": "#1a1c1a",
+                        "surface-container-highest": "#e3e2e0",
+                        "secondary-fixed-dim": "#accfb4",
+                        "on-primary-fixed-variant": "#474746",
+                        "primary-fixed-dim": "#c8c6c5",
+                        "on-primary-fixed": "#1c1b1b",
+                        "sage-green": "#4b6b55",
+                        "ink-blue": "#2b4c7e",
+                        "vintage-red": "#b24c4c"
+                    },
+                    fontFamily: {
+                        headline: ["EB Garamond", "serif"],
+                        display: ["EB Garamond", "serif"],
+                        body: ["IBM Plex Sans", "sans-serif"],
+                        label: ["Space Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background-color: #faf9f6;
+            color: #1a1c1a;
+        }
+        .serif-italic { font-family: 'EB Garamond'; font-style: italic; }
+        .text-label-caps { font-family: 'Space Mono'; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; }
+        .border-thin { border: 1px solid #1a1c1a; }
+        .grid-divider { border-bottom: 1px solid #c4c7c7; }
+        .vertical-divider { border-left: 1px solid #c4c7c7; }
+    </style>
+</head>
+<body class="bg-background text-on-surface selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-background border-b border-outline dark:border-outline-variant sticky top-0 z-50">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-[1280px] mx-auto">
+<div class="flex items-center gap-3">
+<img alt="Arandu Logo" class="h-[44px] w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLurrTeoe8940n-d2Zo-9wUSwYEhzfcrZb1rUkD_8KgW6WxrfavyUVhLTvFJQaMmgqgj0NkvWty8inq04ZeKgzycfFpHxrr8-kUieyZ1cSQwCsrQLe7MViM1wqrs1q98eWeUPWdTXiJGQfnPBG_dUEmOKHuai0LTnUSJtrs0LkZJm67BCoSNYAwsB2wcM3OVE-I2WaZRgszylynecAfjm3-NnakPzdGlKIUrWxRgAFLr5vcDSjGCqfm62kE">
+<span class="font-display text-[50px] font-bold text-secondary dark:text-secondary-fixed tracking-tight uppercase leading-none">Arandu</span>
+</div>
+<nav class="hidden md:flex gap-8 items-center">
+<a class="text-primary dark:text-on-surface border-b-2 border-primary dark:border-on-surface pb-1 font-label tracking-widest text-[11px] font-bold" href="#">ARCHIVE</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-label tracking-widest text-[11px] hover:text-primary transition-colors" href="#">INVESTIGATIONS</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-label tracking-widest text-[11px] hover:text-primary transition-colors" href="#">CULTURE</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-label tracking-widest text-[11px] hover:text-primary transition-colors" href="#">DATA</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-label tracking-widest text-[11px] hover:text-primary transition-colors" href="#">ABOUT</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="hover:bg-surface-container dark:hover:bg-surface-container-high p-2 transition-colors duration-0">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+<button class="hover:bg-surface-container dark:hover:bg-surface-container-high p-2 transition-colors duration-0">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<main class="max-w-[1280px] mx-auto px-8 pt-12 pb-24">
+<!-- Hero Section -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-20 border-b border-outline-variant pb-16" style="opacity: 1; transform: translateY(0px); transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);">
+<div class="md:col-span-8 flex flex-col justify-center">
+<div class="flex gap-4 items-center mb-6">
+<span class="px-3 py-1 bg-vintage-red text-white font-label text-[10px] font-bold rounded-full">INVESTIGATION</span>
+<span class="font-label text-[11px] text-on-surface-variant uppercase tracking-widest">Oct 24, 2024 — BY ELISA VALDEZ</span>
+</div>
+<h1 class="font-headline text-5xl md:text-7xl font-semibold leading-[1.05] tracking-tighter mb-8 text-on-surface">
+                    The Silent Erosion of the Chaco: <span class="italic font-normal">A Decade of Forensic Satellite Analysis</span>
+</h1>
+<p class="font-body text-xl md:text-2xl text-on-surface-variant leading-relaxed mb-10 max-w-2xl">
+                    New data reveals that over 1.2 million hectares of primary forest have been cleared under the cover of legislative ambiguity. Arandu’s latest deep dive maps the actors behind the expansion.
+                </p>
+<div class="flex gap-4">
+<button class="bg-primary text-on-primary px-8 py-3 font-label text-xs font-bold uppercase tracking-widest hover:bg-secondary transition-colors">Read Full Report</button>
+<button class="border border-primary px-8 py-3 font-label text-xs font-bold uppercase tracking-widest hover:bg-surface-container-low transition-colors">Download Dataset</button>
+</div>
+</div>
+<div class="md:col-span-4 aspect-[3/4] relative overflow-hidden group">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" data-alt="A high-altitude aerial photograph of a vast forest being encroached upon by geometric agricultural plots. The lighting is harsh mid-day sun, highlighting the stark contrast between the deep organic greens of the untouched forest and the pale, sandy squares of cleared land. The aesthetic is clean and forensic, emphasizing a data-journalism perspective with muted earth tones and deep charcoal shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpQKA70oYj_U7SRjDDLwcS8AIMNp5wZQ9d-9EtvuZRTaS0mCS45i_RBbSngNoqnlnl_p683HgdrLuDImsKOB72rD0fcDc9sa9vi1JZ0Kbpcjpgglv2aEoiskP36I0sN10q-iTaX241hif8YKWPr0ByHOb8g8C7TbD4qHP-eNyDxlv_td0WJ0JbQRnaCT8IaTRLHLW2nCtfYnDBvGunBcLcZ__i8mNPgKlTSfwU59HcoJUyPaUkRF4LdtGb_cZvKSaLVPnvzbjbfPI">
+<div class="absolute inset-0 border-[12px] border-background/20 pointer-events-none"></div>
+</div>
+</section>
+<!-- Main Headlines Grid -->
+<section class="mb-24" style="opacity: 1; transform: translateY(0px); transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);">
+<div class="flex justify-between items-end mb-8 border-b-2 border-primary pb-2">
+<h2 class="font-label text-lg font-bold tracking-widest uppercase">Main Headlines</h2>
+<a class="font-label text-xs text-secondary font-bold hover:underline" href="#">VIEW ALL NEWS</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-0 border-thin overflow-hidden">
+<!-- Card 1 -->
+<article class="p-8 border-r border-outline-variant flex flex-col hover:bg-surface-container-low transition-colors group" style="opacity: 1; transform: translateY(0px); transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);">
+<span class="font-label text-[10px] font-bold text-ink-blue mb-4 uppercase tracking-widest">Culture</span>
+<h3 class="font-headline text-3xl font-medium mb-4 group-hover:text-ink-blue transition-colors">The Resurgence of Weaving Traditions in the Highlands</h3>
+<p class="font-body text-sm text-on-surface-variant mb-6 leading-relaxed flex-grow">How digital archives are helping a new generation of artisans reclaim ancestral patterns lost to industrialization.</p>
+<div class="flex justify-between items-center pt-6 border-t border-outline-variant">
+<span class="font-label text-[10px] text-outline uppercase tracking-widest">8 Min Read</span>
+<span class="material-symbols-outlined text-secondary" data-icon="arrow_forward">arrow_forward</span>
+</div>
+</article>
+<!-- Card 2 (Image Focused) -->
+<article class="flex flex-col border-r border-outline-variant group" style="opacity: 1; transform: translateY(0px); transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);">
+<div class="aspect-video relative overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A minimalist close-up of a digital screen displaying complex data visualizations and charts in muted sage green and charcoal. The lighting is soft and reflective, suggesting a workspace in a modern archive. The overall mood is intellectual and rigorous, using a limited color palette of paper-white, deep ink, and subtle green accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLQ36KjznqP67BwF6Fa6rUsTy9MR8ZIuOOXsPRbJMIwEvhvwhTCHTamJmSB5MaYE0LvWP5tcO3uaAAxMjRAlaYBNdZXY5r28Al0mEKgcxPnm1e9NnMjOABbpb80aZArgNeUR3y3H0y5j8o3PTdfV6RiBHTBD_QKse0Ya-IhlJ4KoyevDKvJlr5FMD-4eynrC1XOTl3gnarY062iX-vhg0HncompOf9btE5LiEdq2Wq1RUtUK_ZUHfxAdmb59l9a1Ce7PanTHdTljA">
+</div>
+<div class="p-8 flex flex-col flex-grow hover:bg-surface-container-low transition-colors">
+<span class="font-label text-[10px] font-bold text-sage-green mb-4 uppercase tracking-widest">Data Economy</span>
+<h3 class="font-headline text-3xl font-medium mb-4">Inflationary Patterns in the Informal Sector</h3>
+<p class="font-body text-sm text-on-surface-variant mb-6 leading-relaxed">Tracking the micro-fluctuations of regional markets through independent data nodes.</p>
+<div class="mt-auto pt-6 border-t border-outline-variant flex justify-between items-center">
+<span class="font-label text-[10px] text-outline uppercase tracking-widest">12 Min Read</span>
+<span class="material-symbols-outlined text-secondary" data-icon="bar_chart">bar_chart</span>
+</div>
+</div>
+</article>
+<!-- Card 3 -->
+<article class="p-8 flex flex-col hover:bg-surface-container-low transition-colors group" style="opacity: 1; transform: translateY(0px); transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);">
+<span class="font-label text-[10px] font-bold text-vintage-red mb-4 uppercase tracking-widest">Archive Deep Dive</span>
+<h3 class="font-headline text-3xl font-medium mb-4 group-hover:text-vintage-red transition-colors">The 1974 Land Reform Journals: Transcribed</h3>
+<p class="font-body text-sm text-on-surface-variant mb-6 leading-relaxed flex-grow">A massive volunteer effort has finally completed the OCR processing of the entire mid-century agricultural census.</p>
+<div class="flex justify-between items-center pt-6 border-t border-outline-variant">
+<span class="font-label text-[10px] text-outline uppercase tracking-widest">Archive Access</span>
+<span class="material-symbols-outlined text-secondary" data-icon="book">book</span>
+</div>
+</article>
+</div>
+</section>
+<!-- Sidebar / Modules Section -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-12" style="opacity: 1; transform: translateY(0px); transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);">
+<!-- Latest Reports (Main Column) -->
+<div class="md:col-span-8">
+<div class="mb-8 border-b border-on-surface pb-2">
+<h2 class="font-label text-sm font-bold tracking-widest uppercase">Latest Reports</h2>
+</div>
+<div class="space-y-12">
+<!-- Report Item -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 group cursor-pointer">
+<div class="md:col-span-1">
+<img class="w-full aspect-square object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="A monochromatic, high-contrast photograph of a single architecture model piece on a desk. The lighting creates sharp, brutalist shadows, emphasizing form and structural precision. The image follows a modern editorial aesthetic, with a paper-textured background and deep ink-black tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYEN3Ey1zR1O7dgakXt1EHGuN10aocikMsaTS2SsVTp1hUA3y1c_Ypb2B90m_P0klyUn6um0e8GCJcdbIykXnYKsP5951esv7_Epy92uGIgBI3npqghh5dLROjo_SS8qfO7IiNxl7hL9acq5m-F5MCeWlSPXfa_ZIP2omyyV1Q9qCRMJlR2Q8RcGFj5eZHlFEz2dQVe_updHf2TOp7L5ru4kHmQ4FwcetM68UsCWX48gSp1pcjFZ0fot-lERr_K5oimCnI8zwf0zM">
+</div>
+<div class="md:col-span-3">
+<div class="flex justify-between mb-2">
+<span class="font-label text-[10px] font-bold text-on-surface uppercase tracking-widest">Environment</span>
+<span class="font-label text-[10px] text-outline">REPORT #842</span>
+</div>
+<h4 class="font-headline text-2xl font-semibold mb-2 group-hover:underline">River Basins &amp; Toxic Runoff: A Chemical Mapping</h4>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed">Cross-referencing soil samples with corporate ownership registries along the Paraní waterway.</p>
+</div>
+</div>
+<!-- Report Item -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 group cursor-pointer">
+<div class="md:col-span-1">
+<img class="w-full aspect-square object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="A dark, atmospheric image of Earth from space, focusing on city lights and glowing network nodes. The lighting is dramatic, with deep shadows and bright, sharp pinpoints of blue and white light. The style is technical and archival, emphasizing global interconnectedness through a sophisticated, data-driven lens." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCw97diT2V7CHW7vaksHA6IoqhArtSsMnK8jorNBKLEd2D4gVqlfglk_hAVkRcMipUwm6x86t2RQ0zmNdstd_rqdnMmAIQqfQFOOo8ty07Bfbmb9qG8JeXFbWscXxknpTDftai418C8rXwnGGLY2Y--FeCGLNUefEvsDuXSnx_UYQbQ47Q4hFPKlTloVEc0UUFMFTKe8r9rmMhaczpsqMqteO5kWgTrEQ1o863zGihvrhKF7uOD7AZBjRcbL3WSw44vI0U9Lcnk-gA">
+</div>
+<div class="md:col-span-3">
+<div class="flex justify-between mb-2">
+<span class="font-label text-[10px] font-bold text-on-surface uppercase tracking-widest">Connectivity</span>
+<span class="font-label text-[10px] text-outline">REPORT #839</span>
+</div>
+<h4 class="font-headline text-2xl font-semibold mb-2 group-hover:underline">Fiber Optic Shadows: The Infrastructure Divide</h4>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed">Analyzing the physical layout of sub-oceanic cables and their impact on regional sovereignty.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Sidebars -->
+<aside class="md:col-span-4 space-y-16">
+<!-- Data Stories Module -->
+<div class="p-6 bg-primary text-on-primary" style="opacity: 1; transform: translateY(0px); transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);">
+<h3 class="font-label text-xs font-bold tracking-widest uppercase mb-6 border-b border-on-primary-container pb-2">Data Stories</h3>
+<ul class="space-y-6">
+<li class="">
+<p class="font-label text-[10px] text-on-primary-container mb-1 uppercase tracking-widest">Visualizing Debt</p>
+<a class="font-headline text-xl leading-snug hover:text-secondary-fixed transition-colors" href="#">The interest spiral: 40 years of municipal credit cycles.</a>
+</li>
+<li class="">
+<p class="font-label text-[10px] text-on-primary-container mb-1 uppercase tracking-widest">Climate Migration</p>
+<a class="font-headline text-xl leading-snug hover:text-secondary-fixed transition-colors" href="#">Mapping the 2023 drought-induced displacement flows.</a>
+</li>
+<li class="">
+<p class="font-label text-[10px] text-on-primary-container mb-1 uppercase tracking-widest">Energy Grid</p>
+<a class="font-headline text-xl leading-snug hover:text-secondary-fixed transition-colors" href="#">The efficiency gap between public and private providers.</a>
+</li>
+</ul>
+<button class="w-full mt-8 border border-on-primary-container py-3 font-label text-[10px] font-bold uppercase tracking-widest hover:bg-on-primary hover:text-primary transition-colors">EXPLORE DATA HUB</button>
+</div>
+<!-- From the Archive Module -->
+<div class="border-thin p-6" style="opacity: 1; transform: translateY(0px); transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);">
+<h3 class="font-label text-xs font-bold tracking-widest uppercase mb-6 border-b border-outline-variant pb-2">From the Archive</h3>
+<div class="space-y-6">
+<div class="flex gap-4 items-start">
+<span class="font-label text-lg text-secondary font-bold">74'</span>
+<div>
+<h5 class="font-headline text-lg font-bold leading-tight">The Asunción Masterplan (Draft)</h5>
+<p class="font-body text-xs text-on-surface-variant">The unrealized architectural vision for a riverside metropolis.</p>
+</div>
+</div>
+<div class="flex gap-4 items-start">
+<span class="font-label text-lg text-secondary font-bold">92'</span>
+<div>
+<h5 class="font-headline text-lg font-bold leading-tight">Telecommunication Tapes</h5>
+<p class="font-body text-xs text-on-surface-variant">Transcripts from the first digital switchover era.</p>
+</div>
+</div>
+</div>
+</div>
+</aside>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-[#1a1a1a] text-on-primary border-t border-outline-variant">
+    <div class="max-w-[1280px] mx-auto px-8 py-16">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
+            <div class="md:col-span-4"><div class="flex items-center gap-3 mb-6"><img alt="Arandu Logo" class="h-6 w-6" style="filter: brightness(0) saturate(100%) invert(98%) sepia(1%) saturate(1438%) hue-rotate(314deg) brightness(103%) contrast(97%);" src="https://lh3.googleusercontent.com/aida/AP1WRLurrTeoe8940n-d2Zo-9wUSwYEhzfcrZb1rUkD_8KgW6WxrfavyUVhLTvFJQaMmgqgj0NkvWty8inq04ZeKgzycfFpHxrr8-kUieyZ1cSQwCsrQLe7MViM1wqrs1q98eWeUPWdTXiJGQfnPBG_dUEmOKHuai0LTnUSJtrs0LkZJm67BCoSNYAwsB2wcM3OVE-I2WaZRgszylynecAfjm3-NnakPzdGlKIUrWxRgAFLr5vcDSjGCqfm62kE"><span class="font-display text-[18px] font-semibold tracking-tight uppercase" style="color: #fbfaf7;">Arandu</span></div><p class="font-label text-[12px] text-outline-variant leading-relaxed max-w-xs">Independent, data-driven journalism for the Southern Cone. Supported by the Archive Collective.</p></div>
+            <div class="md:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-8"><div class="flex flex-col gap-4"><h6 class="font-label text-[10px] font-bold tracking-widest uppercase text-outline">Explorer</h6><a href="#" class="font-label text-[10px] tracking-widest text-on-surface-variant hover:text-[#fbfaf7] transition-colors">COLLECTIONS</a><a href="#" class="font-label text-[10px] tracking-widest text-on-surface-variant hover:text-[#fbfaf7] transition-colors">DATASETS</a><a href="#" class="font-label text-[10px] tracking-widest text-on-surface-variant hover:text-[#fbfaf7] transition-colors">REPORTS</a></div><div class="flex flex-col gap-4"><h6 class="font-label text-[10px] font-bold tracking-widest uppercase text-outline">Institution</h6><a href="#" class="font-label text-[10px] tracking-widest text-on-surface-variant hover:text-[#fbfaf7] transition-colors">MISSION</a><a href="#" class="font-label text-[10px] tracking-widest text-on-surface-variant hover:text-[#fbfaf7] transition-colors">MASTHEAD</a><a href="#" class="font-label text-[10px] tracking-widest text-on-surface-variant hover:text-[#fbfaf7] transition-colors">SUPPORT</a></div><div class="flex flex-col gap-4"><h6 class="font-label text-[10px] font-bold tracking-widest uppercase text-outline">Legal</h6><a href="#" class="font-label text-[10px] tracking-widest text-on-surface-variant hover:text-[#fbfaf7] transition-colors">TERMS</a><a href="#" class="font-label text-[10px] tracking-widest text-on-surface-variant hover:text-[#fbfaf7] transition-colors">PRIVACY</a><a href="#" class="font-label text-[10px] tracking-widest text-on-surface-variant hover:text-[#fbfaf7] transition-colors">COOKIES</a></div><div class="flex flex-col gap-4"><h6 class="font-label text-[10px] font-bold tracking-widest uppercase text-outline">Connect</h6><a href="#" class="font-label text-[10px] tracking-widest text-on-surface-variant hover:text-[#fbfaf7] transition-colors">NEWSLETTER</a><a href="#" class="font-label text-[10px] tracking-widest text-on-surface-variant hover:text-[#fbfaf7] transition-colors">SUBMISSIONS</a><a href="#" class="font-label text-[10px] tracking-widest text-on-surface-variant hover:text-[#fbfaf7] transition-colors">CONTACT</a></div></div>
+        </div>
+        <div class="pt-8 border-t border-outline-variant flex flex-col md:flex-row justify-between items-start md:items-center gap-4"><p class="font-label text-[10px] tracking-widest" style="color: rgb(251, 250, 247);">© 2024 Arandu Digital Archive. All rights reserved.</p><p class="font-label text-[10px] tracking-widest" style="color: rgb(251, 250, 247);">ISSN 2754-9216</p></div>
+    </div>
+</footer>
+<script>
+        // Atmospheric interaction: Fade in elements on scroll
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = "1";
+                    entry.target.style.transform = "translateY(0)";
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('article, section, aside > div').forEach(el => {
+            el.style.opacity = "0";
+            el.style.transform = "translateY(20px)";
+            el.style.transition = "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)";
+            observer.observe(el);
+        });
+    </script>
+
+
+
+
+</body></html>

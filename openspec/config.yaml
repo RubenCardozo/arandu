@@ -1,0 +1,30 @@
+# Configuración General de OpenSpec
+
+# Define el workflow predeterminado
+schema: spec-driven
+
+# Contexto global del proyecto que lee la IA al entrar a jugar
+context: |
+  Estás jugando como programador estrella en el proyecto "Ginebra Latina".
+  Ginebra Latina es una plataforma web informativa en español dirigida a la comunidad hispanohablante en Ginebra, Suiza.
+  
+  Stack Tecnológico Unificado:
+    - Frontend: Angular (TypeScript) + Tailwind CSS v4.
+    - Backend: NestJS (TypeScript) con arquitectura de Módulos, Controladores y Servicios.
+    - Plataforma Cloud (Base de Datos, Auth y Storage): Supabase.
+    - Base de Datos: PostgreSQL (gestión mediante Drizzle ORM).
+    - Autenticación: Supabase Auth.
+    - Almacenamiento: Supabase Storage.
+  
+  Reglas del Deporte (Directivas de Código Limpio):
+    - NO hacer archivos largos. Los componentes e interfaces deben ser pequeños.
+    - Máximo 150 líneas de código para archivos TypeScript de componentes de Angular.
+    - Máximo 150 líneas de código para controladores y servicios de NestJS.
+    - El estilo de los componentes de Angular se maneja con clases de utilidad de Tailwind CSS v4.
+    - El control de calidad (Linter, Compilación TS, Tests) es obligatorio en pre-commit usando Husky.
+
+# Reglas para la estructura de las especificaciones
+rules:
+  specs: |
+    Todas las especificaciones del sistema deben tener el sufijo "-skill.spec.md".
+    Cada especificación detalla las reglas de juego para un rol o componente específico del software.

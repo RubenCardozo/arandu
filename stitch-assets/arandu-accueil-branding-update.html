@@ -1,0 +1,345 @@
+<!DOCTYPE html><html class="light" lang="fr"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Arandu | Archives Numériques &amp; Enquêtes</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&amp;family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&amp;family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-variant": "#e3e2e0",
+                        "inverse-on-surface": "#f1f1ee",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-container": "#858383",
+                        "on-secondary-fixed": "#012110",
+                        "background": "#faf9f6",
+                        "primary-container": "#1c1b1b",
+                        "error": "#ba1a1a",
+                        "secondary": "#466550",
+                        "on-error-container": "#93000a",
+                        "outline-variant": "#c4c7c7",
+                        "tertiary-fixed": "#e6e2df",
+                        "tertiary-container": "#1c1b1a",
+                        "surface-container-high": "#e9e8e5",
+                        "on-surface": "#1a1c1a",
+                        "secondary-fixed": "#c7ebd0",
+                        "secondary-container": "#c5e8cd",
+                        "on-tertiary-fixed": "#1c1b1a",
+                        "on-secondary": "#ffffff",
+                        "surface-container": "#efeeeb",
+                        "on-tertiary": "#ffffff",
+                        "surface-dim": "#dbdad7",
+                        "surface-tint": "#5f5e5e",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-container": "#868382",
+                        "on-surface-variant": "#444748",
+                        "tertiary": "#000000",
+                        "primary-fixed": "#e5e2e1",
+                        "inverse-surface": "#2f312f",
+                        "on-tertiary-fixed-variant": "#484645",
+                        "outline": "#747878",
+                        "surface": "#faf9f6",
+                        "inverse-primary": "#c8c6c5",
+                        "primary": "#000000",
+                        "on-error": "#ffffff",
+                        "surface-bright": "#faf9f6",
+                        "on-secondary-fixed-variant": "#2e4d39",
+                        "tertiary-fixed-dim": "#cac6c4",
+                        "surface-container-low": "#f4f3f1",
+                        "on-secondary-container": "#4a6a54",
+                        "on-background": "#1a1c1a",
+                        "surface-container-highest": "#e3e2e0",
+                        "secondary-fixed-dim": "#accfb4",
+                        "on-primary-fixed-variant": "#474746",
+                        "primary-fixed-dim": "#c8c6c5",
+                        "on-primary-fixed": "#1c1b1b",
+                        "sage-green": "#4b6b55",
+                        "ink-blue": "#2b4c7e",
+                        "vintage-red": "#b24c4c"
+                    },
+                    fontFamily: {
+                        headline: ["EB Garamond", "serif"],
+                        display: ["EB Garamond", "serif"],
+                        body: ["IBM Plex Sans", "sans-serif"],
+                        label: ["Space Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background-color: #faf9f6;
+            color: #1a1c1a;
+        }
+        .serif-italic { font-family: 'EB Garamond'; font-style: italic; }
+        .text-label-caps { font-family: 'Space Mono'; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; }
+        .border-thin { border: 1px solid #1a1c1a; }
+        .grid-divider { border-bottom: 1px solid #c4c7c7; }
+        .vertical-divider { border-left: 1px solid #c4c7c7; }
+        
+        .ad-gutter {
+            width: 160px;
+            position: sticky;
+            top: 100px;
+            height: 600px;
+            display: none;
+        }
+        @media (min-width: 1600px) {
+            .ad-gutter { display: block; }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-background border-b border-outline dark:border-outline-variant sticky top-0 z-50">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-[1280px] mx-auto">
+<div class="flex items-center gap-3">
+<img alt="Logo Arandu" class="h-[44px] w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLurrTeoe8940n-d2Zo-9wUSwYEhzfcrZb1rUkD_8KgW6WxrfavyUVhLTvFJQaMmgqgj0NkvWty8inq04ZeKgzycfFpHxrr8-kUieyZ1cSQwCsrQLe7MViM1wqrs1q98eWeUPWdTXiJGQfnPBG_dUEmOKHuai0LTnUSJtrs0LkZJm67BCoSNYAwsB2wcM3OVE-I2WaZRgszylynecAfjm3-NnakPzdGlKIUrWxRgAFLr5vcDSjGCqfm62kE">
+<span class="font-headline text-[50px] font-bold text-secondary dark:text-secondary-fixed tracking-tight uppercase">Arandu</span>
+</div>
+<nav class="hidden md:flex gap-8 items-center">
+<a class="text-primary dark:text-on-surface border-b-2 border-primary dark:border-on-surface pb-1 font-label tracking-widest text-[11px] font-bold" href="#">ARCHIVES</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-label tracking-widest text-[11px] hover:text-primary transition-colors" href="#">ENQUÊTES</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-label tracking-widest text-[11px] hover:text-primary transition-colors" href="#">CULTURE</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-label tracking-widest text-[11px] hover:text-primary transition-colors" href="#">DONNÉES</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-label tracking-widest text-[11px] hover:text-primary transition-colors" href="#">À PROPOS</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="hover:bg-surface-container dark:hover:bg-surface-container-high p-2 transition-colors duration-0">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+<button class="hover:bg-surface-container dark:hover:bg-surface-container-high p-2 transition-colors duration-0">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<div class="flex justify-center items-start gap-8 max-w-[1600px] mx-auto relative">
+<!-- Left Ad Banner -->
+<aside class="ad-gutter mt-12">
+<div class="w-full h-full border border-outline-variant bg-surface-container-low flex flex-col p-4" style="opacity: 0; transform: translateY(20px); transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);">
+<span class="font-label text-[9px] text-outline uppercase tracking-widest mb-4">Publicité</span>
+<div class="flex-grow flex flex-col justify-center items-center text-center">
+<span class="font-headline text-xl italic mb-4">Soutenez le journalisme indépendant</span>
+<div class="w-full h-40 bg-surface-variant mb-4 border border-outline"></div>
+<p class="font-body text-[10px] text-on-surface-variant uppercase tracking-wider">Adhérez au collectif Arandu</p>
+</div>
+<div class="mt-auto pt-4 border-t border-outline-variant">
+<span class="font-label text-[9px] text-outline">REF: ARCHIVE_SUP_24</span>
+</div>
+</div>
+</aside>
+<main class="w-full max-w-[1280px] px-8 pt-12 pb-24 shrink-0">
+<!-- Hero Section -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-20 border-b border-outline-variant pb-16" style="opacity: 1; transform: translateY(0px); transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);">
+<div class="md:col-span-8 flex flex-col justify-center">
+<div class="flex gap-4 items-center mb-6">
+<span class="px-3 py-1 bg-vintage-red text-white font-label text-[10px] font-bold rounded-full">ENQUÊTE</span>
+<span class="font-label text-[11px] text-on-surface-variant uppercase tracking-widest">24 OCT, 2024 — PAR ELISA VALDEZ</span>
+</div>
+<h1 class="font-headline text-5xl md:text-7xl font-semibold leading-[1.05] tracking-tighter mb-8 text-on-surface">
+                    L'Érosion Silencieuse du Chaco : <span class="italic font-normal">Une Décennie d'Analyse Satellite Judiciaire</span>
+</h1>
+<p class="font-body text-xl md:text-2xl text-on-surface-variant leading-relaxed mb-10 max-w-2xl">
+                    De nouvelles données révèlent que plus de 1,2 million d'hectares de forêt primaire ont été défrichés sous couvert d'ambiguïté législative. La dernière étude d'Arandu cartographie les acteurs derrière cette expansion.
+                </p>
+<div class="flex gap-4">
+<button class="bg-primary text-on-primary px-8 py-3 font-label text-xs font-bold uppercase tracking-widest hover:bg-secondary transition-colors">Lire le rapport complet</button>
+<button class="border border-primary px-8 py-3 font-label text-xs font-bold uppercase tracking-widest hover:bg-surface-container-low transition-colors">Télécharger les données</button>
+</div>
+</div>
+<div class="md:col-span-4 aspect-[3/4] relative overflow-hidden group">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" data-alt="Photographie aérienne du Chaco" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpQKA70oYj_U7SRjDDLwcS8AIMNp5wZQ9d-9EtvuZRTaS0mCS45i_RBbSngNoqnlnl_p683HgdrLuDImsKOB72rD0fcDc9sa9vi1JZ0Kbpcjpgglv2aEoiskP36I0sN10q-iTaX241hif8YKWPr0ByHOb8g8C7TbD4qHP-eNyDxlv_td0WJ0JbQRnaCT8IaTRLHLW2nCtfYnDBvGunBcLcZ__i8mNPgKlTSfwU59HcoJUyPaUkRF4LdtGb_cZvKSaLVPnvzbjbfPI">
+<div class="absolute inset-0 border-[12px] border-background/20 pointer-events-none"></div>
+</div>
+</section>
+<!-- Main Headlines Grid -->
+<section class="mb-24" style="opacity: 1; transform: translateY(0px); transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);">
+<div class="flex justify-between items-end mb-8 border-b-2 border-primary pb-2">
+<h2 class="font-label text-lg font-bold tracking-widest uppercase">Titres Principaux</h2>
+<a class="font-label text-xs text-secondary font-bold hover:underline" href="#">VOIR TOUTES LES INFOS</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-0 border-thin overflow-hidden">
+<!-- Card 1 -->
+<article class="p-8 border-r border-outline-variant flex flex-col hover:bg-surface-container-low transition-colors group" style="opacity: 1; transform: translateY(0px); transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);">
+<span class="font-label text-[10px] font-bold text-ink-blue mb-4 uppercase tracking-widest">Culture</span>
+<h3 class="font-headline text-3xl font-medium mb-4 group-hover:text-ink-blue transition-colors">La Résurgence des Traditions de Tissage dans les Hautes Terres</h3>
+<p class="font-body text-sm text-on-surface-variant mb-6 leading-relaxed flex-grow">Comment les archives numériques aident une nouvelle génération d'artisans à se réapproprier les motifs ancestraux perdus avec l'industrialisation.</p>
+<div class="flex justify-between items-center pt-6 border-t border-outline-variant">
+<span class="font-label text-[10px] text-outline uppercase tracking-widest">8 min de lecture</span>
+<span class="material-symbols-outlined text-secondary" data-icon="arrow_forward">arrow_forward</span>
+</div>
+</article>
+<!-- Card 2 (Image Focused) -->
+<article class="flex flex-col border-r border-outline-variant group" style="opacity: 1; transform: translateY(0px); transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);">
+<div class="aspect-video relative overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Visualisation de données" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLQ36KjznqP67BwF6Fa6rUsTy9MR8ZIuOOXsPRbJMIwEvhvwhTCHTamJmSB5MaYE0LvWP5tcO3uaAAxMjRAlaYBNdZXY5r28Al0mEKgcxPnm1e9NnMjOABbpb80aZArgNeUR3y3H0y5j8o3PTdfV6RiBHTBD_QKse0Ya-IhlJ4KoyevDKvJlr5FMD-4eynrC1XOTl3gnarY062iX-vhg0HncompOf9btE5LiEdq2Wq1RUtUK_ZUHfxAdmb59l9a1Ce7PanTHdTljA">
+</div>
+<div class="p-8 flex flex-col flex-grow hover:bg-surface-container-low transition-colors">
+<span class="font-label text-[10px] font-bold text-sage-green mb-4 uppercase tracking-widest">Économie des Données</span>
+<h3 class="font-headline text-3xl font-medium mb-4">Modèles Inflationnistes dans le Secteur Informel</h3>
+<p class="font-body text-sm text-on-surface-variant mb-6 leading-relaxed">Suivi des micro-fluctuations des marchés régionaux via des nœuds de données indépendants.</p>
+<div class="mt-auto pt-6 border-t border-outline-variant flex justify-between items-center">
+<span class="font-label text-[10px] text-outline uppercase tracking-widest">12 min de lecture</span>
+<span class="material-symbols-outlined text-secondary" data-icon="bar_chart">bar_chart</span>
+</div>
+</div>
+</article>
+<!-- Card 3 -->
+<article class="p-8 flex flex-col hover:bg-surface-container-low transition-colors group" style="opacity: 1; transform: translateY(0px); transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);">
+<span class="font-label text-[10px] font-bold text-vintage-red mb-4 uppercase tracking-widest">Plongée dans les Archives</span>
+<h3 class="font-headline text-3xl font-medium mb-4 group-hover:text-vintage-red transition-colors">Les Journaux de la Réforme Agraire de 1974 : Transcrits</h3>
+<p class="font-body text-sm text-on-surface-variant mb-6 leading-relaxed flex-grow">Un effort bénévole massif a enfin achevé le traitement OCR de l'intégralité du recensement agricole du milieu du siècle.</p>
+<div class="flex justify-between items-center pt-6 border-t border-outline-variant">
+<span class="font-label text-[10px] text-outline uppercase tracking-widest">Accès aux Archives</span>
+<span class="material-symbols-outlined text-secondary" data-icon="book">book</span>
+</div>
+</article>
+</div>
+</section>
+<!-- Sidebar / Modules Section -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-12" style="opacity: 1; transform: translateY(0px); transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);">
+<!-- Latest Reports (Main Column) -->
+<div class="md:col-span-8">
+<div class="mb-8 border-b border-on-surface pb-2">
+<h2 class="font-label text-sm font-bold tracking-widest uppercase">Derniers Rapports</h2>
+</div>
+<div class="space-y-12">
+<!-- Report Item -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 group cursor-pointer">
+<div class="md:col-span-1">
+<img class="w-full aspect-square object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="Modèle architectural" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYEN3Ey1zR1O7dgakXt1EHGuN10aocikMsaTS2SsVTp1hUA3y1c_Ypb2B90m_P0klyUn6um0e8GCJcdbIykXnYKsP5951esv7_Epy92uGIgBI3npqghh5dLROjo_SS8qfO7IiNxl7hL9acq5m-F5MCeWlSPXfa_ZIP2omyyV1Q9qCRMJlR2Q8RcGFj5eZHlFEz2dQVe_updHf2TOp7L5ru4kHmQ4FwcetM68UsCWX48gSp1pcjFZ0fot-lERr_K5oimCnI8zwf0zM">
+</div>
+<div class="md:col-span-3">
+<div class="flex justify-between mb-2">
+<span class="font-label text-[10px] font-bold text-on-surface uppercase tracking-widest">Environnement</span>
+<span class="font-label text-[10px] text-outline">RAPPORT #842</span>
+</div>
+<h4 class="font-headline text-2xl font-semibold mb-2 group-hover:underline">Bassins Fluviaux &amp; Ruissellement Toxique : Une Cartographie Chimique</h4>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed">Recoupement d'échantillons de sol avec les registres de propriété des entreprises le long de la voie navigable Paraní.</p>
+</div>
+</div>
+<!-- Report Item -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 group cursor-pointer">
+<div class="md:col-span-1">
+<img class="w-full aspect-square object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="Terre vue de l'espace" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCw97diT2V7CHW7vaksHA6IoqhArtSsMnK8jorNBKLEd2D4gVqlfglk_hAVkRcMipUwm6x86t2RQ0zmNdstd_rqdnMmAIQqfQFOOo8ty07Bfbmb9qG8JeXFbWscXxknpTDftai418C8rXwnGGLY2Y--FeCGLNUefEvsDuXSnx_UYQbQ47Q4hFPKlTloVEc0UUFMFTKe8r9rmMhaczpsqMqteO5kWgTrEQ1o863zGihvrhKF7uOD7AZBjRcbL3WSw44vI0U9Lcnk-gA">
+</div>
+<div class="md:col-span-3">
+<div class="flex justify-between mb-2">
+<span class="font-label text-[10px] font-bold text-on-surface uppercase tracking-widest">Connectivité</span>
+<span class="font-label text-[10px] text-outline">RAPPORT #839</span>
+</div>
+<h4 class="font-headline text-2xl font-semibold mb-2 group-hover:underline">Ombres de la Fibre Optique : La Fracture des Infrastructures</h4>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed">Analyse de la disposition physique des câbles sous-marins et de leur impact sur la souveraineté régionale.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Sidebars -->
+<aside class="md:col-span-4 space-y-16">
+<!-- Data Stories Module -->
+<div class="p-6 bg-primary text-on-primary" style="opacity: 1; transform: translateY(0px); transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);">
+<h3 class="font-label text-xs font-bold tracking-widest uppercase mb-6 border-b border-on-primary-container pb-2">Histoires de Données</h3>
+<ul class="space-y-6">
+<li class="">
+<p class="font-label text-[10px] text-on-primary-container mb-1 uppercase tracking-widest">Visualiser la Dette</p>
+<a class="font-headline text-xl leading-snug hover:text-secondary-fixed transition-colors" href="#">La spirale des intérêts : 40 ans de cycles de crédit municipaux.</a>
+</li>
+<li class="">
+<p class="font-label text-[10px] text-on-primary-container mb-1 uppercase tracking-widest">Migration Climatique</p>
+<a class="font-headline text-xl leading-snug hover:text-secondary-fixed transition-colors" href="#">Cartographie des flux de déplacement induits par la sécheresse de 2023.</a>
+</li>
+<li class="">
+<p class="font-label text-[10px] text-on-primary-container mb-1 uppercase tracking-widest">Réseau Énergétique</p>
+<a class="font-headline text-xl leading-snug hover:text-secondary-fixed transition-colors" href="#">L'écart d'efficacité entre les fournisseurs publics et privés.</a>
+</li>
+</ul>
+<button class="w-full mt-8 border border-on-primary-container py-3 font-label text-[10px] font-bold uppercase tracking-widest hover:bg-on-primary hover:text-primary transition-colors">EXPLORER LE HUB DE DONNÉES</button>
+</div>
+<!-- From the Archive Module -->
+<div class="border-thin p-6" style="opacity: 1; transform: translateY(0px); transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);">
+<h3 class="font-label text-xs font-bold tracking-widest uppercase mb-6 border-b border-outline-variant pb-2">Tiré des Archives</h3>
+<div class="space-y-6">
+<div class="flex gap-4 items-start">
+<span class="font-label text-lg text-secondary font-bold">74'</span>
+<div>
+<h5 class="font-headline text-lg font-bold leading-tight">Le Plan Directeur d'Asunción (Brouillon)</h5>
+<p class="font-body text-xs text-on-surface-variant">La vision architecturale inaboutie d'une métropole fluviale.</p>
+</div>
+</div>
+<div class="flex gap-4 items-start">
+<span class="font-label text-lg text-secondary font-bold">92'</span>
+<div>
+<h5 class="font-headline text-lg font-bold leading-tight">Bandes de Télécommunication</h5>
+<p class="font-body text-xs text-on-surface-variant">Transcriptions de la première ère du passage au numérique.</p>
+</div>
+</div>
+</div>
+</div>
+</aside>
+</section>
+</main>
+<!-- Right Ad Banner -->
+<aside class="ad-gutter mt-12">
+<div class="w-full h-full border border-outline-variant bg-surface-container-low flex flex-col p-4" style="opacity: 0; transform: translateY(20px); transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);">
+<span class="font-label text-[9px] text-outline uppercase tracking-widest mb-4">Publicité</span>
+<div class="flex-grow flex flex-col justify-center items-center text-center">
+<span class="font-headline text-xl italic mb-4">Exposition Archive 2024</span>
+<div class="w-full h-40 bg-primary-container mb-4 border border-outline flex items-center justify-center">
+<span class="text-on-primary font-label text-[10px] tracking-widest">BILLETS DISPONIBLES</span>
+</div>
+<p class="font-body text-[10px] text-on-surface-variant uppercase tracking-wider">Le futur de la mémoire numérique</p>
+</div>
+<div class="mt-auto pt-4 border-t border-outline-variant">
+<span class="font-label text-[9px] text-outline">EVNT: ARCH_EXPO</span>
+</div>
+</div>
+</aside>
+</div>
+<!-- Footer -->
+<footer class="bg-primary-container border-t border-outline-variant" style="background-color: rgb(26, 26, 26); color: rgb(251, 250, 247);">
+  <div class="max-w-[1280px] mx-auto px-8 py-16">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
+      <div class="md:col-span-4"><div class="flex items-center gap-3 mb-6"><img alt="Arandu Icon" class="h-6 w-6" src="https://lh3.googleusercontent.com/aida/AP1WRLurrTeoe8940n-d2Zo-9wUSwYEhzfcrZb1rUkD_8KgW6WxrfavyUVhLTvFJQaMmgqgj0NkvWty8inq04ZeKgzycfFpHxrr8-kUieyZ1cSQwCsrQLe7MViM1wqrs1q98eWeUPWdTXiJGQfnPBG_dUEmOKHuai0LTnUSJtrs0LkZJm67BCoSNYAwsB2wcM3OVE-I2WaZRgszylynecAfjm3-NnakPzdGlKIUrWxRgAFLr5vcDSjGCqfm62kE" style="filter: sepia(1) saturate(0.5) brightness(1.2);"> <span class="font-headline text-lg font-semibold uppercase tracking-tight" style="color: #fbfaf7; font-size: 18px;">Arandu</span></div><p class="font-label text-on-surface-variant" style="font-size: 12px; color: rgb(196, 199, 199);">Journalisme indépendant et factuel pour le Cône Sud. Soutenu par le Collectif des Archives.</p></div>
+      <div class="md:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-8"><div class="flex flex-col gap-4"><span class="font-label text-[10px] font-bold tracking-widest uppercase" style="color: #fbfaf7;">Explorer</span> <a href="#" class="font-label text-[10px] text-on-surface-variant hover:text-[#fbfaf7] transition-colors">ARCHIVES</a> <a href="#" class="font-label text-[10px] text-on-surface-variant hover:text-[#fbfaf7] transition-colors">ENQUÊTES</a> <a href="#" class="font-label text-[10px] text-on-surface-variant hover:text-[#fbfaf7] transition-colors">CULTURE</a></div><div class="flex flex-col gap-4"><span class="font-label text-[10px] font-bold tracking-widest uppercase" style="color: #fbfaf7;">Institution</span> <a href="#" class="font-label text-[10px] text-on-surface-variant hover:text-[#fbfaf7] transition-colors">HUB DE DONNÉES</a> <a href="#" class="font-label text-[10px] text-on-surface-variant hover:text-[#fbfaf7] transition-colors">MÉTHODOLOGIE</a> <a href="#" class="font-label text-[10px] text-on-surface-variant hover:text-[#fbfaf7] transition-colors">SOURCES</a></div><div class="flex flex-col gap-4"><span class="font-label text-[10px] font-bold tracking-widest uppercase" style="color: #fbfaf7;">Collectif</span> <a href="#" class="font-label text-[10px] text-on-surface-variant hover:text-[#fbfaf7] transition-colors">À PROPOS</a> <a href="#" class="font-label text-[10px] text-on-surface-variant hover:text-[#fbfaf7] transition-colors">CONTRIBUTIONS</a> <a href="#" class="font-label text-[10px] text-on-surface-variant hover:text-[#fbfaf7] transition-colors">SOUTIEN</a></div><div class="flex flex-col gap-4"><span class="font-label text-[10px] font-bold tracking-widest uppercase" style="color: #fbfaf7;">Légal</span> <a href="#" class="font-label text-[10px] text-on-surface-variant hover:text-[#fbfaf7] transition-colors">CONDITIONS</a> <a href="#" class="font-label text-[10px] text-on-surface-variant hover:text-[#fbfaf7] transition-colors">CONFIDENTIALITÉ</a> <a href="#" class="font-label text-[10px] text-on-surface-variant hover:text-[#fbfaf7] transition-colors">INDEX</a></div></div>
+    </div>
+    <div class="pt-8 border-t border-on-primary-container/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-4"><p class="font-label text-[10px] opacity-60" style="color: rgb(251, 250, 247);">© 2024 Archives Numériques Arandu. Tous droits réservés.</p><p class="font-label text-[10px] tracking-widest" style="color: rgb(251, 250, 247);">ISSN 2754-9216</p></div>
+  </div>
+</footer>
+<script>
+    // Atmospheric interaction: Fade in elements on scroll
+    const observerOptions = {
+        threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = "1";
+                entry.target.style.transform = "translateY(0)";
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('article, section, aside > div').forEach(el => {
+        el.style.opacity = "0";
+        el.style.transform = "translateY(20px)";
+        el.style.transition = "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)";
+        observer.observe(el);
+    });
+</script>
+
+
+
+
+</body></html>

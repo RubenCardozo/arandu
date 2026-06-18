@@ -1,0 +1,331 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Admin Portal | ARANDU</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Eb+Garamond:wght@400;500;700&amp;family=Ibm+Plex+Sans:wght@400;500;700&amp;family=Space+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {"tertiary-fixed-dim": "#cac6c4", "secondary-fixed": "#c7ebd0", "surface-container-high": "#e9e8e5", charcoal: "#1a1a1a", "surface-bright": "#faf9f6", "error-container": "#ffdad6", background: "#faf9f6", "vintage-red": "#b24c4c", "surface-container-highest": "#e3e2e0", "on-surface": "#1a1c1a", "outline-variant": "#c4c7c7", "on-tertiary-fixed": "#1c1b1a", "on-primary-container": "#858383", secondary: "#466550", "on-secondary": "#ffffff", "on-secondary-fixed": "#012110", "surface-tint": "#5f5e5e", "primary-fixed": "#e5e2e1", primary: "#000000", "primary-container": "#1c1b1b", "on-primary": "#ffffff", "on-tertiary-container": "#868382", "surface-container-low": "#f4f3f1", "inverse-primary": "#c8c6c5", "surface-variant": "#e3e2e0", "on-tertiary-fixed-variant": "#484645", "on-error-container": "#93000a", "surface-dim": "#dbdad7", "secondary-fixed-dim": "#accfb4", "on-primary-fixed-variant": "#474746", "sage-green": "#4b6b55", "surface-container-lowest": "#ffffff", "secondary-container": "#c5e8cd", "inverse-surface": "#2f312f", "inverse-on-surface": "#f1f1ee", paper: "#fbfaf7", "on-background": "#1a1c1a", tertiary: "#000000", "on-error": "#ffffff", outline: "#747878", "on-primary-fixed": "#1c1b1b", "ink-blue": "#2b4c7e", "surface-container": "#efeeeb", "on-tertiary": "#ffffff", "tertiary-container": "#1c1b1a", error: "#ba1a1a", "on-secondary-container": "#4a6a54", "on-secondary-fixed-variant": "#2e4d39", "on-surface-variant": "#444748", surface: "#faf9f6", "primary-fixed-dim": "#c8c6c5", "tertiary-fixed": "#e6e2df"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}, spacing: {"margin-mobile": "16px", "container-max": "1280px", gutter: "24px", unit: "4px", "margin-desktop": "64px"}, fontFamily: {"label-caps": ["Space Mono"], "body-sm": ["IBM Plex Sans"], "display-lg": ["EB Garamond"], "display-lg-mobile": ["EB Garamond"], "body-lg": ["IBM Plex Sans"], "metadata-code": ["Space Mono"], "headline-md": ["EB Garamond"], headline: ["Eb Garamond"], display: ["Eb Garamond"], body: ["Ibm Plex Sans"], label: ["Space Mono"]}, fontSize: {"label-caps": ["11px", {lineHeight: "1.0", fontWeight: "700"}], "body-sm": ["14px", {lineHeight: "1.5", fontWeight: "400"}], "display-lg": ["64px", {lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "600"}], "display-lg-mobile": ["40px", {lineHeight: "1.1", fontWeight: "600"}], "body-lg": ["18px", {lineHeight: "1.6", fontWeight: "400"}], "metadata-code": ["12px", {lineHeight: "1.4", letterSpacing: "0.05em", fontWeight: "400"}], "headline-md": ["32px", {lineHeight: "1.2", fontWeight: "500"}]}}}};</script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #faf9f6; /* surface-bright */
+            color: #1a1c1a; /* on-surface */
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #efeeeb;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #1a1a1a;
+        }
+        .no-transition * {
+            transition: none !important;
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1px;
+            background-color: #1a1a1a; /* Charcoal borders */
+            border: 1px solid #1a1a1a;
+        }
+        .bento-item {
+            background-color: #fbfaf7; /* paper */
+            padding: 24px;
+        }
+    </style>
+</head>
+<body class="font-body-lg text-body-lg no-transition">
+<!-- SIDE NAVIGATION BAR (As defined in JSON) -->
+<aside class="fixed left-0 top-0 z-40 flex flex-col bg-surface-container dark:bg-charcoal h-screen w-64 border-r border-charcoal">
+<div class="p-6 flex flex-col gap-4">
+<div class="h-[44px] w-[44px] bg-sage-green flex items-center justify-center overflow-hidden">
+<img alt="Arandu Logo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLurrTeoe8940n-d2Zo-9wUSwYEhzfcrZb1rUkD_8KgW6WxrfavyUVhLTvFJQaMmgqgj0NkvWty8inq04ZeKgzycfFpHxrr8-kUieyZ1cSQwCsrQLe7MViM1wqrs1q98eWeUPWdTXiJGQfnPBG_dUEmOKHuai0LTnUSJtrs0LkZJm67BCoSNYAwsB2wcM3OVE-I2WaZRgszylynecAfjm3-NnakPzdGlKIUrWxRgAFLr5vcDSjGCqfm62kE">
+</div>
+<div>
+<h1 class="font-display-lg text-[50px] leading-[0.9] uppercase text-primary dark:text-paper"><span style="color: rgb(70, 101, 80); font-family: &quot;EB Garamond&quot;, serif; font-weight: 700; letter-spacing: -1.25px; background-color: rgb(250, 249, 246);">Arandu</span></h1>
+<p class="font-metadata-code text-metadata-code opacity-70 mt-1">ARANDU</p>
+</div>
+</div>
+<nav class="flex-1 mt-4">
+<ul class="flex flex-col">
+<!-- Dashboard Active -->
+<li class="">
+<a class="flex items-center gap-4 px-6 py-4 text-paper font-bold bg-sage-green" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-lg text-body-lg">Dashboard</span>
+</a>
+</li>
+<!-- Content -->
+<li class="">
+<a class="flex items-center gap-4 px-6 py-4 text-on-surface-variant hover:bg-ink-blue hover:text-paper transition-none" href="#">
+<span class="material-symbols-outlined">article</span>
+<span class="font-body-lg text-body-lg">Content</span>
+</a>
+</li>
+<!-- Analytics -->
+<li class="">
+<a class="flex items-center gap-4 px-6 py-4 text-on-surface-variant hover:bg-ink-blue hover:text-paper transition-none" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="font-body-lg text-body-lg">Analytics</span>
+</a>
+</li>
+<!-- Users -->
+<li class="">
+<a class="flex items-center gap-4 px-6 py-4 text-on-surface-variant hover:bg-ink-blue hover:text-paper transition-none" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-body-lg text-body-lg">Users</span>
+</a>
+</li>
+<!-- Settings -->
+<li class="">
+<a class="flex items-center gap-4 px-6 py-4 text-on-surface-variant hover:bg-ink-blue hover:text-paper transition-none" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-lg text-body-lg">Settings</span>
+</a>
+</li>
+</ul>
+</nav>
+<div class="p-6 border-t border-charcoal/10">
+<button class="w-full py-3 bg-charcoal text-paper font-label-caps text-label-caps hover:bg-sage-green transition-none">
+                NEW POST
+            </button>
+</div>
+<div class="p-6 mt-auto">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 bg-sage-green overflow-hidden"><img alt="Arandu Logo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLurrTeoe8940n-d2Zo-9wUSwYEhzfcrZb1rUkD_8KgW6WxrfavyUVhLTvFJQaMmgqgj0NkvWty8inq04ZeKgzycfFpHxrr8-kUieyZ1cSQwCsrQLe7MViM1wqrs1q98eWeUPWdTXiJGQfnPBG_dUEmOKHuai0LTnUSJtrs0LkZJm67BCoSNYAwsB2wcM3OVE-I2WaZRgszylynecAfjm3-NnakPzdGlKIUrWxRgAFLr5vcDSjGCqfm62kE"></div>
+<div>
+<p class="font-label-caps text-label-caps leading-none">Admin User</p>
+<p class="text-[10px] opacity-60 font-metadata-code">Chief Editor</p>
+</div>
+</div>
+<a class="flex items-center gap-2 text-on-surface-variant hover:text-vintage-red font-metadata-code text-metadata-code" href="#">
+<span class="material-symbols-outlined text-sm">logout</span>
+                Logout
+            </a>
+</div>
+</aside>
+<!-- MAIN CONTENT AREA -->
+<main class="ml-64 min-h-screen">
+<!-- Header -->
+<header class="w-full px-margin-desktop py-8 border-b border-charcoal flex justify-between items-end bg-paper flex-wrap gap-4">
+<div>
+<span class="font-label-caps text-label-caps text-vintage-red mb-2 block">EDITORIAL OVERVIEW</span>
+<h2 class="font-display-lg text-headline-md uppercase tracking-tighter">System Metrics</h2>
+</div>
+<div class="flex gap-4">
+<div class="text-right">
+<p class="font-metadata-code text-metadata-code opacity-50">SERVER STATUS</p>
+<p class="font-label-caps text-label-caps text-sage-green">OPERATIONAL</p>
+</div>
+<div class="h-10 w-[1px] bg-charcoal"></div>
+<div class="text-right">
+<p class="font-metadata-code text-metadata-code opacity-50">LAST BACKUP</p>
+<p class="font-label-caps text-label-caps">22:04 CET</p>
+</div>
+</div>
+</header>
+<!-- DASHBOARD GRID -->
+<div class="p-margin-desktop bento-grid">
+<!-- Analytics Visualization: Visits -->
+<section class="bento-item col-span-8 row-span-2">
+<div class="flex justify-between items-center mb-8">
+<h3 class="font-label-caps text-label-caps border-l-4 border-ink-blue pl-3">TRAFFIC &amp; ENGAGEMENT</h3>
+<select class="bg-transparent border-charcoal font-metadata-code text-metadata-code focus:ring-0">
+<option>LAST 30 DAYS</option>
+<option>LAST 7 DAYS</option>
+</select>
+</div>
+<!-- Mock Graph Area -->
+<div class="h-64 w-full flex items-end gap-2 relative">
+<!-- Graph Lines -->
+<div class="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-10">
+<div class="border-t border-charcoal w-full"></div>
+<div class="border-t border-charcoal w-full"></div>
+<div class="border-t border-charcoal w-full"></div>
+<div class="border-t border-charcoal w-full"></div>
+</div>
+<!-- Mock Bars -->
+<div class="flex-1 bg-ink-blue/20 hover:bg-ink-blue h-[40%] cursor-help group transition-none"></div>
+<div class="flex-1 bg-ink-blue/20 hover:bg-ink-blue h-[55%] cursor-help group transition-none"></div>
+<div class="flex-1 bg-ink-blue/20 hover:bg-ink-blue h-[45%] cursor-help group transition-none"></div>
+<div class="flex-1 bg-ink-blue/20 hover:bg-ink-blue h-[70%] cursor-help group transition-none"></div>
+<div class="flex-1 bg-ink-blue/20 hover:bg-ink-blue h-[60%] cursor-help group transition-none"></div>
+<div class="flex-1 bg-ink-blue/20 hover:bg-ink-blue h-[85%] cursor-help group transition-none"></div>
+<div class="flex-1 bg-ink-blue/20 hover:bg-ink-blue h-[75%] cursor-help group transition-none"></div>
+<div class="flex-1 bg-ink-blue/20 hover:bg-ink-blue h-[90%] cursor-help group transition-none"></div>
+<div class="flex-1 bg-ink-blue/20 hover:bg-ink-blue h-[65%] cursor-help group transition-none"></div>
+<div class="flex-1 bg-ink-blue/20 hover:bg-ink-blue h-[50%] cursor-help group transition-none"></div>
+<div class="flex-1 bg-ink-blue/20 hover:bg-ink-blue h-[40%] cursor-help group transition-none"></div>
+<div class="flex-1 bg-ink-blue/20 hover:bg-ink-blue h-[55%] cursor-help group transition-none"></div>
+</div>
+<div class="mt-6 grid grid-cols-3 gap-6 pt-6 border-t border-charcoal/10">
+<div>
+<p class="font-metadata-code text-metadata-code opacity-60">AVG. READ TIME</p>
+<p class="font-display-lg text-headline-md">04:12</p>
+</div>
+<div>
+<p class="font-metadata-code text-metadata-code opacity-60">BOUNCE RATE</p>
+<p class="font-display-lg text-headline-md text-sage-green">12.4%</p>
+</div>
+<div>
+<p class="font-metadata-code text-metadata-code opacity-60">CTR (ADS)</p>
+<p class="font-display-lg text-headline-md text-ink-blue">2.81%</p>
+</div>
+</div>
+</section>
+<!-- Activity Log -->
+<section class="bento-item col-span-4 row-span-2 flex flex-col">
+<h3 class="font-label-caps text-label-caps border-l-4 border-vintage-red pl-3 mb-8">RECENT ACTIVITY</h3>
+<div class="flex-1 overflow-y-auto custom-scrollbar space-y-6 pr-2">
+<!-- Timeline Item -->
+<div class="relative pl-6 border-l border-charcoal/20">
+<div class="absolute -left-[4.5px] top-0 w-2 h-2 bg-charcoal"></div>
+<p class="font-metadata-code text-[10px] opacity-50 mb-1">14:02 PM</p>
+<p class="font-body-sm text-body-sm"><span class="font-bold">M. Rochat</span> updated 'Le Jardinier' restaurant info.</p>
+</div>
+<div class="relative pl-6 border-l border-charcoal/20">
+<div class="absolute -left-[4.5px] top-0 w-2 h-2 bg-charcoal"></div>
+<p class="font-metadata-code text-[10px] opacity-50 mb-1">11:30 AM</p>
+<p class="font-body-sm text-body-sm"><span class="font-bold">System</span> automatically archived Q1 report.</p>
+</div>
+<div class="relative pl-6 border-l border-charcoal/20">
+<div class="absolute -left-[4.5px] top-0 w-2 h-2 bg-vintage-red"></div>
+<p class="font-metadata-code text-[10px] opacity-50 mb-1">09:15 AM</p>
+<p class="font-body-sm text-body-sm font-bold text-vintage-red">Security Alert: Multiple failed logins from IP 192.168.1.1.</p>
+</div>
+<div class="relative pl-6 border-l border-charcoal/20">
+<div class="absolute -left-[4.5px] top-0 w-2 h-2 bg-charcoal"></div>
+<p class="font-metadata-code text-[10px] opacity-50 mb-1">08:45 AM</p>
+<p class="font-body-sm text-body-sm"><span class="font-bold">E. Valais</span> uploaded new gallery for 'Montreux Jazz Festival'.</p>
+</div>
+<div class="relative pl-6 border-l border-charcoal/20">
+<div class="absolute -left-[4.5px] top-0 w-2 h-2 bg-charcoal"></div>
+<p class="font-metadata-code text-[10px] opacity-50 mb-1">Yesterday</p>
+<p class="font-body-sm text-body-sm"><span class="font-bold">A. Dupont</span> changed global ad priority for 'Léman Region'.</p>
+</div>
+</div>
+<button class="mt-6 py-2 border border-charcoal font-metadata-code text-metadata-code hover:bg-charcoal hover:text-paper">VIEW FULL LOG</button>
+</section>
+<!-- CRUD: Restaurant Management -->
+<section class="bento-item col-span-12">
+<div class="flex items-end justify-between mb-8 pb-4 border-b-2 border-charcoal">
+<div>
+<h3 class="font-display-lg text-[24px] uppercase tracking-tighter">Content Management</h3>
+<p class="font-metadata-code text-metadata-code opacity-60">ADD OR EDIT DIRECTORY LISTINGS</p>
+</div>
+<div class="flex gap-2">
+<button class="px-4 py-2 bg-charcoal text-paper font-label-caps text-label-caps">SAVE DRAFT</button>
+<button class="px-4 py-2 bg-sage-green text-paper font-label-caps text-label-caps">PUBLISH LIVE</button>
+</div>
+</div>
+<form class="grid grid-cols-12 gap-8">
+<!-- Left Column: Details -->
+<div class="col-span-12 md:col-span-7 space-y-6">
+<div class="space-y-1">
+<label class="font-label-caps text-label-caps">RESTAURANT NAME</label>
+<input class="w-full bg-surface-container-low border-none border-b border-charcoal focus:ring-0 font-body-lg text-body-lg p-3" placeholder="e.g. Chez Philippe" type="text">
+</div>
+<div class="space-y-1">
+<label class="font-label-caps text-label-caps">DESCRIPTION / EDITORIAL NOTES</label>
+<textarea class="w-full bg-surface-container-low border-none border-b border-charcoal focus:ring-0 font-body-lg text-body-lg p-3" placeholder="Draft the review or listing details here..." rows="4"></textarea>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-1">
+<label class="font-label-caps text-label-caps">CUISINE TYPE</label>
+<select class="w-full bg-surface-container-low border-none border-b border-charcoal focus:ring-0 font-body-lg text-body-lg p-3">
+<option>Bistronomy</option>
+<option>Fine Dining</option>
+<option>Traditional Swiss</option>
+<option>Italian</option>
+</select>
+</div>
+<div class="space-y-1">
+<label class="font-label-caps text-label-caps">PRICE RANGE</label>
+<select class="w-full bg-surface-container-low border-none border-b border-charcoal focus:ring-0 font-body-lg text-body-lg p-3">
+<option>CHF - Economy</option>
+<option>CHF CHF - Moderate</option>
+<option>CHF CHF CHF - Premium</option>
+</select>
+</div>
+</div>
+<div class="space-y-1">
+<label class="font-label-caps text-label-caps">YOUTUBE VIDEO INTEGRATION (URL)</label>
+<div class="flex items-center bg-surface-container-low p-1">
+<span class="material-symbols-outlined px-3 opacity-40">play_circle</span>
+<input class="flex-1 bg-transparent border-none focus:ring-0 font-metadata-code text-metadata-code p-2" placeholder="https://youtube.com/watch?v=..." type="url">
+</div>
+</div>
+</div>
+<!-- Right Column: Media -->
+<div class="col-span-12 md:col-span-5 space-y-6">
+<div class="space-y-1">
+<label class="font-label-caps text-label-caps">FEATURED PHOTOGRAPHY</label>
+<div class="border-2 border-dashed border-charcoal/20 bg-surface-container-low aspect-video flex flex-col items-center justify-center cursor-pointer group hover:bg-surface-container-high">
+<span class="material-symbols-outlined text-4xl mb-2 opacity-30 group-hover:scale-110 transition-transform">add_a_photo</span>
+<p class="font-metadata-code text-metadata-code">DRAG &amp; DROP OR CLICK TO UPLOAD</p>
+<p class="text-[10px] opacity-40 mt-1">Recommended: 1920x1080px (Max 2MB)</p>
+</div>
+</div>
+<!-- Mini Preview Thumbnails -->
+<div class="grid grid-cols-3 gap-2">
+<div class="aspect-square bg-charcoal overflow-hidden group relative">
+<img alt="Restaurant Interior" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvbcKqjtVMQFYdKcFevGQuz-GXDoKbO7bml70mW85XRf5QZw88x0pIcOFsxlQkLJcKP3ETxxR1PinvSM4cONvAQNk-etlZPdOYXVoNVTJ2C_gnW5_jgA-4dN83GrPEZx--b8klLkMHTwogaG51h7AIkzFsakTkkofAgyLH9CwEyIVqHWEXI0yRrnAVa9n6SGMQk29VDsrvhRGCTNYAHML2Ag5W4E9lP89BsFo05FU265vlshSE-ZXc0ID-g2fKf3usU7WC8-k7Fns">
+<button class="absolute top-1 right-1 bg-vintage-red text-paper p-1 text-[8px]"><span class="material-symbols-outlined text-xs">close</span></button>
+</div>
+<div class="aspect-square bg-charcoal overflow-hidden group relative">
+<img alt="Food Close up" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBo84RnpYS33qSRmB3nlCafKFiho1Pj5wvGnMmDCnbyRT9qq-jKXmZYrvkGRY2Z5UyWvlScWQNutYJ4hcxhjTB5BcfWycEZMIZ61h-xOabZnVI78QLflu9X8CB10a5U3MRQyCb3tT7VL3-S5f75VEXO9vaxADOEs82DWI1jN6GjIwV7rhSzWkIW817odHtxJL33xLKFz1TcIVyR2zyrEk2yxrpDHzhqysvbo6KCHwliCXsJoCePuE26rHuXGNhqhnr-3mSHuNcaOUM">
+<button class="absolute top-1 right-1 bg-vintage-red text-paper p-1 text-[8px]"><span class="material-symbols-outlined text-xs">close</span></button>
+</div>
+<div class="aspect-square border border-charcoal/20 flex items-center justify-center text-charcoal/20 hover:text-charcoal cursor-pointer">
+<span class="material-symbols-outlined">add</span>
+</div>
+</div>
+<div class="p-4 bg-ink-blue/5 border border-ink-blue/20">
+<p class="font-label-caps text-label-caps text-ink-blue mb-2">METADATA SYNC</p>
+<div class="flex items-center gap-2">
+<input checked="" class="text-ink-blue focus:ring-0 rounded-none border-charcoal" type="checkbox">
+<span class="font-metadata-code text-metadata-code">Share to 'Local Info' Feed</span>
+</div>
+<div class="flex items-center gap-2 mt-2">
+<input checked="" class="text-ink-blue focus:ring-0 rounded-none border-charcoal" type="checkbox">
+<span class="font-metadata-code text-metadata-code">Notify 'Culture' Subscribers</span>
+</div>
+</div>
+</div>
+</form>
+</section>
+</div>
+<!-- FOOTER (As defined in JSON) -->
+<footer class="w-full py-12 px-margin-desktop flex flex-col md:flex-row justify-between items-center max-w-container-max mx-auto bg-charcoal dark:bg-surface-container-lowest border-t-2 border-charcoal mt-12">
+<div class="mb-6 md:mb-0">
+<span class="font-label-caps text-label-caps text-paper">ARANDU</span>
+<p class="font-metadata-code text-metadata-code text-paper dark:text-charcoal mt-2 opacity-60">© 2024 Arandu. All rights reserved. High-density editorial authority.</p>
+</div>
+<div class="flex gap-8">
+<a class="font-metadata-code text-metadata-code text-paper dark:text-charcoal hover:underline" href="#">About Us</a>
+<a class="font-metadata-code text-metadata-code text-paper dark:text-charcoal hover:underline" href="#">Archives</a>
+<a class="font-metadata-code text-metadata-code text-paper dark:text-charcoal hover:underline" href="#">Privacy Policy</a>
+<a class="font-metadata-code text-metadata-code text-paper dark:text-charcoal hover:underline text-vintage-red" href="#">Contact</a>
+</div>
+</footer>
+</main>
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Admin Dashboard Initialized');
+        });
+
+        const graphBars = document.querySelectorAll('.bento-item .flex-1');
+        graphBars.forEach(bar => {
+            bar.addEventListener('mouseenter', () => {
+                // Potential tooltip logic
+            });
+        });
+    </script>
+
+
+</body></html>

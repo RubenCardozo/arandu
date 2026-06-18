@@ -1,0 +1,7 @@
+/* Component specific styles for Inicio */
+.ad-gutter {
+  width: 160px;
+  position: sticky;
+  top: 100px;
+  height: 600px;
+}

@@ -1,0 +1,121 @@
+<main class="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4 bg-brand-paper">
+  <div class="w-full max-w-2xl bg-brand-paper border-2 border-brand-charcoal relative z-10">
+    <div class="absolute top-0 left-0 w-2 h-full bg-brand-sage"></div>
+    <div class="p-8 md:p-12 pl-10 md:pl-16">
+      
+      <!-- Title Block -->
+      <div class="mb-10 border-b border-brand-charcoal pb-6">
+        <h1 class="font-serif text-4xl md:text-5xl mb-2 italic">Crear una cuenta</h1>
+        <p class="font-sans text-sm text-brand-charcoal/70">
+          Únete a la plataforma editorial de Arandu. Accede a nuestros archivos y clasificados exclusivos.
+        </p>
+      </div>
+
+      <!-- Messages -->
+      <div *ngIf="successMessage" class="mb-6 p-4 bg-brand-sage/10 border border-brand-sage text-brand-sage font-sans text-sm">
+        {{ successMessage }}
+      </div>
+      <div *ngIf="errorMessage" class="mb-6 p-4 bg-brand-red/10 border border-brand-red text-brand-red font-sans text-sm">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Registration Form -->
+      <form [formGroup]="registroForm" (ngSubmit)="onSubmit()" class="space-y-8">
+        
+        <!-- Name Field -->
+        <div class="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-6">
+          <label class="font-serif text-2xl italic md:w-1/3 shrink-0" for="name">Nombre completo</label>
+          <div class="w-full">
+            <input 
+              formControlName="name" 
+              [ngClass]="nameInvalid ? 'border-brand-red' : 'border-brand-charcoal'" 
+              class="w-full bg-transparent border-0 border-b py-2 px-0 font-sans text-base placeholder:text-brand-charcoal/40 focus:outline-none focus:border-brand-sage focus:ring-0" 
+              id="name" 
+              placeholder="JUAN PÉREZ DUPONT">
+            <p *ngIf="nameInvalid" class="mt-1 font-mono text-[10px] text-brand-red uppercase">
+              El nombre completo es requerido (mínimo 3 caracteres).
+            </p>
+          </div>
+        </div>
+
+        <!-- Email Field -->
+        <div class="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-6">
+          <label class="font-serif text-2xl italic md:w-1/3 shrink-0" for="email">E-mail</label>
+          <div class="w-full">
+            <input 
+              formControlName="email" 
+              [ngClass]="emailInvalid ? 'border-brand-red' : 'border-brand-charcoal'" 
+              class="w-full bg-transparent border-0 border-b py-2 px-0 font-sans text-base placeholder:text-brand-charcoal/40 focus:outline-none focus:border-brand-sage focus:ring-0" 
+              id="email" 
+              placeholder="DIRECCION@CORREO.CH">
+            <p class="mt-2 font-mono text-[10px] uppercase" [ngClass]="emailInvalid ? 'text-brand-red' : 'text-brand-sage'">
+              * Te enviaremos un correo electrónico de confirmación.
+            </p>
+          </div>
+        </div>
+
+        <!-- Phone Field -->
+        <div class="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-6">
+          <label class="font-serif text-2xl italic md:w-1/3 shrink-0" for="phone">Teléfono Móvil</label>
+          <div class="w-full">
+            <input 
+              formControlName="phone" 
+              [ngClass]="phoneInvalid ? 'border-brand-red' : 'border-brand-charcoal'" 
+              class="w-full bg-transparent border-0 border-b py-2 px-0 font-sans text-base placeholder:text-brand-charcoal/40 focus:outline-none focus:border-brand-sage focus:ring-0" 
+              id="phone" 
+              placeholder="+41 79 000 00 00">
+            <p *ngIf="phoneInvalid" class="mt-1 font-mono text-[10px] text-brand-red uppercase">
+              Ingresa un formato de teléfono válido.
+            </p>
+          </div>
+        </div>
+
+        <!-- Password Field -->
+        <div class="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-6">
+          <label class="font-serif text-2xl italic md:w-1/3 shrink-0" for="password">Contraseña</label>
+          <div class="w-full relative">
+            <input 
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password" 
+              [ngClass]="passwordInvalid ? 'border-brand-red' : 'border-brand-charcoal'" 
+              class="w-full bg-transparent border-0 border-b py-2 px-0 font-sans text-base placeholder:text-brand-charcoal/40 focus:outline-none focus:border-brand-sage focus:ring-0 pr-10" 
+              id="password" 
+              placeholder="••••••••••••">
+            <button type="button" (click)="togglePassword()" class="absolute right-0 top-2 text-brand-charcoal/60 hover:text-brand-charcoal">
+              <span>{{ showPassword ? 'Ocultar' : 'Ver' }}</span>
+            </button>
+            <p *ngIf="passwordInvalid" class="mt-1 font-mono text-[10px] text-brand-red uppercase">
+              La contraseña debe tener al menos 8 caracteres.
+            </p>
+          </div>
+        </div>
+
+        <!-- Terms Checkbox -->
+        <div class="flex items-start gap-3 pt-4">
+          <input 
+            formControlName="terms" 
+            class="mt-1.5 w-4 h-4 border-brand-charcoal text-brand-charcoal focus:ring-brand-sage rounded-none" 
+            id="terms" 
+            type="checkbox">
+          <label class="font-sans text-xs text-brand-charcoal/70" for="terms">
+            Acepto las <a class="underline hover:text-brand-sage" href="#">condiciones generales de uso</a> y la política de privacidad de Arandu.
+          </label>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-6 flex flex-col md:flex-row items-center justify-between gap-6">
+          <button 
+            [disabled]="loading"
+            class="w-full md:w-auto px-12 py-4 bg-brand-sage text-brand-paper font-mono text-[11px] font-bold uppercase tracking-widest hover:bg-brand-charcoal transition-all duration-150 disabled:opacity-50" 
+            type="submit">
+            {{ loading ? 'ENVIANDO...' : 'REGISTRARME AHORA' }}
+          </button>
+          <span class="font-mono text-[11px] text-brand-charcoal/60">
+            ¿Ya eres miembro? <a class="text-brand-charcoal font-bold hover:text-brand-red underline" href="#">Iniciar Sesión</a>
+          </span>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</main>

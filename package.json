@@ -1,0 +1,13 @@
+{
+  "name": "geneve-latine-root",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Root workspace for Genève Latine (Editorial Platform)",
+  "scripts": {
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2"
+  }
+}

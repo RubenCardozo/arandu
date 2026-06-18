@@ -1,0 +1,75 @@
+<!-- TopAppBar -->
+<header class="bg-brand-paper border-b border-brand-charcoal sticky top-0 z-50">
+  <div class="flex justify-between items-center w-full px-8 py-4 max-w-[1280px] mx-auto">
+    <div class="flex items-center gap-3">
+      <a routerLink="/" class="flex items-center gap-3">
+        <img alt="Arandu Logo" class="h-[44px] w-auto object-contain" src="/logo.png">
+        <span class="font-serif text-[42px] font-bold text-brand-sage tracking-tight uppercase leading-none">Arandu</span>
+      </a>
+    </div>
+    <nav class="hidden md:flex gap-8 items-center">
+      <a routerLink="/" routerLinkActive="border-b-2 border-brand-charcoal font-bold pb-1" [routerLinkActiveOptions]="{exact: true}" class="text-brand-charcoal font-mono tracking-widest text-[11px] hover:text-brand-sage transition-colors">INICIO</a>
+      <a routerLink="/editorial" routerLinkActive="border-b-2 border-brand-charcoal font-bold pb-1" class="text-brand-charcoal font-mono tracking-widest text-[11px] hover:text-brand-sage transition-colors">EDITORIAL</a>
+      <a routerLink="/anuncios" routerLinkActive="border-b-2 border-brand-charcoal font-bold pb-1" class="text-brand-charcoal font-mono tracking-widest text-[11px] hover:text-brand-sage transition-colors">CLASIFICADOS</a>
+      <a routerLink="/registro" routerLinkActive="border-b-2 border-brand-charcoal font-bold pb-1" class="text-brand-charcoal font-mono tracking-widest text-[11px] hover:text-brand-sage transition-colors">REGISTRO</a>
+    </nav>
+    <div class="flex items-center gap-4">
+      <button class="hover:bg-brand-charcoal/5 p-2 rounded-full transition-colors">
+        <span class="font-mono text-xs">BUSCAR</span>
+      </button>
+      <a routerLink="/registro" class="bg-brand-charcoal text-brand-paper px-6 py-2 font-mono text-[11px] font-bold uppercase tracking-widest hover:bg-brand-sage transition-colors">
+        INGRESAR
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- Main Page Router Outlet -->
+<div class="min-h-[calc(100vh-320px)] bg-brand-paper">
+  <router-outlet></router-outlet>
+</div>
+
+<!-- Footer -->
+<footer class="bg-brand-charcoal text-brand-paper border-t border-brand-charcoal/20">
+  <div class="max-w-[1280px] mx-auto px-8 py-16">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
+      <div class="md:col-span-4">
+        <div class="flex items-center gap-3 mb-6">
+          <img alt="Arandu Icon" class="h-6 w-6 object-contain" src="/logo.png">
+          <span class="font-serif text-lg font-semibold uppercase tracking-tight" style="color: #fbfaf7;">Arandu</span>
+        </div>
+        <p class="font-mono text-xs text-brand-paper/60 leading-relaxed">
+          Periodismo de datos, cultura, deportes e interés público para la comunidad hispanohablante de Ginebra.
+        </p>
+      </div>
+      <div class="md:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div class="flex flex-col gap-4">
+          <span class="font-mono text-[10px] font-bold tracking-widest uppercase text-brand-paper">Explorar</span>
+          <a routerLink="/" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-paper transition-colors">INICIO</a>
+          <a routerLink="/editorial" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-paper transition-colors">EDITORIAL</a>
+          <a routerLink="/anuncios" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-paper transition-colors">CLASIFICADOS</a>
+        </div>
+        <div class="flex flex-col gap-4">
+          <span class="font-mono text-[10px] font-bold tracking-widest uppercase text-brand-paper">Institucional</span>
+          <a href="#" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-paper transition-colors">MISIÓN</a>
+          <a href="#" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-paper transition-colors">FUENTES</a>
+          <a href="#" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-paper transition-colors">SOPORTE</a>
+        </div>
+        <div class="flex flex-col gap-4">
+          <span class="font-mono text-[10px] font-bold tracking-widest uppercase text-brand-paper">Contacto</span>
+          <a href="#" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-paper transition-colors">CONTACTAR</a>
+          <a href="#" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-paper transition-colors">BOLETÍN</a>
+        </div>
+        <div class="flex flex-col gap-4">
+          <span class="font-mono text-[10px] font-bold tracking-widest uppercase text-brand-paper">Legal</span>
+          <a href="#" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-paper transition-colors">CONDICIONES</a>
+          <a href="#" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-paper transition-colors">PRIVACIDAD</a>
+        </div>
+      </div>
+    </div>
+    <div class="pt-8 border-t border-brand-paper/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <p class="font-mono text-[10px] text-brand-paper/40">© 2026 Arandu. Todos los derechos reservados.</p>
+      <p class="font-mono text-[10px] text-brand-paper/40 tracking-widest">ISSN 2754-9216</p>
+    </div>
+  </div>
+</footer>

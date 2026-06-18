@@ -1,0 +1,287 @@
+<!DOCTYPE html><html class="light" lang="fr" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Eb+Garamond:wght@400;500;700&amp;family=Ibm+Plex+Sans:wght@400;500;700&amp;family=Space+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {"tertiary-fixed-dim": "#cac6c4", "secondary-fixed": "#c7ebd0", "surface-container-high": "#e9e8e5", charcoal: "#1a1a1a", "surface-bright": "#faf9f6", "error-container": "#ffdad6", background: "#faf9f6", "vintage-red": "#b24c4c", "surface-container-highest": "#e3e2e0", "on-surface": "#1a1c1a", "outline-variant": "#c4c7c7", "on-tertiary-fixed": "#1c1b1a", "on-primary-container": "#858383", secondary: "#466550", "on-secondary": "#ffffff", "on-secondary-fixed": "#012110", "surface-tint": "#5f5e5e", "primary-fixed": "#e5e2e1", primary: "#000000", "primary-container": "#1c1b1b", "on-primary": "#ffffff", "on-tertiary-container": "#868382", "surface-container-low": "#f4f3f1", "inverse-primary": "#c8c6c5", "surface-variant": "#e3e2e0", "on-tertiary-fixed-variant": "#484645", "on-error-container": "#93000a", "surface-dim": "#dbdad7", "secondary-fixed-dim": "#accfb4", "on-primary-fixed-variant": "#474746", "sage-green": "#4b6b55", "surface-container-lowest": "#ffffff", "secondary-container": "#c5e8cd", "inverse-surface": "#2f312f", "inverse-on-surface": "#f1f1ee", paper: "#fbfaf7", "on-background": "#1a1c1a", tertiary: "#000000", "on-error": "#ffffff", outline: "#747878", "on-primary-fixed": "#1c1b1b", "ink-blue": "#2b4c7e", "surface-container": "#efeeeb", "on-tertiary": "#ffffff", "tertiary-container": "#1c1b1a", error: "#ba1a1a", "on-secondary-container": "#4a6a54", "on-secondary-fixed-variant": "#2e4d39", "on-surface-variant": "#444748", surface: "#faf9f6", "primary-fixed-dim": "#c8c6c5", "tertiary-fixed": "#e6e2df"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}, spacing: {"margin-mobile": "16px", "container-max": "1280px", gutter: "24px", unit: "4px", "margin-desktop": "64px"}, fontFamily: {"label-caps": ["Space Mono"], "body-sm": ["IBM Plex Sans"], "display-lg": ["EB Garamond"], "display-lg-mobile": ["EB Garamond"], "body-lg": ["IBM Plex Sans"], "metadata-code": ["Space Mono"], "headline-md": ["EB Garamond"], headline: ["Eb Garamond"], display: ["Eb Garamond"], body: ["Ibm Plex Sans"], label: ["Space Mono"]}, fontSize: {"label-caps": ["11px", {lineHeight: "1.0", fontWeight: "700"}], "body-sm": ["14px", {lineHeight: "1.5", fontWeight: "400"}], "display-lg": ["64px", {lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "600"}], "display-lg-mobile": ["40px", {lineHeight: "1.1", fontWeight: "600"}], "body-lg": ["18px", {lineHeight: "1.6", fontWeight: "400"}], "metadata-code": ["12px", {lineHeight: "1.4", letterSpacing: "0.05em", fontWeight: "400"}], "headline-md": ["32px", {lineHeight: "1.2", fontWeight: "500"}]}}}};</script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #fbfaf7;
+        }
+        .editorial-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1px;
+            background-color: #1a1a1a;
+            border: 1px solid #1a1a1a;
+        }
+        .editorial-cell {
+            background-color: #fbfaf7;
+        }
+        .btn-instant:hover {
+            background-color: #4b6b55 !important;
+            color: #fbfaf7 !important;
+        }
+    </style>
+</head>
+<body class="font-body-lg text-primary selection:bg-sage-green selection:text-paper">
+<!-- Top Navigation Shell -->
+<nav class="bg-paper border-b border-charcoal w-full px-margin-desktop py-4 max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center sticky top-0 z-50">
+<div class="font-display-lg text-primary uppercase tracking-tighter flex items-center text-[50px]"><img alt="" class="inline-block h-[44px] w-auto mr-4 align-middle" src="https://lh3.googleusercontent.com/aida/AP1WRLurrTeoe8940n-d2Zo-9wUSwYEhzfcrZb1rUkD_8KgW6WxrfavyUVhLTvFJQaMmgqgj0NkvWty8inq04ZeKgzycfFpHxrr8-kUieyZ1cSQwCsrQLe7MViM1wqrs1q98eWeUPWdTXiJGQfnPBG_dUEmOKHuai0LTnUSJtrs0LkZJm67BCoSNYAwsB2wcM3OVE-I2WaZRgszylynecAfjm3-NnakPzdGlKIUrWxRgAFLr5vcDSjGCqfm62kE"><span style="color: rgb(70, 101, 80); font-family: &quot;EB Garamond&quot;, serif; font-weight: 700; letter-spacing: -1.25px; background-color: rgb(250, 249, 246);" class="">Arandu</span></div>
+<div class="flex space-x-8 mt-4 md:mt-0">
+<a class="text-primary hover:text-vintage-red transition-none font-display-lg text-[18px] text-sage-green" href="#">Culture</a>
+<a class="text-primary hover:text-vintage-red transition-none font-display-lg text-[18px] text-sage-green" href="#">Sports</a>
+<a class="text-primary hover:text-vintage-red transition-none font-display-lg text-[18px] text-sage-green" href="#">Local Info</a>
+<a class="font-bold border-b-2 pb-1 font-display-lg text-[18px] text-sage-green border-sage-green" href="#">Classifieds</a>
+</div>
+<div class="hidden md:flex items-center space-x-6">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-charcoal">search</span>
+<input class="pl-10 py-1 border-b border-charcoal bg-transparent font-label-caps focus:outline-none focus:border-vintage-red" placeholder="RECHERCHER" type="text">
+</div>
+<button class="bg-charcoal text-paper px-6 py-2 font-label-caps uppercase btn-instant">Sign In</button>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="max-w-container-max mx-auto px-margin-desktop py-12">
+<!-- Header Section -->
+<header class="mb-12 border-b-4 border-charcoal pb-4 flex justify-between items-end">
+<div>
+<h1 class="font-display-lg text-display-lg uppercase tracking-tight">Petites Annonces</h1>
+<p class="font-metadata-code text-metadata-code uppercase mt-2">Volume LXIV — Arandu, Mercredi 22 Mai 2024 — Le Marché de Proximité</p>
+</div>
+<div class="hidden lg:block text-right">
+<span class="font-label-caps block">TARIF UNIQUE</span>
+<span class="font-headline-md block text-sage-green">5.00 CHF</span>
+</div>
+</header>
+<!-- Filter Bar -->
+<div class="flex flex-wrap gap-4 mb-16 items-center">
+<span class="font-label-caps text-on-surface-variant mr-2">FILTRER PAR:</span>
+<button class="px-6 py-1.5 border border-charcoal rounded-full font-label-caps bg-charcoal text-paper btn-instant">Tout</button>
+<button class="px-6 py-1.5 border border-charcoal rounded-full font-label-caps hover:bg-sage-green hover:text-paper transition-none">Électricité</button>
+<button class="px-6 py-1.5 border border-charcoal rounded-full font-label-caps hover:bg-sage-green hover:text-paper transition-none">Travaux Maison</button>
+<button class="px-6 py-1.5 border border-charcoal rounded-full font-label-caps hover:bg-sage-green hover:text-paper transition-none">Offres d'Emploi</button>
+<button class="px-6 py-1.5 border border-charcoal rounded-full font-label-caps hover:bg-sage-green hover:text-paper transition-none">Immobilier</button>
+<button class="px-6 py-1.5 border border-charcoal rounded-full font-label-caps hover:bg-sage-green hover:text-paper transition-none">Services</button>
+</div>
+<!-- Classifieds Grid -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Ad Card 1 -->
+<div class="md:col-span-4 border border-charcoal flex flex-col group h-full">
+<div class="aspect-video overflow-hidden border-b border-charcoal">
+<img alt="Electricien" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A professional electrician focusing on a complex circuit breaker box with colorful wires in a modern minimalist apartment. The lighting is crisp and natural, highlighting the technical precision of the work. The scene is framed with a clean editorial aesthetic, emphasizing the high-quality craftsmanship through a muted color palette of charcoals, whites, and subtle metallic copper." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrhPK0I5amLiPkX8r8k2CQS83fg3P87G0Ols7M4i76n7JKmyQ92Eo0uJP7dxbxkL3bhyiKqu2nR3pETU23ALKmD0s58tQGBcGU19UMdvKR8SyxJN55bLXX7ucKh3-IDwNPanHakQhYMhLdmCAkmOwiN1oIopVK8GdRrn_arIZa0YrUnlJfFcsbiydzEWvFiBWn3jOR1wAsepI6r2llAAq_Sgtv5rwwHoetyb1E8S0e3ZnQ8LES3C7rH8vnEckknq8aYBtqPqkuwBM">
+</div>
+<div class="p-6 flex-grow">
+<div class="flex justify-between items-start mb-4">
+<span class="font-metadata-code text-[10px] bg-secondary-container px-2 py-0.5 rounded">ÉLECTRICITÉ</span>
+<span class="font-metadata-code text-on-surface-variant">22 MAI</span>
+</div>
+<h3 class="font-headline-md text-primary mb-4 leading-tight">Artisan Électricien - Dépannage Rapide</h3>
+<p class="font-body-sm text-on-surface-variant mb-6 line-clamp-3">Spécialiste en rénovation électrique et mise en conformité. Disponible 24/7 pour urgences à Genève et environs. Devis gratuit et intervention soignée garantie.</p>
+<div class="mt-auto">
+<p class="font-label-caps text-vintage-red text-lg mb-4">+41 22 555 01 23</p>
+<button class="w-full py-3 bg-charcoal text-paper font-label-caps uppercase btn-instant">Contact</button>
+</div>
+</div>
+</div>
+<!-- Ad Card 2 -->
+<div class="md:col-span-4 border border-charcoal flex flex-col group h-full">
+<div class="p-6 flex-grow flex flex-col">
+<div class="flex justify-between items-start mb-4">
+<span class="font-metadata-code text-[10px] bg-secondary-container px-2 py-0.5 rounded">EMPLOI</span>
+<span class="font-metadata-code text-on-surface-variant">21 MAI</span>
+</div>
+<h3 class="font-headline-md text-primary mb-4 leading-tight">Chef de Rang - Brasserie Historique</h3>
+<p class="font-body-sm text-on-surface-variant mb-6 flex-grow">Établissement de renom recherche collaborateur passionné pour service en salle. Expérience 3 ans minimum. Excellente présentation exigée.</p>
+<div class="mt-auto border-t border-charcoal pt-4">
+<p class="font-label-caps text-vintage-red text-lg mb-4">POSTULER EN LIGNE</p>
+<button class="w-full py-3 border border-charcoal text-charcoal font-label-caps uppercase btn-instant">Contact</button>
+</div>
+</div>
+</div>
+<!-- Vertical Widget 1 -->
+<aside class="md:col-span-4 bg-charcoal text-paper p-8 flex flex-col justify-center border border-charcoal">
+<div class="border-2 border-paper p-6">
+<span class="font-label-caps text-sage-green block mb-2">ESPACE PUBLICITAIRE</span>
+<h2 class="font-display-lg text-[42px] leading-none mb-4">VOTRE ANNONCE ICI</h2>
+<p class="font-body-sm text-surface-container-high mb-8">Touchez plus de 50'000 lecteurs quotidiens au cœur de la Romandie.</p>
+<a class="font-label-caps border-b border-paper pb-1 hover:text-sage-green" href="#">EN SAVOIR PLUS →</a>
+</div>
+</aside>
+<!-- Ad Card 3 -->
+<div class="md:col-span-8 border border-charcoal flex flex-col md:flex-row group overflow-hidden">
+<div class="md:w-2/5 overflow-hidden">
+<img alt="Travaux" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A clean, minimalist construction site featuring high-quality wooden beams and architectural drafting tools resting on a marble surface. The atmosphere is quiet and professional, captured with a high-contrast editorial photography style. Subtle lighting creates deep shadows, emphasizing the brutalist structure and textures of raw materials like wood and concrete. A muted palette of sage green and charcoal dominates." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3dBc7kW88Eyn9kn1t_i7oo6tpLJxInupkAFkTZMwxzWImv2umjwuYmLAFj-SY5cQvZaIksWlwankbp_i8VbpahceP22-9g_LRv5yFbYEGcEolSFjruUhWg3jcrHQSohcefoTDP1-0lN7zLYfnmFfGJZUqKaN4u__LlujVNQFsCkSR5Oq0quKLmS5iY_1oH5WqEpfh9ZIgbuPt8CEoZ6XqZXYk-fLm3GoQRMOkv5vdHTj2AHqR29fizzSueVoa2mtweGuykGuNsvg">
+</div>
+<div class="md:w-3/5 p-8">
+<div class="flex justify-between items-start mb-6">
+<span class="font-metadata-code text-[10px] bg-secondary-container px-2 py-0.5 rounded">TRAVAUX MAISON</span>
+<span class="font-metadata-code text-on-surface-variant">20 MAI</span>
+</div>
+<h3 class="font-display-lg text-[32px] text-primary mb-4 leading-tight">Rénovation de Combles &amp; Charpente</h3>
+<p class="font-body-lg text-on-surface-variant mb-6">Equipe de menuisiers chevronnés propose ses services pour la transformation de vos espaces sous toiture. Isolation écologique, fenêtres Velux, et finitions bois massif. Projets clé en main.</p>
+<div class="flex items-center space-x-6">
+<p class="font-label-caps text-vintage-red text-xl font-bold">+41 78 123 45 67</p>
+<button class="flex-grow py-3 bg-charcoal text-paper font-label-caps uppercase btn-instant">Contacter l'Atelier</button>
+</div>
+</div>
+</div>
+<!-- Ad Card 4 -->
+<div class="md:col-span-4 border border-charcoal p-6 flex flex-col">
+<div class="flex justify-between items-start mb-4">
+<span class="font-metadata-code text-[10px] bg-secondary-container px-2 py-0.5 rounded">IMMOBILIER</span>
+<span class="font-metadata-code text-on-surface-variant">19 MAI</span>
+</div>
+<h3 class="font-headline-md text-primary mb-4 leading-tight">Studio Meublé - Quartier des Bains</h3>
+<p class="font-body-sm text-on-surface-variant mb-6">Magnifique studio de 35m2, lumineux, refait à neuf. Proche commodités. Libre dès le 1er Juillet. 1'850 CHF/mois charges comprises.</p>
+<div class="mt-auto">
+<p class="font-label-caps text-vintage-red text-lg mb-4">DOSSIER COMPLET REQUIS</p>
+<button class="w-full py-3 bg-charcoal text-paper font-label-caps uppercase btn-instant">Contact</button>
+</div>
+</div>
+<!-- Ad Card 5 -->
+<div class="md:col-span-4 border border-charcoal p-6 flex flex-col group">
+<div class="flex justify-between items-start mb-4">
+<span class="font-metadata-code text-[10px] bg-secondary-container px-2 py-0.5 rounded">SERVICES</span>
+<span class="font-metadata-code text-on-surface-variant">18 MAI</span>
+</div>
+<div class="flex-grow">
+<h3 class="font-headline-md text-primary mb-2 leading-tight">Cours de Français &amp; Anglais</h3>
+<p class="font-metadata-code text-sage-green mb-4">POUR TOUS NIVEAUX</p>
+<p class="font-body-sm text-on-surface-variant mb-6">Professeur diplômée propose cours particuliers ou en petits groupes. Préparation aux examens officiels (DELF, Cambridge). Horaires flexibles.</p>
+</div>
+<div class="mt-auto">
+<p class="font-label-caps text-vintage-red text-lg mb-4">+41 22 987 65 43</p>
+<button class="w-full py-3 border border-charcoal text-charcoal font-label-caps uppercase btn-instant">Contact</button>
+</div>
+</div>
+<!-- Small Ad Blocks -->
+<div class="md:col-span-4 grid grid-rows-2 gap-gutter">
+<div class="border border-charcoal p-4 bg-surface-container">
+<span class="font-metadata-code text-[9px] uppercase border border-charcoal px-1">Divers</span>
+<h4 class="font-label-caps mt-2">Vente de Vélos Vintage</h4>
+<p class="font-metadata-code text-[11px] mt-1 line-clamp-2">Trois modèles Peugeot restaurés. Prix à discuter.</p>
+<p class="font-label-caps text-vintage-red mt-2">079 444 33 22</p>
+</div>
+<div class="border border-charcoal p-4">
+<span class="font-metadata-code text-[9px] uppercase border border-charcoal px-1">Musique</span>
+<h4 class="font-label-caps mt-2">Cours de Piano Jazz</h4>
+<p class="font-metadata-code text-[11px] mt-1 line-clamp-2">Tous âges, méthode moderne. Centre-ville.</p>
+<p class="font-label-caps text-vintage-red mt-2">076 555 88 99</p>
+</div>
+</div>
+<!-- Featured Image Column -->
+<div class="md:col-span-4 border border-charcoal flex flex-col group h-full">
+<div class="aspect-[4/5] overflow-hidden border-b border-charcoal">
+<img alt="Tradition" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A macro photograph of vintage lead type blocks in a traditional letterpress tray. The metal letters are tarnished and ink-stained, showing years of editorial history. The lighting is low and dramatic, highlighting the texture of the antique metal against a dark wooden backdrop. The aesthetic is purely archival and brutalist, with a focus on typography and history, rendered in tones of ink blue and charcoal." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDNZo5jlaOB4MONYmJEE4b1oid2EVeXHR4nNQTdXcSYRBgvopKEkLd6fO7-Yasfpb8zZxQUAONGcu617k4sm5fctOvli3iQN7VTqkF45KbZXQ-xTKDag8EYssr1TxLW8xU4rL4pF4D7CLKsR7zvGyXsVjG-kx4TbWVHhQ-VudsVWBhJ1hor2D5BRsojTWKgL_QOiAe2xlXZ5bPjCQTjFzjWWJRXzBw5MkIU1it5STqAW7rHDPWVuFNuaQHV-7jQlCtirxEGLQMd1A">
+</div>
+<div class="p-6 bg-charcoal text-paper">
+<h3 class="font-label-caps text-xl mb-2">L'ARCHIVE VIVANTE</h3>
+<p class="font-metadata-code text-surface-dim">Depuis 1960, nous connectons les Genevois par la force de l'imprimé.</p>
+</div>
+</div>
+</div>
+<!-- Pagination -->
+<div class="mt-16 pt-8 border-t border-charcoal flex justify-between items-center">
+<button class="font-label-caps flex items-center hover:text-vintage-red">
+<span class="material-symbols-outlined mr-2">arrow_back</span> PAGE PRÉCÉDENTE
+            </button>
+<div class="flex space-x-4 font-label-caps">
+<span class="text-vintage-red font-bold underline">1</span>
+<span class="hover:underline cursor-pointer">2</span>
+<span class="hover:underline cursor-pointer">3</span>
+<span class="">...</span>
+<span class="hover:underline cursor-pointer">12</span>
+</div>
+<button class="font-label-caps flex items-center hover:text-vintage-red">
+                PAGE SUIVANTE <span class="material-symbols-outlined ml-2">arrow_forward</span>
+</button>
+</div>
+</main>
+<!-- Footer Shell -->
+<footer class="bg-charcoal text-paper w-full py-12 px-margin-desktop mt-12 border-t-2 border-charcoal"><div class="max-w-container-max mx-auto">
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
+    <!-- Left side: Brand Block -->
+    <div class="md:col-span-4">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-6 h-6 bg-paper flex items-center justify-center text-charcoal font-display-lg text-sm">A</div>
+        <span class="font-display-lg text-[18px] font-semibold text-paper uppercase tracking-widest">Arandu</span>
+      </div>
+      <p class="font-metadata-code text-[12px] leading-relaxed text-outline-variant max-w-xs">
+        Journal d'intérêt public fondé en 1960. Paraissant quotidiennement à Genève et dans toute la Romandie.
+      </p>
+    </div>
+    <!-- Right side: Navigation Columns -->
+    <div class="md:col-span-2">
+      <h5 class="font-label-caps text-[10px] text-paper mb-6 opacity-40">EXPLORER</h5>
+      <ul class="font-label-caps text-[10px] space-y-3 text-on-surface-variant">
+        <li class=""><a href="#" class="hover:text-paper transition-none">Culture</a></li>
+        <li class=""><a href="#" class="hover:text-paper transition-none">Sports</a></li>
+        <li class=""><a href="#" class="hover:text-paper transition-none">Local Info</a></li>
+        <li class=""><a href="#" class="hover:text-paper transition-none">Classifieds</a></li>
+      </ul>
+    </div>
+    <div class="md:col-span-2">
+      <h5 class="font-label-caps text-[10px] text-paper mb-6 opacity-40">INSTITUTION</h5>
+      <ul class="font-label-caps text-[10px] space-y-3 text-on-surface-variant">
+        <li class=""><a href="#" class="hover:text-paper transition-none">Rédaction</a></li>
+        <li class=""><a href="#" class="hover:text-paper transition-none">Publicité</a></li>
+        <li class=""><a href="#" class="hover:text-paper transition-none">Abonnements</a></li>
+        <li class=""><a href="#" class="hover:text-paper transition-none">Photothèque</a></li>
+      </ul>
+    </div>
+    <div class="md:col-span-2">
+      <h5 class="font-label-caps text-[10px] text-paper mb-6 opacity-40">LÉGAL</h5>
+      <ul class="font-label-caps text-[10px] space-y-3 text-on-surface-variant">
+        <li class=""><a href="#" class="hover:text-paper transition-none">Confidentialité</a></li>
+        <li class=""><a href="#" class="hover:text-paper transition-none">CGU</a></li>
+        <li class=""><a href="#" class="hover:text-paper transition-none">Mentions</a></li>
+      </ul>
+    </div>
+    <div class="md:col-span-2 flex items-end justify-end">
+      <div class="flex gap-6">
+        <span class="material-symbols-outlined text-[18px] text-on-surface-variant hover:text-paper cursor-pointer">rss_feed</span>
+        <span class="material-symbols-outlined text-[18px] text-on-surface-variant hover:text-paper cursor-pointer">alternate_email</span>
+      </div>
+    </div>
+  </div>
+  <!-- Base: Copyright and ISSN -->
+  <div class="pt-8 border-t border-surface-variant/10 flex flex-col md:flex-row justify-between items-center gap-4">
+    <div class="font-metadata-code text-[10px] text-on-surface-variant uppercase tracking-widest">ISSN 1423-3452 — IMPRIMÉ À GENÈVE</div>
+    <div class="font-metadata-code text-[10px] text-on-surface-variant">© 2024 ARANDU ÉDITIONS SA. TOUS DROITS RÉSERVÉS.</div>
+  </div>
+</div></footer>
+<script>
+        // Micro-interactions for Filter Buttons
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('mousedown', function() {
+                this.style.transform = 'scale(0.98)';
+            });
+            button.addEventListener('mouseup', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+
+        // Filter Logic (Visual only)
+        const filterButtons = document.querySelectorAll('.flex.flex-wrap button');
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterButtons.forEach(b => {
+                    b.classList.remove('bg-charcoal', 'text-paper');
+                    b.classList.add('hover:bg-sage-green', 'hover:text-paper');
+                });
+                btn.classList.add('bg-charcoal', 'text-paper');
+                btn.classList.remove('hover:bg-sage-green', 'hover:text-paper');
+            });
+        });
+    </script>
+
+
+
+
+</body></html>

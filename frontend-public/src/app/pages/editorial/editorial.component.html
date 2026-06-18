@@ -1,0 +1,153 @@
+<main class="max-w-[1280px] mx-auto px-4 md:px-8 py-12">
+  <!-- Header Section -->
+  <header class="mb-8 border-b-4 border-brand-charcoal pb-4">
+    <h1 class="font-serif text-5xl md:text-6xl font-bold uppercase tracking-tight">Archivo Editorial</h1>
+    <p class="font-mono text-xs text-brand-charcoal/60 uppercase mt-2">
+      Investigación, Cultura, Deportes e Información Local de Ginebra
+    </p>
+  </header>
+
+  <!-- Search Section -->
+  <div class="mb-12 max-w-md">
+    <div class="relative">
+      <input type="text" 
+             [(ngModel)]="searchQuery" 
+             (input)="onSearch()" 
+             placeholder="Buscar artículos por título o descripción..." 
+             class="w-full bg-brand-paper border-2 border-brand-charcoal px-4 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand-sage focus:border-brand-sage placeholder-brand-charcoal/40" />
+      <span class="absolute right-3 top-2.5 font-mono text-xs text-brand-charcoal/50">🔎</span>
+    </div>
+  </div>
+
+  <!-- Loading indicator -->
+  <div *ngIf="loading" class="text-center py-12">
+    <span class="font-mono text-sm text-brand-charcoal/60 uppercase">Cargando publicaciones...</span>
+  </div>
+
+  <!-- Editorial Grid -->
+  <section *ngIf="!loading" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <article *ngFor="let art of articulos" class="border border-brand-charcoal flex flex-col justify-between group overflow-hidden bg-brand-paper">
+      
+      <!-- Image header if available -->
+      <div *ngIf="art.imageUrl" class="aspect-video overflow-hidden border-b border-brand-charcoal">
+        <img [alt]="art.title" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" [src]="art.imageUrl">
+      </div>
+
+      <!-- Article details -->
+      <div class="p-6 flex-grow flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-start mb-4">
+            <span class="font-mono text-[10px] bg-brand-sage/10 text-brand-sage px-2 py-0.5 rounded font-bold uppercase">{{ art.category }}</span>
+            <span class="font-mono text-[10px] text-brand-charcoal/50">{{ art.publishedAt }}</span>
+          </div>
+          <h3 class="font-serif text-2xl font-bold text-brand-charcoal mb-4 leading-tight group-hover:text-brand-sage transition-colors">
+            {{ art.title }}
+          </h3>
+          <p class="font-sans text-sm text-brand-charcoal/70 mb-4 leading-relaxed">
+            {{ art.description }}
+          </p>
+
+          <!-- Interaction Stats Summary -->
+          <div class="flex items-center gap-4 text-xs font-mono text-brand-charcoal/60 mb-6">
+            <span class="flex items-center gap-1">
+              <span class="text-brand-sage font-bold">★</span>
+              <span>{{ art.avgStars || '0.0' }}</span>
+            </span>
+            <span class="flex items-center gap-1">
+              <span class="text-brand-sage font-bold">❤️</span>
+              <span>{{ art.totalLikes || 0 }}</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="mt-auto border-t border-brand-charcoal/10 pt-4">
+          <div class="flex justify-between items-center mb-4">
+            <span class="font-mono text-[10px] text-brand-charcoal/50">POR: {{ art.author }}</span>
+            <a [href]="art.contentUrl" class="font-mono text-[11px] font-bold uppercase hover:text-brand-sage transition-colors flex items-center">
+              Leer más <span class="ml-1">→</span>
+            </a>
+          </div>
+
+          <!-- Collapsible toggle button -->
+          <button (click)="toggleInteractions(art)" class="w-full border-t border-brand-charcoal/5 pt-3 pb-1 flex justify-between items-center text-left group/btn">
+            <span class="font-mono text-[9px] font-bold uppercase tracking-wider text-brand-charcoal/60 group-hover/btn:text-brand-sage transition-colors">
+              {{ art.showInteractions ? 'Ocultar Valoraciones ↑' : 'Valoraciones y Comentarios ↓' }}
+            </span>
+            <span class="font-mono text-[9px] text-brand-charcoal/40">
+              {{ art.comments?.length || 0 }} comentarios
+            </span>
+          </button>
+
+          <!-- Collapsible interaction content -->
+          <div *ngIf="art.showInteractions" class="border-t border-brand-charcoal/5 mt-3 pt-3 space-y-3">
+            <!-- Rate Option -->
+            <div class="flex items-center justify-between py-1 border-b border-brand-charcoal/5">
+              <span class="font-mono text-[9px] uppercase text-brand-charcoal/50">Valorar artículo:</span>
+              <div class="flex gap-0.5">
+                <button *ngFor="let s of [1,2,3,4,5]" 
+                        (click)="rateArticle(art, s)" 
+                        class="text-base text-brand-charcoal/30 hover:text-brand-sage hover:scale-125 transition-all focus:outline-none">
+                  ★
+                </button>
+              </div>
+            </div>
+
+            <!-- Like Option -->
+            <div class="flex items-center justify-between py-1 border-b border-brand-charcoal/5">
+              <span class="font-mono text-[9px] uppercase text-brand-charcoal/50">¿Te gusta la nota?</span>
+              <button (click)="likeArticle(art)" 
+                      class="px-2 py-0.5 bg-brand-charcoal text-brand-paper font-mono text-[8px] font-bold uppercase hover:bg-brand-sage transition-colors">
+                ¡Me gusta! ❤️
+              </button>
+            </div>
+
+            <!-- Comments Thread -->
+            <div class="pt-2">
+              <h4 class="font-mono text-[9px] uppercase font-bold text-brand-charcoal/60 mb-2">Comentarios</h4>
+              
+              <div *ngIf="art.loadingComments" class="text-[10px] font-mono text-brand-charcoal/40 py-1">
+                Cargando comentarios...
+              </div>
+              
+              <div *ngIf="!art.loadingComments && (!art.comments || art.comments.length === 0)" class="text-[10px] font-mono text-brand-charcoal/40 py-1">
+                Aún no hay comentarios. ¡Sé el primero!
+              </div>
+
+              <div *ngIf="!art.loadingComments && art.comments && art.comments.length > 0" class="max-h-32 overflow-y-auto space-y-2 mb-3 pr-1">
+                <div *ngFor="let c of art.comments" class="bg-brand-charcoal/5 p-2 border border-brand-charcoal/10">
+                  <div class="flex justify-between font-mono text-[8px] text-brand-charcoal/40 mb-1">
+                    <span class="font-bold">{{ c.authorName }}</span>
+                    <span>{{ c.createdAt }}</span>
+                  </div>
+                  <p class="font-sans text-[11px] leading-tight text-brand-charcoal/80">{{ c.content }}</p>
+                </div>
+              </div>
+
+              <!-- Comment Form -->
+              <div class="space-y-2 pt-2 border-t border-brand-charcoal/5">
+                <input type="text" 
+                       [(ngModel)]="art.newAuthor" 
+                       placeholder="Tu nombre (Ej. Vecino)" 
+                       class="w-full bg-brand-paper border border-brand-charcoal/20 px-2 py-1 font-mono text-[9px] focus:outline-none focus:border-brand-charcoal" />
+                <textarea [(ngModel)]="art.newCommentText" 
+                          placeholder="Tu opinión..." 
+                          rows="2"
+                          class="w-full bg-brand-paper border border-brand-charcoal/20 px-2 py-1 font-sans text-[10px] focus:outline-none focus:border-brand-charcoal"></textarea>
+                <button (click)="postComment(art)" 
+                        class="w-full py-1 bg-brand-sage text-brand-paper font-mono text-[9px] font-bold uppercase hover:bg-brand-charcoal transition-colors">
+                  Comentar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </article>
+  </section>
+
+  <!-- Empty state -->
+  <div *ngIf="!loading && articulos.length === 0" class="border border-brand-charcoal p-12 text-center bg-brand-charcoal/5 mt-8">
+    <span class="font-serif text-2xl italic text-brand-charcoal/60">No se encontraron artículos para tu búsqueda.</span>
+  </div>
+</main>

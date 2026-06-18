@@ -1,0 +1,40 @@
+Create a multi-page editorial website and admin prototype for "Genève Latine" with a design aesthetic inspired by "The Pudding" (pudding.cool).
+
+### 🎨 Visual Identity & Style Guide (The Pudding Aesthetic):
+- **Background Color:** Warm off-white/cream newspaper background (`#fbfaf7`).
+- **Text & Borders:** High-contrast charcoal/dark grey (`#1a1a1a`). Use thin, sharp borders (`1px solid #1a1a1a`) to separate content "boxes", resembling a clean retro newspaper or modern data-journalism layout.
+- **Accent Colors:** Use a limited, muted color palette. Sage green (`#4b6b55`), vintage warm red (`#b24c4c`), and classic ink blue (`#2b4c7e`).
+- **Typography:** Bold, expressive Serif fonts for headings (like Georgia or Garamond) and clean, geometric Sans-Serif or Monospace fonts for body text and category tags (like Space Mono or IBM Plex Sans).
+- **Structure:** Modular card-based grid ("boxes") where each card represents an article, restaurant, event, or anuncio.
+
+### 🖥️ Page 1: Home Page (Public Hub)
+- **Top Header:**
+  - A prominent horizontal advertisement banner at the very top.
+  - Large retro-editorial title: "GENÈVE LATINE".
+  - Main navigation menu: "Culture", "Sports", "Infos Locales", "Petites Annonces", "Inscription".
+- **Main Grid (The Pudding Style Boxes):**
+  - Arrange information in asymmetric boxes of different sizes.
+  - **Box 1 (Culture):** Displays cultural highlights and a list of Swiss-Latino concerts. Includes a placeholder for a YouTube video embed player.
+  - **Box 2 (Sports):** Local football tournament tables, sports news, and community events.
+  - **Box 3 (Local Info):** Useful guides in Spanish about Geneva life, health services, and administration.
+- **Native Advertising:**
+  - Place small ad banners or text ads flanking the main boxes (e.g., in a narrow sidebar next to the main content layout).
+
+### 🖥️ Page 2: Petites Annonces (Classifieds Directory)
+- **Header:** Title "Petites Annonces" in bold serif.
+- **Category Filter Bar (Tags):** Interactive buttons styled as rounded pills: "Électricité", "Travaux Maison", "Offres d'Emploi", "Tout".
+- **Grid Layout:** 
+  - List of classified ads. Each ad is a bordered box with a title, description, phone number, and a "Contact" button.
+  - A small vertical ad widget placed next to every 3rd classified ad card.
+
+### 🖥️ Page 3: Registration Form (Inscription)
+- **Layout:** A clean, centered editorial box.
+- **Form Fields:** Name, Email (with helper text: "Un mail de confirmation vous sera envoyé"), Mobile Phone, and Password.
+- **Submit Button:** Styled with a solid charcoal background and white text.
+
+### 🖥️ Page 4: Admin Dashboard
+- **Layout:** Separate layout with a dark sidebar and a main white content area.
+- **Features:** 
+  - An "Analytics" section showing graphs of total visits and click-through rates (CTR) on banners.
+  - A CRUD form to add/edit restaurants, upload cover photos, and input YouTube embed links.
+  - An "Activity Log" timeline showing changes made by the administrator.
