@@ -30,6 +30,8 @@ interface Report {
   styleUrls: ['./inicio.component.css']
 })
 export class InicioComponent implements OnInit {
+  loading = true;
+
   // Main Hero article (defaults to static mock data, updated dynamically from Supabase)
   heroArticle = {
     category: 'INVESTIGACIÓN',
@@ -83,7 +85,7 @@ export class InicioComponent implements OnInit {
       category: 'Sociedad',
       reportId: 'REPORTE #839',
       title: 'La Brecha Digital en los Trámites de Integración',
-      description: 'Análisis de la digitalización de los servicios de migración y su impacto en la comunidad de habla hispana.',
+      description: 'Análisis de la digitalización de los servicios de migración and su impacto en la comunidad de habla hispana.',
       imageUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&auto=format&fit=crop&q=60'
     }
   ];
@@ -167,6 +169,8 @@ export class InicioComponent implements OnInit {
 
     } catch (err) {
       console.error('Error loading home page media via MediaService:', err);
+    } finally {
+      this.loading = false;
     }
   }
 }

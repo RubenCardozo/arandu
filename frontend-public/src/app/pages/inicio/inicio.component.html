@@ -16,8 +16,14 @@
 
   <!-- Main Content -->
   <main class="w-full max-w-[1280px] py-12 shrink-0">
-    <!-- Hero Section -->
-    <section class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-20 border-b border-brand-charcoal/20 pb-16">
+    <!-- Loading state -->
+    <div *ngIf="loading" class="flex flex-col justify-center items-center h-96 w-full text-center">
+      <span class="font-mono text-sm text-brand-charcoal/60 uppercase tracking-widest animate-pulse">Cargando Portada...</span>
+    </div>
+
+    <div *ngIf="!loading">
+      <!-- Hero Section -->
+      <section class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-20 border-b border-brand-charcoal/20 pb-16">
       <div class="md:col-span-8 flex flex-col justify-center">
         <div class="flex gap-4 items-center mb-6">
           <span class="px-3 py-1 bg-brand-red text-white font-mono text-[10px] font-bold rounded-full">{{ heroArticle.category }}</span>
@@ -121,6 +127,7 @@
         </div>
       </aside>
     </section>
+    </div>
   </main>
 
   <!-- Right Ad Banner -->
