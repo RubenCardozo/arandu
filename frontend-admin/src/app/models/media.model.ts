@@ -16,6 +16,7 @@ export interface MediaRow {
   image_url: string;
   published_at: string;
   created_at: string;
+  clicks?: number;
 }
 
 /** View model with camelCase properties for use in Angular templates. */
@@ -31,6 +32,7 @@ export interface MediaViewModel {
   imageUrl: string;
   publishedAt: string;
   createdAt: string;
+  clicks?: number;
 }
 
 /** Payload for inserting a new media record (no id, no timestamps). */

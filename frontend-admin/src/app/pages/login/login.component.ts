@@ -15,12 +15,17 @@ export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   loading = false;
   errorMessage = '';
+  showPassword = false;
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router
   ) {}
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
 
   ngOnInit() {
     this.loginForm = this.fb.group({

@@ -1,8 +1,9 @@
 <!-- SIDE NAVIGATION BAR -->
 <aside class="fixed left-0 top-0 z-40 flex flex-col bg-brand-charcoal h-screen w-64 border-r border-brand-charcoal text-brand-paper">
   <div class="p-6 flex flex-col gap-4">
-    <div class="h-[44px] w-[44px] bg-brand-sage flex items-center justify-center overflow-hidden">
-      <img alt="Arandu Logo" class="w-full h-full object-cover" src="/logo.png">
+    <div class="h-[44px] w-[44px] bg-brand-sage flex items-center justify-center overflow-hidden rounded-sm">
+      <img *ngIf="!logoFailed" alt="Arandu Logo" class="w-full h-full object-cover" src="/logo.png" (error)="logoFailed = true">
+      <span *ngIf="logoFailed" class="font-serif text-2xl font-bold text-brand-charcoal select-none">A</span>
     </div>
     <div>
       <h1 class="font-serif text-[32px] leading-[0.9] uppercase text-brand-paper">Arandu</h1>
@@ -25,6 +26,21 @@
       </li>
     </ul>
   </nav>
+  <div class="p-6 mt-auto">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-10 h-10 rounded-full bg-brand-sage flex items-center justify-center text-brand-charcoal font-serif font-bold text-sm select-none">
+        RC
+      </div>
+      <div>
+        <p class="font-mono text-[9px] leading-none uppercase text-brand-paper/60 mb-1">Administrador</p>
+        <p class="font-sans text-xs font-semibold text-brand-paper leading-tight mb-1">{{ adminName }}</p>
+        <p class="text-[9px] opacity-60 font-mono text-brand-paper/50">Editor Jefe</p>
+      </div>
+    </div>
+    <button (click)="logout()" class="flex items-center gap-2 text-brand-paper/60 hover:text-brand-red font-mono text-[10px] uppercase transition-colors">
+      <span>🚪</span> Salir
+    </button>
+  </div>
 </aside>
 
 <!-- MAIN CONTENT AREA -->
@@ -41,36 +57,20 @@
   <div class="px-8 pt-8">
     <div class="flex border-b border-brand-charcoal">
       <button 
+        (click)="setSection('editorial')"
+        [class.border-b-2]="activeSection === 'editorial'"
+        [class.border-brand-charcoal]="activeSection === 'editorial'"
+        [class.font-bold]="activeSection === 'editorial'"
+        class="px-6 py-3 font-mono text-xs uppercase tracking-wider hover:text-brand-sage transition-colors focus:outline-none">
+        📰 Editorial (Noticias)
+      </button>
+      <button 
         (click)="setSection('directory')"
         [class.border-b-2]="activeSection === 'directory'"
         [class.border-brand-charcoal]="activeSection === 'directory'"
         [class.font-bold]="activeSection === 'directory'"
         class="px-6 py-3 font-mono text-xs uppercase tracking-wider hover:text-brand-sage transition-colors focus:outline-none">
         🏢 Directorio / Comercio
-      </button>
-      <button 
-        (click)="setSection('editorial')"
-        [class.border-b-2]="activeSection === 'editorial'"
-        [class.border-brand-charcoal]="activeSection === 'editorial'"
-        [class.font-bold]="activeSection === 'editorial'"
-        class="px-6 py-3 font-mono text-xs uppercase tracking-wider hover:text-brand-sage transition-colors focus:outline-none">
-        📰 Editorial (Noticias/Videos)
-      </button>
-      <button 
-        (click)="setSection('jobs')"
-        [class.border-b-2]="activeSection === 'jobs'"
-        [class.border-brand-charcoal]="activeSection === 'jobs'"
-        [class.font-bold]="activeSection === 'jobs'"
-        class="px-6 py-3 font-mono text-xs uppercase tracking-wider hover:text-brand-sage transition-colors focus:outline-none">
-        💼 Empleos
-      </button>
-      <button 
-        (click)="setSection('services')"
-        [class.border-b-2]="activeSection === 'services'"
-        [class.border-brand-charcoal]="activeSection === 'services'"
-        [class.font-bold]="activeSection === 'services'"
-        class="px-6 py-3 font-mono text-xs uppercase tracking-wider hover:text-brand-sage transition-colors focus:outline-none">
-        🛠️ Servicios / Reparaciones
       </button>
     </div>
   </div>
@@ -87,7 +87,326 @@
         {{ errorMessage }}
       </div>
 
-      <!-- FORM 1: DIRECTORY / COMMERCE -->
+      <!-- FORM 1: EDITORIAL (NOTICIAS ONLY WITH BLOCKS) -->
+      <div *ngIf="activeSection === 'editorial'">
+        <form [formGroup]="editorialForm" (ngSubmit)="onSubmit()" class="grid grid-cols-1 md:grid-cols-12 gap-8">
+          <div class="col-span-12 md:col-span-8 space-y-6">
+            
+            <div class="space-y-1">
+              <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase">Título del Artículo</label>
+              <input formControlName="title" class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-serif text-xl p-3 focus:outline-none" placeholder="Ingresa un título llamativo..." type="text">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-1">
+                <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase">Categoría</label>
+                <select formControlName="category" class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-sans text-sm p-3 focus:outline-none">
+                  <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+                </select>
+              </div>
+              <div class="space-y-1">
+                <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase">Autor / Redactor</label>
+                <input formControlName="author" class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-sans text-sm p-3 focus:outline-none" placeholder="Nombre del autor..." type="text">
+              </div>
+            </div>
+
+            <!-- BLOCKS EDITOR CONTAINER -->
+            <div class="space-y-4 border border-brand-charcoal/20 p-6 bg-[#f9f8f6]">
+              <div class="flex justify-between items-center border-b border-brand-charcoal/10 pb-3">
+                <span class="font-mono text-[11px] font-bold uppercase tracking-wider text-brand-charcoal/80">Editor de Bloques</span>
+                <span class="font-mono text-[9px] opacity-60">Imágenes subidas: {{ getImageBlocksCount() }}/3</span>
+              </div>
+
+              <!-- Blocks List -->
+              <div class="space-y-4">
+                <div *ngFor="let block of blocks; let i = index" class="group border border-brand-charcoal/10 bg-brand-paper p-4 relative flex flex-col gap-3">
+                  
+                  <!-- Block type label & ordering controls -->
+                  <div class="flex justify-between items-center text-brand-charcoal/40 font-mono text-[9px] uppercase border-b border-brand-charcoal/5 pb-2">
+                    <span class="font-bold text-brand-sage">{{ block.type }}</span>
+                    <div class="flex gap-2">
+                      <button type="button" (click)="moveBlock(i, 'up')" [disabled]="i === 0" class="hover:text-brand-sage disabled:opacity-30">▲ Subir</button>
+                      <button type="button" (click)="moveBlock(i, 'down')" [disabled]="i === blocks.length - 1" class="hover:text-brand-sage disabled:opacity-30">▼ Bajar</button>
+                      <button type="button" (click)="removeBlock(i)" class="hover:text-brand-red font-bold ml-2">✕ Eliminar</button>
+                    </div>
+                  </div>
+
+                  <!-- Text Block -->
+                  <div *ngIf="block.type === 'text'" class="flex flex-col gap-2">
+                    <!-- Formatting Toolbar -->
+                    <div class="flex items-center gap-1 bg-[#efeeeb] border border-brand-charcoal/15 px-2 py-1.5 rounded-sm">
+                      <!-- Bold -->
+                      <button type="button"
+                              (click)="toggleFormat(i, 'bold')"
+                              [class.bg-brand-charcoal]="block.bold"
+                              [class.text-brand-paper]="block.bold"
+                              title="Negrita"
+                              class="w-7 h-7 flex items-center justify-center font-serif font-bold text-sm border border-brand-charcoal/30 hover:bg-brand-charcoal hover:text-brand-paper transition-all rounded-sm">
+                        <strong>N</strong>
+                      </button>
+                      <!-- Italic -->
+                      <button type="button"
+                              (click)="toggleFormat(i, 'italic')"
+                              [class.bg-brand-charcoal]="block.italic"
+                              [class.text-brand-paper]="block.italic"
+                              title="Itálica"
+                              class="w-7 h-7 flex items-center justify-center font-serif italic text-sm border border-brand-charcoal/30 hover:bg-brand-charcoal hover:text-brand-paper transition-all rounded-sm">
+                        <em>I</em>
+                      </button>
+                      <!-- Separator -->
+                      <span class="w-px h-5 bg-brand-charcoal/20 mx-1"></span>
+                      <!-- Align Left -->
+                      <button type="button"
+                              (click)="setAlign(i, 'left')"
+                              [class.bg-brand-charcoal]="block.align === 'left' || !block.align"
+                              [class.text-brand-paper]="block.align === 'left' || !block.align"
+                              title="Alinear a la izquierda"
+                              class="w-7 h-7 flex items-center justify-center text-xs border border-brand-charcoal/30 hover:bg-brand-charcoal hover:text-brand-paper transition-all rounded-sm">
+                        ≡
+                      </button>
+                      <!-- Align Center -->
+                      <button type="button"
+                              (click)="setAlign(i, 'center')"
+                              [class.bg-brand-charcoal]="block.align === 'center'"
+                              [class.text-brand-paper]="block.align === 'center'"
+                              title="Centrar"
+                              class="w-7 h-7 flex items-center justify-center text-xs border border-brand-charcoal/30 hover:bg-brand-charcoal hover:text-brand-paper transition-all rounded-sm">
+                        ☰
+                      </button>
+                      <!-- Align Right -->
+                      <button type="button"
+                              (click)="setAlign(i, 'right')"
+                              [class.bg-brand-charcoal]="block.align === 'right'"
+                              [class.text-brand-paper]="block.align === 'right'"
+                              title="Alinear a la derecha"
+                              class="w-7 h-7 flex items-center justify-center text-xs border border-brand-charcoal/30 hover:bg-brand-charcoal hover:text-brand-paper transition-all rounded-sm">
+                        ▤
+                      </button>
+                      <!-- Align Justify -->
+                      <button type="button"
+                              (click)="setAlign(i, 'justify')"
+                              [class.bg-brand-charcoal]="block.align === 'justify'"
+                              [class.text-brand-paper]="block.align === 'justify'"
+                              title="Justificado"
+                              class="w-7 h-7 flex items-center justify-center text-xs border border-brand-charcoal/30 hover:bg-brand-charcoal hover:text-brand-paper transition-all rounded-sm">
+                        ▦
+                      </button>
+                      <!-- Format badge -->
+                      <span class="ml-auto font-mono text-[8px] text-brand-charcoal/40 uppercase tracking-wider">
+                        {{ block.bold ? 'N ' : '' }}{{ block.italic ? 'I ' : '' }}{{ block.align || 'izq' }}
+                      </span>
+                    </div>
+                    <!-- Textarea with live formatting preview -->
+                    <textarea [(ngModel)]="block.content"
+                              [ngModelOptions]="{standalone: true}"
+                              placeholder="Escribe el contenido del párrafo aquí..."
+                              [ngClass]="getBlockTextClass(block)"
+                              class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-sans text-sm p-3 focus:outline-none resize-y min-h-[80px]"
+                              rows="3">
+                    </textarea>
+                  </div>
+
+                  <!-- Subtitle Block -->
+                  <div *ngIf="block.type === 'subtitle'">
+                    <input [(ngModel)]="block.content" [ngModelOptions]="{standalone: true}" placeholder="Subtítulo..." class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-serif text-base p-3 focus:outline-none" type="text">
+                  </div>
+
+                  <!-- Image Block -->
+                  <div *ngIf="block.type === 'image'" class="space-y-2">
+                    <div *ngIf="block.imageUrl || block.content" class="w-full aspect-video bg-brand-charcoal/5 flex items-center justify-center overflow-hidden border border-brand-charcoal/10 relative">
+                      <img [src]="block.imageUrl || block.content" class="max-h-full object-contain">
+                      <div class="absolute bottom-2 right-2 bg-brand-charcoal/80 text-brand-paper text-[9px] px-2 py-1 font-mono uppercase">Imagen Staged / Subida</div>
+                    </div>
+                    
+                    <div *ngIf="!block.imageUrl && !block.content" class="border-2 border-dashed border-brand-charcoal/20 bg-[#efeeeb] aspect-video flex flex-col items-center justify-center cursor-pointer hover:bg-brand-charcoal/5 relative p-4">
+                      <input type="file" (change)="onBlockFileSelected($event, i)" class="absolute inset-0 opacity-0 cursor-pointer">
+                      <span class="text-3xl mb-1">📸</span>
+                      <p class="font-mono text-[9px] text-center uppercase">Subir Foto (Máx 3 en total)</p>
+                      <p *ngIf="block.file" class="text-xs text-brand-sage font-bold mt-2">{{ block.file.name }}</p>
+                    </div>
+                  </div>
+
+                  <!-- Video Embed Block -->
+                  <div *ngIf="block.type === 'video'">
+                    <input [(ngModel)]="block.content" [ngModelOptions]="{standalone: true}" placeholder="Pega el link de YouTube o Instagram (Ej: https://www.youtube.com/embed/...)" class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-mono text-xs p-3 focus:outline-none" type="url">
+                    <p class="text-[9px] font-mono text-brand-charcoal/50 mt-1">Usa enlaces embebidos de formato /embed/ para un rendimiento óptimo.</p>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Add Block Buttons -->
+              <div class="flex flex-wrap gap-2 pt-4 border-t border-brand-charcoal/10">
+                <button type="button" (click)="addBlock('text')" class="px-4 py-2 border border-brand-charcoal text-brand-charcoal font-mono text-[10px] uppercase hover:bg-brand-charcoal hover:text-brand-paper transition-all">
+                  [+ Texto]
+                </button>
+                <button type="button" (click)="addBlock('subtitle')" class="px-4 py-2 border border-brand-charcoal text-brand-charcoal font-mono text-[10px] uppercase hover:bg-brand-charcoal hover:text-brand-paper transition-all">
+                  [+ Subtítulo]
+                </button>
+                <button type="button" (click)="addBlock('image')" [disabled]="getImageBlocksCount() >= 3" class="px-4 py-2 border border-brand-charcoal text-brand-charcoal font-mono text-[10px] uppercase hover:bg-brand-charcoal hover:text-brand-paper transition-all disabled:opacity-40">
+                  [+ Imagen]
+                </button>
+                <button type="button" (click)="addBlock('video')" class="px-4 py-2 border border-brand-charcoal text-brand-charcoal font-mono text-[10px] uppercase hover:bg-brand-charcoal hover:text-brand-paper transition-all">
+                  [+ Video Embed]
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Editorial Sidebar Panel -->
+          <div class="col-span-12 md:col-span-4 space-y-6">
+
+            <!-- ====== PUBLISH LOCATION CARD ====== -->
+            <div class="border border-brand-charcoal p-6 bg-[#f9f8f6] space-y-4">
+              <h4 class="font-mono text-xs font-bold uppercase tracking-wider border-b border-brand-charcoal/10 pb-2 text-brand-charcoal flex items-center gap-2">
+                <span>📍</span> Publicar En
+              </h4>
+              <p class="font-mono text-[9px] text-brand-charcoal/50 uppercase -mt-2">Elige dónde aparecerá esta noticia</p>
+
+              <div class="space-y-2">
+
+                <!-- Primera Plana -->
+                <label class="flex items-start gap-3 p-3 cursor-pointer border transition-all"
+                       [class.border-brand-charcoal]="editorialForm.value.publishLocation === 'primera_plana'"
+                       [class.bg-brand-charcoal]="editorialForm.value.publishLocation === 'primera_plana'"
+                       [class.text-brand-paper]="editorialForm.value.publishLocation === 'primera_plana'"
+                       [class.border-brand-charcoal/20]="editorialForm.value.publishLocation !== 'primera_plana'"
+                       [class.bg-white]="editorialForm.value.publishLocation !== 'primera_plana'">
+                  <input type="radio" formControlName="publishLocation" value="primera_plana" class="mt-0.5 accent-brand-sage">
+                  <div>
+                    <p class="font-mono text-[10px] font-bold uppercase">🗞 Primera Plana</p>
+                    <p class="font-sans text-[9px] opacity-70 mt-0.5">Artículo destacado en la portada principal</p>
+                  </div>
+                </label>
+
+                <!-- Últimos Informes -->
+                <label class="flex items-start gap-3 p-3 cursor-pointer border transition-all"
+                       [class.border-brand-charcoal]="editorialForm.value.publishLocation === 'ultimos_informes'"
+                       [class.bg-brand-charcoal]="editorialForm.value.publishLocation === 'ultimos_informes'"
+                       [class.text-brand-paper]="editorialForm.value.publishLocation === 'ultimos_informes'"
+                       [class.border-brand-charcoal/20]="editorialForm.value.publishLocation !== 'ultimos_informes'"
+                       [class.bg-white]="editorialForm.value.publishLocation !== 'ultimos_informes'">
+                  <input type="radio" formControlName="publishLocation" value="ultimos_informes" class="mt-0.5 accent-brand-sage">
+                  <div>
+                    <p class="font-mono text-[10px] font-bold uppercase">📋 Últimos Informes</p>
+                    <p class="font-sans text-[9px] opacity-70 mt-0.5">Aparece en la sección de noticias recientes</p>
+                  </div>
+                </label>
+
+                <!-- Titulares Principales -->
+                <label class="flex items-start gap-3 p-3 cursor-pointer border transition-all"
+                       [class.border-brand-charcoal]="editorialForm.value.publishLocation === 'titulares'"
+                       [class.bg-brand-charcoal]="editorialForm.value.publishLocation === 'titulares'"
+                       [class.text-brand-paper]="editorialForm.value.publishLocation === 'titulares'"
+                       [class.border-brand-charcoal/20]="editorialForm.value.publishLocation !== 'titulares'"
+                       [class.bg-white]="editorialForm.value.publishLocation !== 'titulares'">
+                  <input type="radio" formControlName="publishLocation" value="titulares" class="mt-0.5 accent-brand-sage">
+                  <div>
+                    <p class="font-mono text-[10px] font-bold uppercase">🔖 Titulares Principales</p>
+                    <p class="font-sans text-[9px] opacity-70 mt-0.5">Listado lateral de titulares del día</p>
+                  </div>
+                </label>
+
+                <!-- Archivo -->
+                <label class="flex items-start gap-3 p-3 cursor-pointer border transition-all"
+                       [class.border-brand-charcoal]="editorialForm.value.publishLocation === 'archivo'"
+                       [class.bg-brand-charcoal]="editorialForm.value.publishLocation === 'archivo'"
+                       [class.text-brand-paper]="editorialForm.value.publishLocation === 'archivo'"
+                       [class.border-brand-charcoal/20]="editorialForm.value.publishLocation !== 'archivo'"
+                       [class.bg-white]="editorialForm.value.publishLocation !== 'archivo'">
+                  <input type="radio" formControlName="publishLocation" value="archivo" class="mt-0.5 accent-brand-sage">
+                  <div>
+                    <p class="font-mono text-[10px] font-bold uppercase">🗄 Desde los Archivos</p>
+                    <p class="font-sans text-[9px] opacity-70 mt-0.5">Contenido histórico / de archivo</p>
+                  </div>
+                </label>
+
+              </div>
+            </div>
+
+            <!-- ====== PUBLISH ACTION CARD ====== -->
+            <div class="border border-brand-charcoal p-6 bg-[#f9f8f6] space-y-6">
+              <h4 class="font-mono text-xs font-bold uppercase tracking-wider border-b border-brand-charcoal/10 pb-2 text-brand-charcoal">Publicar Noticia</h4>
+              
+              <div class="space-y-1">
+                <label class="font-mono text-[9px] font-bold text-brand-charcoal/60 uppercase">Enlace a Fuente (Opcional)</label>
+                <input formControlName="contentUrl" class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-sans text-xs p-2 focus:outline-none" placeholder="https://..." type="url">
+              </div>
+
+              <!-- Summary badge of selected location -->
+              <div class="bg-brand-charcoal/5 border border-brand-charcoal/10 px-3 py-2 text-center">
+                <p class="font-mono text-[9px] text-brand-charcoal/50 uppercase mb-0.5">Destino seleccionado</p>
+                <p class="font-mono text-[11px] font-bold text-brand-charcoal uppercase">
+                  <ng-container [ngSwitch]="editorialForm.value.publishLocation">
+                    <span *ngSwitchCase="'primera_plana'">🗞 Primera Plana</span>
+                    <span *ngSwitchCase="'ultimos_informes'">📋 Últimos Informes</span>
+                    <span *ngSwitchCase="'titulares'">🔖 Titulares Principales</span>
+                    <span *ngSwitchCase="'archivo'">🗄 Desde los Archivos</span>
+                    <span *ngSwitchDefault>— Sin seleccionar —</span>
+                  </ng-container>
+                </p>
+              </div>
+
+              <div class="space-y-3">
+                <button [disabled]="loading" class="w-full py-4 bg-brand-sage text-brand-paper font-mono text-[11px] font-bold uppercase tracking-widest hover:bg-brand-charcoal transition-all disabled:opacity-50" type="submit">
+                  {{ loading ? 'PUBLICANDO...' : (editingArticleId ? 'GUARDAR CAMBIOS' : 'PUBLICAR EN VIVO') }}
+                </button>
+                
+                <button *ngIf="editingArticleId" type="button" (click)="cancelEdit()" class="w-full py-2 border border-brand-charcoal text-brand-charcoal font-mono text-[10px] uppercase hover:bg-brand-red hover:text-brand-paper transition-all">
+                  Cancelar Edición
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </form>
+
+        <!-- ARTICLES LIST FOR EDITING AND REMOVING -->
+        <div class="mt-12 border-t border-brand-charcoal/20 pt-8">
+          <h3 class="font-serif text-2xl uppercase tracking-tighter mb-6">Artículos y Noticias Publicados</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-brand-charcoal bg-[#efeeeb]">
+                  <th class="p-3 font-mono text-[10px] uppercase tracking-wider">Título</th>
+                  <th class="p-3 font-mono text-[10px] uppercase tracking-wider">Categoría</th>
+                  <th class="p-3 font-mono text-[10px] uppercase tracking-wider">Ubicación</th>
+                  <th class="p-3 font-mono text-[10px] uppercase tracking-wider">Autor</th>
+                  <th class="p-3 font-mono text-[10px] uppercase tracking-wider text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let art of listaArticulos" class="border-b border-brand-charcoal/10 hover:bg-brand-sage/5 transition-colors">
+                  <td class="p-3 font-sans text-sm font-semibold max-w-[200px] truncate">{{ art.title }}</td>
+                  <td class="p-3 font-mono text-xs">{{ getCategoryLabel(art.category) }}</td>
+                  <td class="p-3">
+                    <span class="font-mono text-[9px] uppercase font-bold px-2 py-0.5 border"
+                          [ngClass]="getLocationBadgeClass(art.category)">
+                      {{ getLocationLabel(art.category) }}
+                    </span>
+                  </td>
+                  <td class="p-3 font-sans text-xs opacity-75">{{ art.author }}</td>
+                  <td class="p-3 text-right space-x-2">
+                    <button (click)="editArticle(art)" class="px-3 py-1 bg-brand-sage text-brand-paper font-mono text-[9px] uppercase font-bold hover:bg-brand-charcoal transition-all">
+                      Editar
+                    </button>
+                    <button (click)="deleteArticle(art.id)" class="px-3 py-1 border border-brand-red text-brand-red font-mono text-[9px] uppercase font-bold hover:bg-brand-red hover:text-brand-paper transition-all">
+                      Eliminar
+                    </button>
+                  </td>
+                </tr>
+                <tr *ngIf="listaArticulos.length === 0">
+                  <td colspan="5" class="p-4 text-center font-sans text-brand-charcoal/50">No hay artículos publicados.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- FORM 2: DIRECTORY / COMMERCE -->
       <form *ngIf="activeSection === 'directory'" [formGroup]="contentForm" (ngSubmit)="onSubmit()" class="grid grid-cols-1 md:grid-cols-12 gap-8">
         <div class="col-span-12 md:col-span-7 space-y-6">
           <div class="space-y-1">
@@ -141,174 +460,6 @@
           </div>
           <button [disabled]="loading" class="w-full py-4 bg-brand-sage text-brand-paper font-mono text-[11px] font-bold uppercase tracking-widest hover:bg-brand-charcoal transition-all disabled:opacity-50" type="submit">
             {{ loading ? 'PUBLICANDO...' : 'PUBLICAR EN VIVO' }}
-          </button>
-        </div>
-      </form>
-
-      <!-- FORM 2: EDITORIAL (MEDIA/NEWS) -->
-      <form *ngIf="activeSection === 'editorial'" [formGroup]="editorialForm" (ngSubmit)="onSubmit()" class="grid grid-cols-1 md:grid-cols-12 gap-8">
-        <div class="col-span-12 md:col-span-7 space-y-6">
-          <div class="space-y-1">
-            <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase">Título de la Noticia / Recurso</label>
-            <input formControlName="title" class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-sans text-base p-3 focus:outline-none" placeholder="Ej. El Festival de Música de este Verano en Ginebra" type="text">
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-            <div class="space-y-1">
-              <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase">Tipo de Contenido</label>
-              <select formControlName="type" class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-sans text-base p-3 focus:outline-none">
-                <option value="article">📰 Artículo / Noticia</option>
-                <option value="video">🎥 Video</option>
-                <option value="podcast">🎙️ Podcast / Audio</option>
-              </select>
-            </div>
-            <div class="space-y-1">
-              <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase">Categoría</label>
-              <select formControlName="category" class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-sans text-base p-3 focus:outline-none">
-                <option value="Cultura">Cultura</option>
-                <option value="Deportes">Deportes</option>
-                <option value="Interés Público">Interés Público</option>
-                <option value="Comunidad">Comunidad</option>
-              </select>
-            </div>
-          </div>
-          <div class="space-y-1">
-            <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase">Autor / Redactor</label>
-            <input formControlName="author" class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-sans text-base p-3 focus:outline-none" placeholder="Redacción Arandu / Nombre" type="text">
-          </div>
-          <div class="space-y-1">
-            <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase">Resumen / Descripción corta</label>
-            <textarea formControlName="description" class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-sans text-base p-3 focus:outline-none" placeholder="Introduce una breve introducción..." rows="3"></textarea>
-          </div>
-          <div class="space-y-1">
-            <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase">URL del contenido principal</label>
-            <input formControlName="contentUrl" class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-sans text-base p-3 focus:outline-none" placeholder="https://..." type="url">
-          </div>
-          <div class="space-y-1">
-            <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase">URL de Integración Multimedia (YouTube Embed/Spotify, opcional)</label>
-            <input formControlName="embedUrl" class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-sans text-base p-3 focus:outline-none" placeholder="https://www.youtube.com/embed/..." type="text">
-          </div>
-        </div>
-        <div class="col-span-12 md:col-span-5 space-y-6">
-          <div class="space-y-1">
-            <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase">Imagen de Portada</label>
-            <div class="border-2 border-dashed border-brand-charcoal/20 bg-[#efeeeb] aspect-video flex flex-col items-center justify-center cursor-pointer hover:bg-brand-charcoal/5 relative p-4">
-              <input type="file" (change)="onFileSelected($event)" class="absolute inset-0 opacity-0 cursor-pointer">
-              <span class="text-3xl mb-2">📸</span>
-              <p class="font-mono text-[10px] text-center uppercase">Arrastra o haz clic para subir</p>
-              <p *ngIf="selectedFile" class="text-xs text-brand-sage font-bold mt-2">{{ selectedFile.name }}</p>
-            </div>
-          </div>
-          <button [disabled]="loading" class="w-full py-4 bg-brand-sage text-brand-paper font-mono text-[11px] font-bold uppercase tracking-widest hover:bg-brand-charcoal transition-all disabled:opacity-50" type="submit">
-            {{ loading ? 'PUBLICANDO...' : 'PUBLICAR EN EDITORIAL' }}
-          </button>
-        </div>
-      </form>
-
-      <!-- FORM 3: JOBS (CLASIFICADOS EMPLEO) -->
-      <form *ngIf="activeSection === 'jobs'" [formGroup]="jobsForm" (ngSubmit)="onSubmit()" class="space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="space-y-1">
-            <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase">Título del Empleo</label>
-            <input formControlName="title" class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-sans text-base p-3 focus:outline-none" placeholder="Ej. Electricista Oficial" type="text">
-          </div>
-          <div class="space-y-1">
-            <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase">Empresa / Empleador</label>
-            <input formControlName="company" class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-sans text-base p-3 focus:outline-none" placeholder="Ej. GBN Services" type="text">
-          </div>
-        </div>
-        <div class="space-y-1">
-          <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase">Descripción de Funciones</label>
-          <textarea formControlName="description" class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-sans text-base p-3 focus:outline-none" placeholder="Detalles de la oferta..." rows="3"></textarea>
-        </div>
-        <div class="space-y-1">
-          <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase">Requisitos obligatorios</label>
-          <textarea formControlName="requirements" class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-sans text-base p-3 focus:outline-none" placeholder="Ej. Experiencia previa, hablar español/francés..." rows="2"></textarea>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="space-y-1">
-            <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase">Salario</label>
-            <input formControlName="salary" class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-sans text-base p-3 focus:outline-none" placeholder="Ej. CHF 4,500 / A convenir" type="text">
-          </div>
-          <div class="space-y-1">
-            <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase">Tipo de Jornada</label>
-            <select formControlName="jobType" class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-sans text-base p-3 focus:outline-none">
-              <option value="Full-time">Tiempo Completo (Full-time)</option>
-              <option value="Part-time">Tiempo Parcial (Part-time)</option>
-              <option value="Temporal">Temporal / Por horas</option>
-            </select>
-          </div>
-          <div class="space-y-1">
-            <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase">Email de Contacto</label>
-            <input formControlName="contactEmail" class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-sans text-base p-3 focus:outline-none" placeholder="rrhh@empresa.ch" type="email">
-          </div>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-          <div class="space-y-1">
-            <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase">Teléfono de Contacto (Opcional)</label>
-            <input formControlName="contactPhone" class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-sans text-base p-3 focus:outline-none" placeholder="+41 79 000 00 00" type="text">
-          </div>
-          <div class="flex items-end">
-            <button [disabled]="loading" class="w-full py-4 bg-brand-charcoal text-brand-paper font-mono text-[11px] font-bold uppercase tracking-widest hover:bg-brand-sage transition-all disabled:opacity-50" type="submit">
-              {{ loading ? 'PUBLICANDO...' : 'PUBLICAR OFERTA DE EMPLEO' }}
-            </button>
-          </div>
-        </div>
-      </form>
-
-      <!-- FORM 4: SERVICES (CLASIFICADOS SERVICIOS/REPARACIONES) -->
-      <form *ngIf="activeSection === 'services'" [formGroup]="servicesForm" (ngSubmit)="onSubmit()" class="grid grid-cols-1 md:grid-cols-12 gap-8">
-        <div class="col-span-12 md:col-span-7 space-y-6">
-          <div class="space-y-1">
-            <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase">Título del Servicio</label>
-            <input formControlName="title" class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-sans text-base p-3 focus:outline-none" placeholder="Ej. Pintor profesional en Ginebra" type="text">
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-            <div class="space-y-1">
-              <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase">Categoría de Servicio</label>
-              <select formControlName="category" class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-sans text-base p-3 focus:outline-none">
-                <option value="Reparaciones">Reparaciones / Fontanería</option>
-                <option value="Electricidad">Electricidad</option>
-                <option value="Limpieza">Limpieza / Cuidado</option>
-                <option value="Clases Particulares">Clases Particulares</option>
-                <option value="Otros">Otros</option>
-              </select>
-            </div>
-            <div class="space-y-1">
-              <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase">Nombre de Contacto</label>
-              <input formControlName="contactName" class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-sans text-base p-3 focus:outline-none" placeholder="Ej. Rubén G." type="text">
-            </div>
-          </div>
-          <div class="space-y-1">
-            <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase">Descripción detallada del servicio</label>
-            <textarea formControlName="description" class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-sans text-base p-3 focus:outline-none" placeholder="Describe lo que ofreces, precios, disponibilidad..." rows="4"></textarea>
-          </div>
-          <div class="grid grid-cols-3 gap-4">
-            <div class="space-y-1">
-              <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase">Teléfono obligatorio</label>
-              <input formControlName="phone" class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-sans text-base p-3 focus:outline-none" placeholder="+41 79 123 45 67" type="text">
-            </div>
-            <div class="space-y-1">
-              <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase">Email (Opcional)</label>
-              <input formControlName="email" class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-sans text-base p-3 focus:outline-none" placeholder="contacto@servicio.ch" type="email">
-            </div>
-            <div class="space-y-1">
-              <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase">Sitio Web (Opcional)</label>
-              <input formControlName="website" class="w-full bg-[#efeeeb] border-0 border-b border-brand-charcoal focus:ring-0 font-sans text-base p-3 focus:outline-none" placeholder="https://..." type="url">
-            </div>
-          </div>
-        </div>
-        <div class="col-span-12 md:col-span-5 space-y-6">
-          <div class="space-y-1">
-            <label class="font-mono text-[10px] font-bold text-brand-charcoal/60 uppercase">Imagen de Referencia (Opcional)</label>
-            <div class="border-2 border-dashed border-brand-charcoal/20 bg-[#efeeeb] aspect-video flex flex-col items-center justify-center cursor-pointer hover:bg-brand-charcoal/5 relative p-4">
-              <input type="file" (change)="onFileSelected($event)" class="absolute inset-0 opacity-0 cursor-pointer">
-              <span class="text-3xl mb-2">📸</span>
-              <p class="font-mono text-[10px] text-center uppercase">Arrastra o haz clic para subir</p>
-              <p *ngIf="selectedFile" class="text-xs text-brand-sage font-bold mt-2">{{ selectedFile.name }}</p>
-            </div>
-          </div>
-          <button [disabled]="loading" class="w-full py-4 bg-brand-sage text-brand-paper font-mono text-[11px] font-bold uppercase tracking-widest hover:bg-brand-charcoal transition-all disabled:opacity-50" type="submit">
-            {{ loading ? 'PUBLICANDO...' : 'PUBLICAR SERVICIO / ANUNCIO' }}
           </button>
         </div>
       </form>

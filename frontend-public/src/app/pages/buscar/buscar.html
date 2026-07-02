@@ -1,0 +1,143 @@
+<main class="min-h-screen bg-brand-paper py-12 px-6 md:px-8 max-w-[1280px] mx-auto">
+  <header class="mb-12 border-b-2 border-brand-charcoal pb-8">
+    <h1 class="font-serif text-4xl md:text-5xl font-bold text-brand-charcoal uppercase tracking-tight mb-4 leading-none">Búsqueda Global</h1>
+    <p class="font-sans text-brand-charcoal/70 text-lg md:text-xl max-w-2xl leading-relaxed">
+      Encuentra artículos, noticias y anuncios en un solo lugar.
+    </p>
+  </header>
+
+  <!-- Búsqueda y Filtros Principales -->
+  <div class="mb-12 space-y-6">
+    <!-- Search Input -->
+    <div class="flex flex-col sm:flex-row gap-3">
+      <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="onSearchInput()" (keyup.enter)="onSearch()" placeholder="Buscar por palabra clave..." class="flex-1 bg-white border border-brand-charcoal px-5 py-3.5 font-mono text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-sage focus:border-brand-sage shadow-xs">
+      <button (click)="onSearch()" class="bg-brand-charcoal text-brand-paper px-8 py-3.5 font-mono text-xs font-bold uppercase tracking-widest hover:bg-brand-sage hover:text-brand-charcoal transition-colors rounded-xl cursor-pointer">
+        BUSCAR
+      </button>
+    </div>
+
+    <!-- Filtro Tipo -->
+    <div class="flex border border-brand-charcoal rounded-xl overflow-hidden w-fit shadow-xs bg-brand-paper">
+      <button (click)="setFilter('TODO')" [class.bg-brand-charcoal]="activeFilter === 'TODO'" [class.text-brand-paper]="activeFilter === 'TODO'" class="px-5 py-2 font-mono text-[10px] font-bold uppercase tracking-widest hover:bg-brand-charcoal/10 transition-colors cursor-pointer">TODO</button>
+      <button (click)="setFilter('ARTÍCULOS')" [class.bg-brand-charcoal]="activeFilter === 'ARTÍCULOS'" [class.text-brand-paper]="activeFilter === 'ARTÍCULOS'" class="px-5 py-2 font-mono text-[10px] font-bold uppercase tracking-widest hover:bg-brand-charcoal/10 transition-colors border-l border-r border-brand-charcoal cursor-pointer">ARTÍCULOS</button>
+      <button (click)="setFilter('ANUNCIOS')" [class.bg-brand-charcoal]="activeFilter === 'ANUNCIOS'" [class.text-brand-paper]="activeFilter === 'ANUNCIOS'" class="px-5 py-2 font-mono text-[10px] font-bold uppercase tracking-widest hover:bg-brand-charcoal/10 transition-colors cursor-pointer">ANUNCIOS</button>
+    </div>
+
+    <!-- Filtro Categorías SEO -->
+    <div>
+      <span class="font-mono text-[10px] uppercase text-brand-charcoal/50 tracking-widest block mb-3">FILTRAR POR TENDENCIAS:</span>
+      <div class="flex flex-wrap gap-2">
+        <button *ngFor="let cat of topCategories" 
+                (click)="setCategory(cat)"
+                [class.bg-brand-sage]="activeCategory === cat"
+                [class.text-brand-paper]="activeCategory === cat"
+                [class.border-brand-sage]="activeCategory === cat"
+                class="border border-brand-charcoal/30 text-brand-charcoal px-3.5 py-1 font-mono text-[10px] font-bold uppercase hover:border-brand-charcoal transition-colors rounded-full cursor-pointer">
+          #{{ cat }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center py-20">
+    <span class="font-mono text-xs text-brand-charcoal/60 uppercase animate-pulse">Buscando resultados...</span>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && paginatedItems.length === 0" class="border border-brand-charcoal p-12 text-center bg-brand-charcoal/5 mt-8 rounded-xl">
+    <span class="font-mono text-xl text-brand-charcoal/40 uppercase tracking-widest block mb-4 font-bold">Sin resultados</span>
+    <p class="font-sans text-brand-charcoal/60 max-w-md mx-auto text-xs">
+      No encontramos resultados para tu búsqueda. Intenta usar otros términos o cambia los filtros.
+    </p>
+  </div>
+
+  <!-- Results Grid -->
+  <div *ngIf="!loading && paginatedItems.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <a *ngFor="let item of paginatedItems" [routerLink]="[item.link]" class="border border-brand-charcoal flex flex-col group overflow-hidden bg-brand-paper cursor-pointer hover:border-brand-sage transition-all duration-200 shadow-sm hover:shadow-md rounded-xl h-full">
+      
+      <!-- Image Header (User photo or category 2D fallback) -->
+      <div class="h-36 w-full overflow-hidden border-b border-brand-charcoal bg-brand-charcoal/5 flex flex-col items-center justify-center relative">
+        <ng-container *ngIf="item.imageUrl; else fallbackSearchImage">
+          <img [src]="item.imageUrl" [alt]="item.title" (error)="onImgError(item)" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+        </ng-container>
+        <ng-template #fallbackSearchImage>
+          <div class="w-full h-full bg-brand-sage/10 flex flex-col items-center justify-center p-3 transition-all duration-300 group-hover:opacity-90">
+            <div class="mb-1.5 text-brand-charcoal">
+              <!-- Electricidad SVG -->
+              <svg *ngIf="getCategoryKey(item) === 'electricidad'" class="w-9 h-9 stroke-current fill-none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+              <!-- Empleo SVG -->
+              <svg *ngIf="getCategoryKey(item) === 'empleo'" class="w-9 h-9 stroke-current fill-none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              </svg>
+              <!-- Servicios SVG -->
+              <svg *ngIf="getCategoryKey(item) === 'servicios'" class="w-9 h-9 stroke-current fill-none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 4a2 2 0 114 0v1a2 2 0 01-2 2h-1a1 1 0 00-1 1v3a1 1 0 01-1 1h-1a2 2 0 01-2-2V8a2 2 0 012-2h1a1 1 0 001-1V4zM16.5 13a2.5 2.5 0 100 5 2.5 2.5 0 000-5zM4 19.5L9.5 14"/>
+              </svg>
+              <!-- Cursos SVG -->
+              <svg *ngIf="getCategoryKey(item) === 'cursos'" class="w-9 h-9 stroke-current fill-none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 14l9-5-9-5-9 5 9 5z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0112 20.055a11.952 11.952 0 01-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
+              </svg>
+              <!-- Venta y Donaciones SVG -->
+              <svg *ngIf="getCategoryKey(item) === 'venta'" class="w-9 h-9 stroke-current fill-none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+              </svg>
+              <!-- Articulos / Otros SVG -->
+              <svg *ngIf="getCategoryKey(item) === 'otros' || getCategoryKey(item) === 'articulo'" class="w-9 h-9 stroke-current fill-none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6m-4 4h4"/>
+              </svg>
+            </div>
+            <span class="font-mono text-[9px] tracking-widest uppercase font-bold text-brand-charcoal/70">{{ item.category }}</span>
+          </div>
+        </ng-template>
+      </div>
+      
+      <!-- Content -->
+      <div class="p-4 flex-grow flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center mb-2">
+            <span class="font-mono text-[9px] px-2 py-0.5 rounded font-bold uppercase border"
+                  [ngClass]="item.type === 'articulo' ? 'bg-brand-sage/20 text-brand-charcoal border-brand-charcoal' : 'bg-brand-charcoal text-brand-paper border-brand-charcoal'">
+              {{ item.type }}
+            </span>
+            <span class="font-mono text-[9px] text-brand-charcoal/50">{{ item.date | date:'dd MMM yyyy' }}</span>
+          </div>
+          <h3 class="font-serif text-base font-bold text-brand-charcoal mb-2 leading-tight group-hover:text-brand-sage transition-colors line-clamp-2">
+            {{ item.title }}
+          </h3>
+          <p class="font-sans text-xs text-brand-charcoal/70 mb-3 leading-relaxed line-clamp-3">
+            {{ getBlocksText(item.description) }}
+          </p>
+        </div>
+        <div class="border-t border-brand-charcoal/10 pt-2.5 mt-auto flex justify-between items-center">
+          <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase tracking-widest">
+            #{{ item.category }}
+          </span>
+          <span class="font-mono text-[9px] text-brand-sage uppercase font-bold group-hover:underline">Ver más →</span>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!loading && totalPages > 1" class="mt-16 flex justify-between items-center border-t border-brand-charcoal/20 pt-8">
+    <button (click)="prevPage()" [disabled]="currentPage === 1" 
+            class="flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-widest transition-colors"
+            [class.text-brand-charcoal]="currentPage > 1" [class.hover:text-brand-sage]="currentPage > 1"
+            [class.text-brand-charcoal.opacity-30]="currentPage === 1" [class.cursor-not-allowed]="currentPage === 1">
+      <span class="text-lg">←</span> Anterior
+    </button>
+    
+    <span class="font-mono text-xs text-brand-charcoal/60">PÁGINA {{ currentPage }} DE {{ totalPages }}</span>
+    
+    <button (click)="nextPage()" [disabled]="currentPage === totalPages" 
+            class="flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-widest transition-colors"
+            [class.text-brand-charcoal]="currentPage < totalPages" [class.hover:text-brand-sage]="currentPage < totalPages"
+            [class.text-brand-charcoal.opacity-30]="currentPage === totalPages" [class.cursor-not-allowed]="currentPage === totalPages">
+      Siguiente <span class="text-lg">→</span>
+    </button>
+  </div>
+</main>

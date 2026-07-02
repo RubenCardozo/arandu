@@ -11,6 +11,49 @@ export class ServicesCatalogService {
   constructor(private supabase: SupabaseService) {}
 
   /**
+   * Creates a new service record. Optionally uploads an image file first.
+   */
+  async create(service: any, file?: File): Promise<void> {
+    let imageUrl = service.imageUrl || '';
+
+    if (file) {
+      const ext = file.name.split('.').pop();
+      const path = `services/${Math.random()}.${ext}`;
+      imageUrl = await this.uploadFile('assets', path, file);
+    }
+
+    const { error } = await this.supabase.client
+      .from('services')
+      .insert([{
+        title: service.title,
+        category: service.category,
+        description: service.description,
+        contact_name: service.contactName,
+        phone: service.phone,
+        email: service.email,
+        website: service.website,
+        image_url: imageUrl,
+        owner_id: service.ownerId
+      }]);
+
+    if (error) throw error;
+  }
+
+  /**
+   * Uploads a file to the specified Supabase Storage bucket and path.
+   */
+  async uploadFile(bucket: string, path: string, file: File): Promise<string> {
+    const { error: uploadError } = await this.supabase.client.storage
+      .from(bucket)
+      .upload(path, file);
+
+    if (uploadError) throw uploadError;
+
+    const { data } = this.supabase.client.storage.from(bucket).getPublicUrl(path);
+    return data.publicUrl;
+  }
+
+  /**
    * Fetches all services ordered by created_at DESC.
    * Maps DB rows (snake_case) to view models (camelCase).
    * @returns Array of ServiceItemViewModel, or empty array on error.

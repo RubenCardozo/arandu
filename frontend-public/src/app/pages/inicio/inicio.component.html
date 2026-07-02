@@ -24,109 +24,198 @@
     <div *ngIf="!loading">
       <!-- Hero Section -->
       <section class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-20 border-b border-brand-charcoal/20 pb-16">
-      <div class="md:col-span-8 flex flex-col justify-center">
-        <div class="flex gap-4 items-center mb-6">
-          <span class="px-3 py-1 bg-brand-red text-white font-mono text-[10px] font-bold rounded-full">{{ heroArticle.category }}</span>
-          <span class="font-mono text-[11px] text-brand-charcoal/80 uppercase tracking-widest">{{ heroArticle.date }} — POR {{ heroArticle.author }}</span>
-        </div>
-        <h1 class="font-serif text-5xl md:text-7xl font-semibold leading-[1.05] tracking-tighter mb-8">
-          {{ heroArticle.title }}
-        </h1>
-        <p class="font-sans text-xl md:text-2xl text-brand-charcoal/80 leading-relaxed mb-10 max-w-2xl">
-          {{ heroArticle.description }}
-        </p>
-        <div class="flex flex-wrap gap-4">
-          <a routerLink="/editorial" class="bg-brand-charcoal text-brand-paper px-8 py-3 font-mono text-xs font-bold uppercase tracking-widest hover:bg-brand-sage transition-colors text-center">
-            Ver Editorial
-          </a>
-          <a routerLink="/anuncios" class="border border-brand-charcoal px-8 py-3 font-mono text-xs font-bold uppercase tracking-widest hover:bg-brand-charcoal/5 transition-colors text-center">
-            Ver Clasificados
-          </a>
-        </div>
-      </div>
-      <div class="md:col-span-4 aspect-[3/4] relative overflow-hidden group border border-brand-charcoal">
-        <img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" [alt]="heroArticle.title" [src]="heroArticle.imageUrl">
-        <div class="absolute inset-0 border-[12px] border-brand-paper/20 pointer-events-none"></div>
-      </div>
-    </section>
-
-    <!-- Main Headlines Grid -->
-    <section class="mb-24">
-      <div class="flex justify-between items-end mb-8 border-b-2 border-brand-charcoal pb-2">
-        <h2 class="font-mono text-lg font-bold tracking-widest uppercase">Titulares Principales</h2>
-        <a routerLink="/editorial" class="font-mono text-xs text-brand-sage font-bold hover:underline">VER TODAS LAS SECCIONES</a>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-0 border border-brand-charcoal overflow-hidden">
-        <!-- Card Loop -->
-        <article *ngFor="let headline of headlines; let last = last" 
-          [class.border-r]="!last" 
-          class="p-8 border-brand-charcoal flex flex-col hover:bg-brand-charcoal/5 transition-colors group">
-          <span class="font-mono text-[10px] font-bold mb-4 uppercase tracking-widest" [ngClass]="headline.colorClass">{{ headline.category }}</span>
-          <h3 class="font-serif text-3xl font-medium mb-4 group-hover:text-brand-sage transition-colors leading-tight">{{ headline.title }}</h3>
-          <p class="font-sans text-sm text-brand-charcoal/70 mb-6 leading-relaxed flex-grow">{{ headline.description }}</p>
-          <div class="flex justify-between items-center pt-6 border-t border-brand-charcoal/10">
-            <span class="font-mono text-[10px] text-brand-charcoal/60 uppercase tracking-widest">{{ headline.readTime }}</span>
-            <span class="text-xl">→</span>
+        <div class="md:col-span-8 flex flex-col justify-center">
+          <div class="flex gap-4 items-center mb-6">
+            <span class="px-3 py-1 bg-brand-red text-white font-mono text-[10px] font-bold rounded-full">{{ heroArticle.category }}</span>
+            <span class="font-mono text-[11px] text-brand-charcoal/80 uppercase tracking-widest">{{ heroArticle.date }} — POR {{ heroArticle.author }}</span>
           </div>
-        </article>
-      </div>
-    </section>
-
-    <!-- Sidebar / Modules Section -->
-    <section class="grid grid-cols-1 md:grid-cols-12 gap-12">
-      <!-- Latest Reports -->
-      <div class="md:col-span-8">
-        <div class="mb-8 border-b border-brand-charcoal pb-2">
-          <h2 class="font-mono text-sm font-bold tracking-widest uppercase">Últimos Informes</h2>
+          <h1 class="font-serif text-5xl md:text-7xl font-semibold leading-[1.05] tracking-tighter mb-8 cursor-pointer hover:text-brand-sage transition-colors" (click)="onReadHeroArticle()">
+            {{ heroArticle.title }}
+          </h1>
+          <p class="font-sans text-xl md:text-2xl text-brand-charcoal/80 leading-relaxed mb-10 max-w-2xl">
+            {{ heroArticle.description }}
+          </p>
+          <div class="flex flex-wrap gap-4">
+            <button (click)="onReadHeroArticle()" class="bg-brand-charcoal text-brand-paper px-8 py-3 font-mono text-xs font-bold uppercase tracking-widest hover:bg-brand-sage hover:text-brand-charcoal border-0 cursor-pointer transition-all">
+              Leer todo el artículo
+            </button>
+          </div>
         </div>
-        <div class="space-y-12">
-          <div *ngFor="let report of reports" class="grid grid-cols-1 sm:grid-cols-4 gap-6 group cursor-pointer border border-transparent hover:border-brand-charcoal/10 p-2 transition-all">
-            <div class="sm:col-span-1 border border-brand-charcoal/20 overflow-hidden">
-              <img class="w-full aspect-square object-cover grayscale group-hover:grayscale-0 transition-all duration-500" [alt]="report.title" [src]="report.imageUrl">
+        <div class="md:col-span-4 aspect-[3/4] relative overflow-hidden group border border-brand-charcoal cursor-pointer" (click)="onReadHeroArticle()">
+          <img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" [alt]="heroArticle.title" [src]="heroArticle.imageUrl">
+          <div class="absolute inset-0 border-[12px] border-brand-paper/20 pointer-events-none"></div>
+        </div>
+      </section>
+
+      <!-- Main Headlines Grid -->
+      <section class="mb-24">
+        <div class="flex justify-between items-end mb-8 border-b-2 border-brand-charcoal pb-2">
+          <h2 class="font-mono text-lg font-bold tracking-widest uppercase">Titulares Principales</h2>
+          <a routerLink="/editorial" class="font-mono text-xs text-brand-sage font-bold hover:underline">VER TODAS LAS SECCIONES</a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-0 border border-brand-charcoal overflow-hidden">
+          <!-- Card Loop -->
+          <article *ngFor="let headline of headlines; let last = last" 
+            [class.border-r]="!last" 
+            (click)="onReadArticle(headline)"
+            class="p-8 border-brand-charcoal flex flex-col hover:bg-brand-charcoal/5 transition-colors group cursor-pointer">
+            <span class="font-mono text-[10px] font-bold mb-4 uppercase tracking-widest" [ngClass]="headline.colorClass">{{ headline.category }}</span>
+            <h3 class="font-serif text-2xl font-semibold mb-4 group-hover:text-brand-sage transition-colors leading-tight">{{ headline.title }}</h3>
+            <p class="font-sans text-xs text-brand-charcoal/70 mb-6 leading-relaxed flex-grow">{{ headline.description }}</p>
+            <div class="flex justify-between items-center pt-6 border-t border-brand-charcoal/10">
+              <span class="font-mono text-[10px] text-brand-charcoal/60 uppercase tracking-widest">{{ headline.readTime }}</span>
+              <span class="text-xl">→</span>
             </div>
-            <div class="sm:col-span-3 flex flex-col justify-center">
-              <div class="flex justify-between mb-2">
-                <span class="font-mono text-[10px] font-bold text-brand-charcoal uppercase tracking-widest">{{ report.category }}</span>
-                <span class="font-mono text-[10px] text-brand-charcoal/50">{{ report.reportId }}</span>
+          </article>
+        </div>
+      </section>
+
+      <!-- Sidebar / Modules Section -->
+      <section class="grid grid-cols-1 md:grid-cols-12 gap-12">
+        <!-- Latest Reports -->
+        <div class="md:col-span-8">
+          <div class="mb-8 border-b border-brand-charcoal pb-2">
+            <h2 class="font-mono text-sm font-bold tracking-widest uppercase">Últimos Informes</h2>
+          </div>
+          <div class="space-y-12">
+            <div *ngFor="let report of reports" (click)="onReadArticle(report)" class="grid grid-cols-1 sm:grid-cols-4 gap-6 group cursor-pointer border border-transparent hover:border-brand-charcoal/10 p-2 transition-all">
+              <div class="sm:col-span-1 border border-brand-charcoal/20 overflow-hidden">
+                <img class="w-full aspect-square object-cover grayscale group-hover:grayscale-0 transition-all duration-500" [alt]="report.title" [src]="report.imageUrl">
               </div>
-              <h4 class="font-serif text-2xl font-semibold mb-2 group-hover:underline leading-snug">{{ report.title }}</h4>
-              <p class="font-sans text-sm text-brand-charcoal/70 leading-relaxed">{{ report.description }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Sidebars -->
-      <aside class="md:col-span-4 space-y-16">
-        <!-- Data Stories Module -->
-        <div class="p-6 bg-brand-charcoal text-brand-paper">
-          <h3 class="font-mono text-xs font-bold tracking-widest uppercase mb-6 border-b border-brand-paper/20 pb-2">Visualizaciones</h3>
-          <ul class="space-y-6">
-            <li *ngFor="let story of dataStories">
-              <p class="font-mono text-[10px] text-brand-paper/60 mb-1 uppercase tracking-widest">Datos Abiertos</p>
-              <a href="#" class="font-serif text-xl leading-snug hover:text-brand-sage transition-colors block">{{ story.title }}</a>
-            </li>
-          </ul>
-          <button class="w-full mt-8 border border-brand-paper/20 py-3 font-mono text-[10px] font-bold uppercase tracking-widest hover:bg-brand-paper hover:text-brand-charcoal transition-colors">
-            EXPLORAR EL HUB DE DATOS
-          </button>
-        </div>
-
-        <!-- From the Archive Module -->
-        <div class="border border-brand-charcoal p-6">
-          <h3 class="font-mono text-xs font-bold tracking-widest uppercase mb-6 border-b border-brand-charcoal/20 pb-2">Desde los Archivos</h3>
-          <div class="space-y-6">
-            <div *ngFor="let arch of archiveItems" class="flex gap-4 items-start">
-              <span class="font-mono text-lg text-brand-sage font-bold">{{ arch.year }}</span>
-              <div>
-                <h5 class="font-serif text-lg font-bold leading-tight">{{ arch.title }}</h5>
-                <p class="font-sans text-xs text-brand-charcoal/70 mt-1">{{ arch.desc }}</p>
+              <div class="sm:col-span-3 flex flex-col justify-center">
+                <div class="flex justify-between mb-2">
+                  <span class="font-mono text-[10px] font-bold text-brand-charcoal uppercase tracking-widest">{{ report.category }}</span>
+                  <span class="font-mono text-[10px] text-brand-charcoal/50">{{ report.reportId }}</span>
+                </div>
+                <h4 class="font-serif text-2xl font-semibold mb-2 group-hover:underline leading-snug">{{ report.title }}</h4>
+                <p class="font-sans text-xs text-brand-charcoal/70 leading-relaxed">{{ report.description }}</p>
               </div>
             </div>
           </div>
         </div>
-      </aside>
-    </section>
+
+        <!-- Sidebars -->
+        <aside class="md:col-span-4 space-y-16">
+          <!-- Mundial 2026 Module -->
+          <div class="p-6 bg-brand-charcoal text-brand-paper border border-brand-charcoal/30">
+            <div class="flex flex-col gap-2.5 mb-6 border-b border-brand-paper/20 pb-3">
+              <h3 class="font-mono text-sm font-bold tracking-widest uppercase text-brand-paper">Mundial 2026 🏆</h3>
+              <!-- Tabs -->
+              <div class="flex items-center gap-2">
+                <button (click)="worldCupActiveTab = 'games'" 
+                        [class.text-brand-sage]="worldCupActiveTab === 'games'"
+                        [class.underline]="worldCupActiveTab === 'games'"
+                        class="bg-transparent border-0 font-mono text-[10px] font-bold uppercase tracking-widest cursor-pointer text-brand-paper/60 hover:text-brand-paper p-0">
+                  PARTIDOS
+                </button>
+                <span class="text-brand-paper/20">|</span>
+                <button (click)="worldCupActiveTab = 'standings'" 
+                        [class.text-brand-sage]="worldCupActiveTab === 'standings'"
+                        [class.underline]="worldCupActiveTab === 'standings'"
+                        class="bg-transparent border-0 font-mono text-[10px] font-bold uppercase tracking-widest cursor-pointer text-brand-paper/60 hover:text-brand-paper p-0">
+                  TABLAS
+                </button>
+              </div>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div *ngIf="worldCupLoading" class="text-center py-8">
+              <div class="w-6 h-6 border-2 border-brand-sage border-t-transparent rounded-full animate-spin mx-auto"></div>
+            </div>
+
+            <!-- Content Area -->
+            <div *ngIf="!worldCupLoading">
+              <!-- Games Tab -->
+              <div *ngIf="worldCupActiveTab === 'games'" class="space-y-4">
+                <!-- Date Selector slider -->
+                <div class="flex items-center justify-between bg-brand-paper/10 py-1.5 px-3 border border-brand-paper/10 font-mono text-[10px]">
+                  <button (click)="changeWorldCupDate(-1)" class="bg-transparent border-0 text-brand-paper hover:text-brand-sage cursor-pointer">◀</button>
+                  <span class="font-bold text-brand-paper/90">{{ worldCupSelectedDate | date:'dd MMM yyyy' }}</span>
+                  <button (click)="changeWorldCupDate(1)" class="bg-transparent border-0 text-brand-paper hover:text-brand-sage cursor-pointer">▶</button>
+                </div>
+
+                <!-- Matches list -->
+                <div class="space-y-3 max-h-72 overflow-y-auto pr-1 custom-scrollbar">
+                  <div *ngIf="getFilteredWorldCupGames().length === 0" class="text-center py-6 text-xs font-mono text-brand-paper/50 italic">
+                    No hay partidos para esta fecha.
+                  </div>
+                  
+                  <div *ngFor="let g of getFilteredWorldCupGames()" 
+                       (click)="openMatchDetail(g)"
+                       class="p-3 border border-brand-paper/15 hover:border-brand-sage bg-brand-paper/5 cursor-pointer hover:bg-brand-paper/10 transition-all flex flex-col gap-2">
+                    
+                    <!-- Match Status -->
+                    <div class="flex justify-between items-center text-[9px] font-mono">
+                      <span class="text-brand-paper/40">{{ g.group === 'FINAL' || g.group === 'SF' || g.group === 'QF' || g.group === 'R16' || g.group === 'R32' ? 'Eliminatorias' : 'Grupo ' + g.group }}</span>
+                      <span [ngClass]="g.finished === 'TRUE' ? 'text-brand-paper/45' : 'text-brand-sage font-bold uppercase'">
+                        {{ g.finished === 'TRUE' ? 'Finalizado' : (g.time_elapsed === 'notstarted' ? (g.local_date | date:'HH:mm') : 'En Vivo') }}
+                      </span>
+                    </div>
+
+                    <!-- Teams & Scores -->
+                    <div class="grid grid-cols-12 items-center gap-1.5 w-full">
+                      <!-- Home Team -->
+                      <div class="col-span-5 flex items-center gap-1.5 min-w-0">
+                        <img *ngIf="g.home_flag" [src]="g.home_flag" class="w-4 h-2.5 object-cover border border-brand-paper/20 rounded-sm shrink-0">
+                        <span class="font-sans text-xs font-medium truncate text-brand-paper">{{ g.home_team_name_en }}</span>
+                      </div>
+                      <!-- Score -->
+                      <div class="col-span-2 text-center font-mono text-xs font-bold text-brand-sage shrink-0">
+                        {{ g.finished === 'TRUE' || g.time_elapsed !== 'notstarted' ? g.home_score + ' - ' + g.away_score : 'vs' }}
+                      </div>
+                      <!-- Away Team -->
+                      <div class="col-span-5 flex items-center justify-end gap-1.5 min-w-0 text-right">
+                        <span class="font-sans text-xs font-medium truncate text-brand-paper text-right">{{ g.away_team_name_en }}</span>
+                        <img *ngIf="g.away_flag" [src]="g.away_flag" class="w-4 h-2.5 object-cover border border-brand-paper/20 rounded-sm shrink-0">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Standings Tab -->
+              <div *ngIf="worldCupActiveTab === 'standings'" class="space-y-4 max-h-80 overflow-y-auto pr-1 custom-scrollbar">
+                <div *ngFor="let grp of worldCupGroups" class="space-y-1.5 border-b border-brand-paper/10 pb-3 mb-3 last:border-0 last:pb-0 last:mb-0">
+                  <div class="font-mono text-[10px] font-bold text-brand-sage uppercase">Grupo {{ grp.name }}</div>
+                  
+                  <!-- Group Header -->
+                  <div class="grid grid-cols-12 text-[8px] font-mono text-brand-paper/50 font-bold border-b border-brand-paper/10 pb-0.5">
+                    <span class="col-span-6">PAÍS</span>
+                    <span class="col-span-2 text-center">PJ</span>
+                    <span class="col-span-2 text-center">DG</span>
+                    <span class="col-span-2 text-right">PTS</span>
+                  </div>
+
+                  <!-- Group Teams -->
+                  <div *ngFor="let t of grp.teams" class="grid grid-cols-12 text-[10px] font-mono py-0.5 items-center">
+                    <div class="col-span-6 flex items-center gap-1.5 min-w-0">
+                      <img *ngIf="t.team_flag" [src]="t.team_flag" class="w-3.5 h-2 object-cover border border-brand-paper/20 rounded-sm shrink-0">
+                      <span class="truncate text-brand-paper/95 font-sans">{{ t.team_name }}</span>
+                    </div>
+                    <span class="col-span-2 text-center text-brand-paper/70">{{ t.mp }}</span>
+                    <span class="col-span-2 text-center" [ngClass]="+t.gd >= 0 ? 'text-green-500' : 'text-red-400'">{{ +t.gd > 0 ? '+' + t.gd : t.gd }}</span>
+                    <span class="col-span-2 text-right font-bold text-brand-sage">{{ t.pts }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- From the Archive Module -->
+          <div class="border border-brand-charcoal p-6">
+            <h3 class="font-mono text-xs font-bold tracking-widest uppercase mb-6 border-b border-brand-charcoal/20 pb-2">Desde los Archivos</h3>
+            <div class="space-y-6">
+              <div *ngFor="let arch of archiveItems" class="flex gap-4 items-start">
+                <span class="font-mono text-lg text-brand-sage font-bold">{{ arch.year }}</span>
+                <div>
+                  <h5 class="font-serif text-lg font-bold leading-tight">{{ arch.title }}</h5>
+                  <p class="font-sans text-xs text-brand-charcoal/70 mt-1">{{ arch.desc }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </section>
     </div>
   </main>
 
@@ -146,4 +235,364 @@
       </div>
     </div>
   </aside>
+</div>
+
+<!-- LOGIN REQUIRED MODAL OVERLAY -->
+<div *ngIf="authModalVisible" class="fixed inset-0 bg-brand-charcoal/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+  <div class="bg-brand-paper border-2 border-brand-charcoal w-full max-w-md text-brand-charcoal p-8 relative shadow-2xl">
+    <button (click)="closeAuthModal()" class="absolute top-4 right-4 text-2xl border-0 bg-transparent text-brand-charcoal hover:text-brand-red cursor-pointer select-none font-bold">
+      ✕
+    </button>
+    <div class="text-center space-y-6">
+      <span class="text-5xl">🔒</span>
+      <h3 class="font-serif text-2xl font-bold uppercase tracking-tight">Acceso Restringido</h3>
+      <p class="font-sans text-sm text-brand-charcoal/85 leading-relaxed">
+        Debes estar registrado e iniciar sesión para leer el artículo completo y participar de la comunidad.
+      </p>
+      <div class="flex flex-col gap-3 pt-2">
+        <a routerLink="/session" (click)="closeAuthModal()" class="w-full block py-3 bg-brand-charcoal text-brand-paper font-mono text-xs font-bold uppercase tracking-widest hover:bg-brand-sage hover:text-brand-charcoal transition-colors text-center">
+          Iniciar Sesión / Registrarse
+        </a>
+        <button (click)="closeAuthModal()" class="w-full py-2 border border-brand-charcoal text-brand-charcoal font-mono text-xs uppercase hover:bg-brand-charcoal/5 transition-colors cursor-pointer bg-transparent">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FULL ARTICLE READING MODAL OVERLAY -->
+<div *ngIf="articleModalVisible && selectedArticulo" class="fixed inset-0 bg-brand-charcoal/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+  <div class="bg-brand-paper border-2 border-brand-charcoal w-full max-w-4xl max-h-[90vh] overflow-y-auto text-brand-charcoal p-6 md:p-8 relative shadow-2xl">
+    
+    <!-- Sticky Header Bar -->
+    <div class="sticky -top-6 md:-top-8 -mx-6 md:-mx-8 px-6 md:px-8 pt-3 pb-3 bg-brand-paper border-b border-brand-charcoal/20 z-30 flex items-center justify-between gap-3 font-mono text-[10px] uppercase text-brand-charcoal/70 shadow-xs mb-6">
+      <div class="flex flex-wrap items-center gap-3">
+        <span class="bg-brand-sage/20 border border-brand-charcoal text-brand-charcoal px-2 py-0.5 font-bold">{{ selectedArticulo.category }}</span>
+        <span>{{ selectedArticulo.publishedAt }}</span>
+        <span class="hidden sm:inline">POR: {{ selectedArticulo.author }}</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <span class="text-brand-sage font-bold flex items-center gap-1">
+          <svg class="w-3.5 h-3.5 stroke-current fill-none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="12" r="3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          {{ selectedArticulo.clicks || 0 }} VISTAS
+        </span>
+        <!-- Close Button -->
+        <button (click)="closeArticleModal()" class="text-xl border-0 bg-transparent text-brand-charcoal hover:text-brand-sage cursor-pointer select-none font-bold leading-none" aria-label="Cerrar modal">
+          ✕
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal Content -->
+    <div class="space-y-6">
+
+      <!-- Title -->
+      <h2 class="font-serif text-3xl md:text-5xl font-bold uppercase leading-tight text-brand-charcoal tracking-tight">
+        {{ selectedArticulo.title }}
+      </h2>
+
+      <!-- MULTI-PHOTO CAROUSEL (MAX 3 IMAGES) -->
+      <div *ngIf="getImages(selectedArticulo.imageUrl).length > 0" class="relative group aspect-video bg-[#efeeeb] border border-brand-charcoal overflow-hidden">
+        
+        <!-- Images Wrapper -->
+        <div class="w-full h-full flex items-center justify-center relative">
+          <img [src]="getImages(selectedArticulo.imageUrl)[activeCarouselIndex]" class="max-h-full object-contain w-full h-full">
+        </div>
+
+        <!-- Carousel Navigation Arrows -->
+        <div *ngIf="getImages(selectedArticulo.imageUrl).length > 1" class="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-4 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button (click)="prevCarousel(getImages(selectedArticulo.imageUrl).length)" class="w-10 h-10 rounded-full bg-brand-charcoal/80 text-brand-paper hover:bg-brand-sage flex items-center justify-center font-bold text-lg cursor-pointer">
+            ◀
+          </button>
+          <button (click)="nextCarousel(getImages(selectedArticulo.imageUrl).length)" class="w-10 h-10 rounded-full bg-brand-charcoal/80 text-brand-paper hover:bg-brand-sage flex items-center justify-center font-bold text-lg cursor-pointer">
+            ▶
+          </button>
+        </div>
+
+        <!-- Carousel Dots Indicators -->
+        <div *ngIf="getImages(selectedArticulo.imageUrl).length > 1" class="absolute bottom-4 inset-x-0 flex justify-center gap-2">
+          <button *ngFor="let img of getImages(selectedArticulo.imageUrl); let i = index" 
+                  (click)="setCarouselIndex(i)"
+                  [ngClass]="activeCarouselIndex === i ? 'bg-brand-sage w-4' : 'bg-brand-charcoal/40 w-2'" 
+                  class="h-2 rounded-full transition-all duration-300 cursor-pointer">
+          </button>
+        </div>
+      </div>
+
+      <!-- EMBED VIDEO PLAYER PREVIEW (YOUTUBE / INSTAGRAM) -->
+      <div *ngIf="selectedArticulo.embedUrl" class="my-6">
+        <p class="font-mono text-[9px] uppercase font-bold text-brand-charcoal/50 mb-2">Video Relacionado (Clic para reproducir)</p>
+        <div (click)="openVideoModal(selectedArticulo.embedUrl)" class="max-w-md mx-auto aspect-video cursor-pointer border-2 border-brand-charcoal relative overflow-hidden group bg-black shadow-md hover:shadow-lg transition-all duration-300">
+          <img [src]="getVideoThumbnail(selectedArticulo.embedUrl)" alt="Miniatura de video" class="w-full h-full object-cover opacity-70 group-hover:opacity-60 transition-opacity duration-300">
+          <!-- Play Button Overlay -->
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="w-14 h-14 rounded-full bg-brand-charcoal/90 text-brand-paper flex items-center justify-center text-xl border border-brand-paper/30 group-hover:bg-brand-sage group-hover:text-brand-charcoal transition-all duration-300 group-hover:scale-110">
+              ▶
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN ARTICLE BODY (BLOCKS RENDERER) -->
+      <div class="prose max-w-none text-brand-charcoal space-y-6">
+        <ng-container *ngFor="let block of getBlocks(selectedArticulo.description)">
+          
+          <!-- Text block -->
+          <p *ngIf="block.type === 'text'" class="font-sans text-base md:text-lg leading-relaxed whitespace-pre-line text-brand-charcoal/90">
+            {{ block.content }}
+          </p>
+
+          <!-- Subtitle block -->
+          <h4 *ngIf="block.type === 'subtitle'" class="font-serif text-2xl font-bold uppercase mt-8 mb-4 border-l-4 border-brand-sage pl-4 text-brand-charcoal">
+            {{ block.content }}
+          </h4>
+
+          <!-- Inline image block -->
+          <div *ngIf="block.type === 'image'" class="my-6 border border-brand-charcoal">
+            <img [src]="block.content" class="w-full object-cover">
+          </div>
+
+          <!-- Inline video embed block (as preview thumbnail) -->
+          <div *ngIf="block.type === 'video'" class="my-6">
+            <p class="font-mono text-[9px] uppercase font-bold text-brand-charcoal/50 mb-2">Video de la Noticia (Clic para reproducir)</p>
+            <div (click)="openVideoModal(block.content)" class="max-w-md mx-auto aspect-video cursor-pointer border-2 border-brand-charcoal relative overflow-hidden group bg-black shadow-md transition-all duration-300">
+              <img [src]="getVideoThumbnail(block.content)" alt="Miniatura de video" class="w-full h-full object-cover opacity-70 group-hover:opacity-60 transition-opacity">
+              <div class="absolute inset-0 flex items-center justify-center">
+                <div class="w-14 h-14 rounded-full bg-brand-charcoal/90 text-brand-paper flex items-center justify-center text-xl border border-brand-paper/30 group-hover:bg-brand-sage group-hover:text-brand-charcoal transition-all group-hover:scale-110">
+                  ▶
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </ng-container>
+      </div>
+
+      <!-- SOURCE LINK (Fuente de la información) -->
+      <div *ngIf="selectedArticulo.contentUrl && selectedArticulo.contentUrl !== '#' && selectedArticulo.contentUrl !== ''" class="my-6 border-t border-brand-charcoal/10 pt-4">
+        <p class="font-mono text-xs text-brand-charcoal/60">
+          Fuente de la información: 
+          <a [href]="selectedArticulo.contentUrl" target="_blank" class="font-sans text-xs text-brand-sage hover:underline font-bold ml-1">
+            {{ selectedArticulo.contentUrl }} ↗
+          </a>
+        </p>
+      </div>
+
+      <!-- RATING, LIKING AND SHARING INTERACTIONS -->
+      <div class="border-t border-b border-brand-charcoal/20 py-6 flex flex-wrap items-center justify-between gap-6 bg-[#f9f8f6] px-6">
+        
+        <!-- Stars rating -->
+        <div class="flex items-center gap-3">
+          <span class="font-mono text-[11px] font-bold uppercase tracking-wider">Valorar:</span>
+          <div class="flex gap-1">
+            <button *ngFor="let star of [1,2,3,4,5]" 
+                    (click)="modalRate(star)" 
+                    class="text-2xl text-brand-charcoal/30 hover:text-brand-red hover:scale-125 transition-all focus:outline-none cursor-pointer">
+              ★
+            </button>
+          </div>
+          <span class="font-mono text-xs font-bold text-brand-charcoal/80 ml-2">({{ selectedArticulo.avgStars || '0.0' }} / 5.0)</span>
+        </div>
+
+        <!-- Buttons group -->
+        <div class="flex flex-wrap items-center gap-3">
+          <!-- Share button -->
+          <button (click)="copyLinkToClipboard()" class="px-5 py-2.5 bg-brand-paper border border-brand-charcoal text-brand-charcoal font-mono text-[11px] font-bold uppercase tracking-widest hover:bg-brand-sage hover:text-brand-charcoal transition-all cursor-pointer">
+            {{ copiedLinkStatus ? '✓ ¡ENLACE COPIADO!' : 'COMPARTIR 🔗' }}
+          </button>
+        </div>
+
+      </div>
+
+      <!-- COMMENTS SECTION -->
+      <div class="border-t border-brand-charcoal/10 pt-6 space-y-6">
+        <h3 class="font-serif text-2xl uppercase tracking-tighter text-brand-charcoal border-b border-brand-charcoal/5 pb-2">Comentarios de Lectores</h3>
+
+        <!-- Comment input (only for logged-in users) -->
+        <div *ngIf="currentUser; else notLoggedIn" class="space-y-3 bg-[#f9f8f6] p-6 border border-brand-charcoal/10">
+          <p class="font-mono text-[10px] text-brand-charcoal/60 uppercase">Comentar como: <strong class="text-brand-charcoal">{{ currentUser.user_metadata?.['full_name'] || currentUser.email }}</strong></p>
+          <textarea [(ngModel)]="commentContent" placeholder="Escribe tu comentario respetando las normas de la comunidad..." rows="3" class="w-full bg-brand-paper border border-brand-charcoal p-3 font-sans text-sm focus:outline-none focus:ring-1 focus:ring-brand-sage"></textarea>
+          <button (click)="modalComment()" [disabled]="!commentContent.trim()" class="px-6 py-2.5 bg-brand-charcoal text-brand-paper font-mono text-[10px] uppercase font-bold hover:bg-brand-sage hover:text-brand-charcoal disabled:opacity-50 cursor-pointer">
+            Publicar Comentario
+          </button>
+        </div>
+
+        <ng-template #notLoggedIn>
+          <div class="bg-brand-red/5 border border-brand-red/20 p-6 text-center">
+            <p class="font-sans text-sm text-brand-charcoal/70 mb-3">Debes estar registrado e iniciar sesión para dejar comentarios.</p>
+            <a routerLink="/session" (click)="closeArticleModal()" class="inline-block px-6 py-2.5 bg-brand-charcoal text-brand-paper font-mono text-[10px] uppercase font-bold hover:bg-brand-sage hover:text-brand-charcoal transition-all">
+              Iniciar Sesión / Registrarse
+            </a>
+          </div>
+        </ng-template>
+
+        <!-- Comments List -->
+        <div class="space-y-4">
+          <div *ngIf="selectedArticulo.loadingComments" class="text-center py-4 font-mono text-xs opacity-60">
+            Cargando comentarios...
+          </div>
+          
+          <div *ngIf="!selectedArticulo.loadingComments && (!selectedArticulo.comments || selectedArticulo.comments.length === 0)" class="text-center py-6 font-sans text-sm italic text-brand-charcoal/50 bg-[#f9f8f6]">
+            No hay comentarios en este artículo. ¡Sé el primero en compartir tu opinión!
+          </div>
+
+          <div *ngIf="!selectedArticulo.loadingComments && selectedArticulo.comments && selectedArticulo.comments.length > 0" class="space-y-4 max-h-[300px] overflow-y-auto pr-2">
+            <div *ngFor="let comm of selectedArticulo.comments" class="border border-brand-charcoal/10 bg-brand-paper p-4 hover:bg-[#f9f8f6] transition-colors">
+              <div class="flex justify-between items-center mb-2 font-mono text-[9px] uppercase text-brand-charcoal/50">
+                <span class="font-bold text-brand-charcoal">{{ comm.authorName }}</span>
+                <span>{{ comm.createdAt }}</span>
+              </div>
+              <p class="font-sans text-sm leading-relaxed text-brand-charcoal/80 whitespace-pre-line">{{ comm.content }}</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- SHARE OVERLAY MODAL -->
+<div *ngIf="shareModalVisible" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
+  <div (click)="closeShareModal()" class="fixed inset-0 bg-brand-charcoal/40 backdrop-blur-[2px]"></div>
+  <div class="bg-brand-paper border-2 border-brand-charcoal w-full max-w-sm p-6 relative z-10 shadow-xl text-center">
+    <button (click)="closeShareModal()" class="absolute top-3 right-3 font-mono text-sm text-brand-charcoal hover:text-brand-red cursor-pointer focus:outline-none border-0 bg-transparent">✕</button>
+    <h3 class="font-serif text-lg font-bold text-brand-charcoal mb-4 uppercase tracking-tight">Compartir Artículo</h3>
+    <div class="flex justify-center gap-4 py-2">
+      <a [href]="getShareLink('whatsapp')" target="_blank" class="w-10 h-10 rounded-full border border-brand-charcoal text-brand-charcoal hover:bg-[#25D366] hover:text-white hover:border-[#25D366] transition-all flex items-center justify-center cursor-pointer shadow-sm" title="WhatsApp">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.713-1.455L0 24zm6.59-11.08c.162-.275.812-1.38.888-1.507.075-.127.147-.32.083-.442-.064-.125-.636-1.53-.873-2.107-.23-.563-.48-.48-.65-.488-.168-.008-.363-.01-.557-.01-.195 0-.513.073-.78.364-.268.29-1.022 1.002-1.022 2.44 0 1.438 1.047 2.827 1.192 3.023.147.195 2.058 3.14 4.985 4.41.697.302 1.24.483 1.66.617.7.223 1.338.192 1.843.116.56-.085 1.73-.707 1.974-1.39.244-.683.244-1.267.17-1.39-.074-.122-.27-.195-.568-.34-.298-.148-1.76-.868-2.032-.967-.272-.098-.47-.147-.667.147-.197.295-.765.966-.938 1.163-.173.197-.347.22-.646.073-.3-.15-1.264-.466-2.408-1.487-.89-.794-1.49-1.775-1.665-2.073-.173-.3-.018-.46.13-.61.135-.133.3-.347.45-.52z"/></svg>
+      </a>
+      <a [href]="getShareLink('facebook')" target="_blank" class="w-10 h-10 rounded-full border border-brand-charcoal text-brand-charcoal hover:bg-[#1877F2] hover:text-white hover:border-[#1877F2] transition-all flex items-center justify-center cursor-pointer shadow-sm" title="Facebook">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+      </a>
+      <a [href]="getShareLink('email')" class="w-10 h-10 rounded-full border border-brand-charcoal text-brand-charcoal hover:bg-brand-sage hover:text-brand-paper hover:border-brand-sage transition-all flex items-center justify-center cursor-pointer shadow-sm" title="Correo Electrónico">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+      </a>
+      <button (click)="copyLinkToClipboard()" class="w-10 h-10 rounded-full border border-brand-charcoal text-brand-charcoal hover:bg-brand-charcoal hover:text-brand-paper transition-all flex items-center justify-center cursor-pointer shadow-sm focus:outline-none bg-transparent">
+        <ng-container *ngIf="!copiedLinkStatus">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+        </ng-container>
+        <ng-container *ngIf="copiedLinkStatus">
+          <svg class="w-5 h-5 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </ng-container>
+      </button>
+    </div>
+    <div *ngIf="copiedLinkStatus" class="text-xs font-mono text-green-600 mt-2">¡Copiado al portapapeles! ✓</div>
+  </div>
+</div>
+
+<!-- VIDEO POPOVER MODAL -->
+<div *ngIf="videoModalVisible && activeVideoUrl" class="fixed inset-0 z-[70] flex items-center justify-center p-4">
+  <div (click)="closeVideoModal()" class="fixed inset-0 bg-black/90 backdrop-blur-md"></div>
+  <div class="bg-black border border-brand-paper/20 w-full max-w-4xl aspect-video relative z-10 shadow-2xl">
+    <button (click)="closeVideoModal()" class="absolute -top-10 right-0 font-mono text-base text-brand-paper hover:text-brand-sage cursor-pointer focus:outline-none border-0 bg-transparent">✕ Cerrar Reproductor</button>
+    <iframe [src]="activeVideoUrl" class="w-full h-full border-0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+  </div>
+</div>
+
+<!-- WORLD CUP MATCH DETAIL MODAL (Independent z-[80]) -->
+<div *ngIf="selectedMatch && matchStats" class="fixed inset-0 z-[80] flex items-center justify-center p-4 overflow-y-auto">
+  <div (click)="closeMatchDetail()" class="fixed inset-0 bg-brand-charcoal/60 backdrop-blur-sm"></div>
+  <div class="bg-brand-paper border-2 border-brand-charcoal w-full max-w-md p-6 relative z-10 shadow-2xl text-brand-charcoal max-h-[90vh] overflow-y-auto">
+    <button (click)="closeMatchDetail()" class="absolute top-4 right-4 font-mono text-lg text-brand-charcoal hover:text-brand-red cursor-pointer focus:outline-none border-0 bg-transparent">✕</button>
+
+    <div class="text-center font-mono text-[9px] uppercase tracking-wider text-brand-charcoal/50 border-b border-brand-charcoal/10 pb-3 mb-4">
+      {{ selectedMatch.group === 'FINAL' || selectedMatch.group === 'SF' || selectedMatch.group === 'QF' || selectedMatch.group === 'R16' || selectedMatch.group === 'R32' ? 'Fase de Eliminación Directa' : 'Fase de Grupos • Grupo ' + selectedMatch.group }}
+      <br>{{ selectedMatch.local_date }}<br>
+      <span class="text-brand-charcoal/80 font-bold text-[10px]">📍 {{ selectedMatch.stadium_name || 'Estadio ' + selectedMatch.stadium_id }}</span>
+    </div>
+
+    <div class="flex items-center justify-between gap-4 py-2">
+      <div class="flex flex-col items-center flex-1 text-center">
+        <img *ngIf="selectedMatch.home_flag" [src]="selectedMatch.home_flag" class="w-12 h-8 object-cover border border-brand-charcoal/20 shadow-sm rounded-sm mb-2">
+        <span class="font-serif text-base font-bold text-brand-charcoal">{{ selectedMatch.home_team_name_en }}</span>
+      </div>
+      <div class="flex flex-col items-center">
+        <span class="font-mono text-3xl font-extrabold tracking-tight">
+          {{ selectedMatch.finished === 'TRUE' || selectedMatch.time_elapsed !== 'notstarted' ? selectedMatch.home_score + ' - ' + selectedMatch.away_score : 'VS' }}
+        </span>
+        <span class="font-mono text-[8px] mt-1 uppercase px-2 py-0.5 rounded font-bold"
+              [ngClass]="selectedMatch.finished === 'TRUE' ? 'bg-brand-charcoal/10 text-brand-charcoal/70' : 'bg-brand-sage/20 text-brand-sage'">
+          {{ selectedMatch.finished === 'TRUE' ? 'Finalizado' : (selectedMatch.time_elapsed === 'notstarted' ? 'Por Jugar' : 'En Juego') }}
+        </span>
+      </div>
+      <div class="flex flex-col items-center flex-1 text-center">
+        <img *ngIf="selectedMatch.away_flag" [src]="selectedMatch.away_flag" class="w-12 h-8 object-cover border border-brand-charcoal/20 shadow-sm rounded-sm mb-2">
+        <span class="font-serif text-base font-bold text-brand-charcoal">{{ selectedMatch.away_team_name_en }}</span>
+      </div>
+    </div>
+
+    <div *ngIf="parseScorers(selectedMatch.home_scorers).length > 0 || parseScorers(selectedMatch.away_scorers).length > 0"
+         class="grid grid-cols-2 gap-4 text-[10px] font-mono text-brand-charcoal/70 py-3 border-t border-b border-brand-charcoal/10 mt-4 bg-brand-charcoal/5 px-3">
+      <div>
+        <div *ngFor="let scorer of parseScorers(selectedMatch.home_scorers)" class="flex items-center gap-1">
+          <span>⚽</span><span class="truncate">{{ scorer }}</span>
+        </div>
+      </div>
+      <div class="text-right">
+        <div *ngFor="let scorer of parseScorers(selectedMatch.away_scorers)" class="flex items-center justify-end gap-1">
+          <span class="truncate">{{ scorer }}</span><span>⚽</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6 space-y-4">
+      <h4 class="font-mono text-[10px] uppercase font-bold text-center tracking-wider text-brand-charcoal/50 border-b border-brand-charcoal/10 pb-1.5">Estadísticas del Partido</h4>
+      <div class="space-y-1">
+        <div class="flex justify-between font-mono text-[10px]">
+          <span>{{ matchStats.possession.home }}%</span>
+          <span class="font-bold text-brand-charcoal/60 uppercase text-[9px]">Posesión de Balón</span>
+          <span>{{ matchStats.possession.away }}%</span>
+        </div>
+        <div class="h-2 w-full flex bg-brand-charcoal/10 rounded-sm overflow-hidden">
+          <div class="bg-brand-sage h-full" [style.width.%]="matchStats.possession.home"></div>
+          <div class="bg-brand-red h-full" [style.width.%]="matchStats.possession.away"></div>
+        </div>
+        <div *ngIf="matchStats.dominantPossessionText" class="text-center font-mono text-[9px] text-brand-charcoal/60 mt-1 italic">{{ matchStats.dominantPossessionText }}</div>
+      </div>
+      <div class="space-y-1">
+        <div class="flex justify-between font-mono text-[10px]">
+          <span>{{ matchStats.shots.home }}</span>
+          <span class="font-bold text-brand-charcoal/60 uppercase text-[9px]">Remates Totales</span>
+          <span>{{ matchStats.shots.away }}</span>
+        </div>
+        <div class="h-2 w-full flex bg-brand-charcoal/10 rounded-sm overflow-hidden">
+          <div class="bg-brand-charcoal h-full" [style.width.%]="(matchStats.shots.home / (matchStats.shots.home + matchStats.shots.away)) * 100"></div>
+          <div class="bg-brand-charcoal/30 h-full flex-grow"></div>
+        </div>
+      </div>
+      <div class="space-y-1">
+        <div class="flex justify-between font-mono text-[10px]">
+          <span>{{ matchStats.shotsOnTarget.home }}</span>
+          <span class="font-bold text-brand-charcoal/60 uppercase text-[9px]">Remates al Arco</span>
+          <span>{{ matchStats.shotsOnTarget.away }}</span>
+        </div>
+        <div class="h-2 w-full flex bg-brand-charcoal/10 rounded-sm overflow-hidden">
+          <div class="bg-brand-charcoal h-full" [style.width.%]="(matchStats.shotsOnTarget.home / (matchStats.shotsOnTarget.home + matchStats.shots.away || 1)) * 100"></div>
+          <div class="bg-brand-charcoal/30 h-full flex-grow"></div>
+        </div>
+      </div>
+      <div class="flex justify-between font-mono text-[10px]">
+        <span>{{ matchStats.fouls.home }}</span>
+        <span class="font-bold text-brand-charcoal/60 uppercase text-[9px]">Faltas</span>
+        <span>{{ matchStats.fouls.away }}</span>
+      </div>
+      <div class="flex justify-between font-mono text-[10px]">
+        <span>{{ matchStats.corners.home }}</span>
+        <span class="font-bold text-brand-charcoal/60 uppercase text-[9px]">Tiros de Esquina</span>
+        <span>{{ matchStats.corners.away }}</span>
+      </div>
+    </div>
+
+    <a href="https://www.youtube.com/results?search_query={{selectedMatch.home_team_name_en}}+vs+{{selectedMatch.away_team_name_en}}+resumen+mundial+2026"
+       target="_blank"
+       class="w-full mt-6 flex items-center justify-center gap-2 py-3 border border-brand-charcoal hover:bg-brand-charcoal hover:text-brand-paper text-xs font-mono font-bold uppercase transition-all duration-300 decoration-none cursor-pointer">
+      📺 Ver Resumen en YouTube ↗
+    </a>
+  </div>
 </div>

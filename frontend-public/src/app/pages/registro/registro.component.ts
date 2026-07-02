@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -12,6 +13,8 @@ import { AuthService } from '../../services/auth.service';
 })
 export class RegistroComponent implements OnInit {
   registroForm!: FormGroup;
+  loginForm!: FormGroup;
+  isLoginMode = false;
   loading = false;
   successMessage = '';
   errorMessage = '';
@@ -19,7 +22,8 @@ export class RegistroComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -28,7 +32,13 @@ export class RegistroComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       phone: ['', [Validators.required, Validators.pattern(/^\+?[0-9\s\-]{8,20}$/)]],
       password: ['', [Validators.required, Validators.minLength(8)]],
-      terms: [false, [Validators.requiredTrue]]
+      terms: [false, [Validators.requiredTrue]],
+      subscribeNewsletter: [false]
+    });
+
+    this.loginForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(8)]]
     });
   }
 
@@ -36,31 +46,69 @@ export class RegistroComponent implements OnInit {
     this.showPassword = !this.showPassword;
   }
 
-  async onSubmit() {
-    if (this.registroForm.invalid) {
-      this.registroForm.markAllAsTouched();
-      return;
-    }
-
-    this.loading = true;
+  toggleMode(loginMode: boolean) {
+    this.isLoginMode = loginMode;
     this.successMessage = '';
     this.errorMessage = '';
+  }
 
-    const { name, email, phone, password } = this.registroForm.value;
-
-    try {
-      const result = await this.authService.signUp(name, email, phone, password);
-
-      if (result.error) {
-        this.errorMessage = result.error;
-      } else {
-        this.successMessage = '¡Registro completado! Se ha enviado un correo electrónico de confirmación a tu dirección de correo.';
-        this.registroForm.reset();
+  async onSubmit() {
+    if (this.isLoginMode) {
+      if (this.loginForm.invalid) {
+        this.loginForm.markAllAsTouched();
+        return;
       }
-    } catch (err: any) {
-      this.errorMessage = err.message || 'Ocurrió un error inesperado durante el registro.';
-    } finally {
-      this.loading = false;
+
+      this.loading = true;
+      this.successMessage = '';
+      this.errorMessage = '';
+
+      const { email, password } = this.loginForm.value;
+
+      try {
+        const result = await this.authService.signIn(email, password);
+
+        if (result.error) {
+          this.errorMessage = result.error;
+        } else {
+          this.successMessage = '¡Inicio de sesión exitoso! Redirigiendo a tu cuenta...';
+          setTimeout(() => {
+            this.router.navigate(['/session']);
+          }, 1500);
+        }
+      } catch (err: any) {
+        this.errorMessage = err.message || 'Ocurrió un error inesperado al iniciar sesión.';
+      } finally {
+        this.loading = false;
+      }
+    } else {
+      if (this.registroForm.invalid) {
+        this.registroForm.markAllAsTouched();
+        return;
+      }
+
+      this.loading = true;
+      this.successMessage = '';
+      this.errorMessage = '';
+
+      const { name, email, phone, password, subscribeNewsletter } = this.registroForm.value;
+
+      try {
+        const result = await this.authService.signUp(name, email, phone, password, subscribeNewsletter);
+
+        if (result.error) {
+          this.errorMessage = result.error;
+        } else {
+          this.successMessage = '¡Registro completado con éxito! Entrando en tu cuenta...';
+          setTimeout(() => {
+            this.router.navigate(['/session']);
+          }, 1500);
+        }
+      } catch (err: any) {
+        this.errorMessage = err.message || 'Ocurrió un error inesperado durante el registro.';
+      } finally {
+        this.loading = false;
+      }
     }
   }
 
@@ -82,6 +130,16 @@ export class RegistroComponent implements OnInit {
 
   get passwordInvalid() {
     const control = this.registroForm.get('password');
+    return control ? control.invalid && (control.dirty || control.touched) : false;
+  }
+
+  get loginEmailInvalid() {
+    const control = this.loginForm.get('email');
+    return control ? control.invalid && (control.dirty || control.touched) : false;
+  }
+
+  get loginPasswordInvalid() {
+    const control = this.loginForm.get('password');
     return control ? control.invalid && (control.dirty || control.touched) : false;
   }
 }

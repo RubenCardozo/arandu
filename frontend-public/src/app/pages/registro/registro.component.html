@@ -5,9 +5,11 @@
       
       <!-- Title Block -->
       <div class="mb-10 border-b border-brand-charcoal pb-6">
-        <h1 class="font-serif text-4xl md:text-5xl mb-2 italic">Crear una cuenta</h1>
+        <h1 class="font-serif text-4xl md:text-5xl mb-2 italic">
+          {{ isLoginMode ? 'Iniciar Sesión' : 'Crear una cuenta' }}
+        </h1>
         <p class="font-sans text-sm text-brand-charcoal/70">
-          Únete a la plataforma editorial de Arandu. Accede a nuestros archivos y clasificados exclusivos.
+          {{ isLoginMode ? 'Accede a tu cuenta de Arandu para gestionar tus anuncios y perfil.' : 'Únete a la plataforma editorial de Arandu. Accede a nuestros archivos y clasificados exclusivos.' }}
         </p>
       </div>
 
@@ -20,7 +22,7 @@
       </div>
 
       <!-- Registration Form -->
-      <form [formGroup]="registroForm" (ngSubmit)="onSubmit()" class="space-y-8">
+      <form *ngIf="!isLoginMode" [formGroup]="registroForm" (ngSubmit)="onSubmit()" class="space-y-8">
         
         <!-- Name Field -->
         <div class="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-6">
@@ -81,7 +83,7 @@
               class="w-full bg-transparent border-0 border-b py-2 px-0 font-sans text-base placeholder:text-brand-charcoal/40 focus:outline-none focus:border-brand-sage focus:ring-0 pr-10" 
               id="password" 
               placeholder="••••••••••••">
-            <button type="button" (click)="togglePassword()" class="absolute right-0 top-2 text-brand-charcoal/60 hover:text-brand-charcoal">
+            <button type="button" (click)="togglePassword()" class="absolute right-0 top-2 text-brand-charcoal/60 hover:text-brand-charcoal font-mono text-xs">
               <span>{{ showPassword ? 'Ocultar' : 'Ver' }}</span>
             </button>
             <p *ngIf="passwordInvalid" class="mt-1 font-mono text-[10px] text-brand-red uppercase">
@@ -102,6 +104,18 @@
           </label>
         </div>
 
+        <!-- Newsletter Checkbox -->
+        <div class="flex items-start gap-3 pt-2">
+          <input 
+            formControlName="subscribeNewsletter" 
+            class="mt-1.5 w-4 h-4 border-brand-charcoal text-brand-charcoal focus:ring-brand-sage rounded-none" 
+            id="subscribeNewsletter" 
+            type="checkbox">
+          <label class="font-sans text-xs text-brand-charcoal/70" for="subscribeNewsletter">
+            Deseo suscribirme al boletín informativo / newsletter para recibir noticias locales.
+          </label>
+        </div>
+
         <!-- Submit Button -->
         <div class="pt-6 flex flex-col md:flex-row items-center justify-between gap-6">
           <button 
@@ -111,7 +125,60 @@
             {{ loading ? 'ENVIANDO...' : 'REGISTRARME AHORA' }}
           </button>
           <span class="font-mono text-[11px] text-brand-charcoal/60">
-            ¿Ya eres miembro? <a class="text-brand-charcoal font-bold hover:text-brand-red underline" href="#">Iniciar Sesión</a>
+            ¿Ya eres miembro? <a (click)="toggleMode(true)" class="text-brand-charcoal font-bold hover:text-brand-red underline cursor-pointer">Iniciar Sesión</a>
+          </span>
+        </div>
+      </form>
+
+      <!-- Login Form -->
+      <form *ngIf="isLoginMode" [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-8">
+        
+        <!-- Email Field -->
+        <div class="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-6">
+          <label class="font-serif text-2xl italic md:w-1/3 shrink-0" for="login-email">E-mail</label>
+          <div class="w-full">
+            <input 
+              formControlName="email" 
+              [ngClass]="loginEmailInvalid ? 'border-brand-red' : 'border-brand-charcoal'" 
+              class="w-full bg-transparent border-0 border-b py-2 px-0 font-sans text-base placeholder:text-brand-charcoal/40 focus:outline-none focus:border-brand-sage focus:ring-0" 
+              id="login-email" 
+              placeholder="DIRECCION@CORREO.CH">
+            <p *ngIf="loginEmailInvalid" class="mt-1 font-mono text-[10px] text-brand-red uppercase">
+              Ingresa un correo electrónico válido.
+            </p>
+          </div>
+        </div>
+
+        <!-- Password Field -->
+        <div class="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-6">
+          <label class="font-serif text-2xl italic md:w-1/3 shrink-0" for="login-password">Contraseña</label>
+          <div class="w-full relative">
+            <input 
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password" 
+              [ngClass]="loginPasswordInvalid ? 'border-brand-red' : 'border-brand-charcoal'" 
+              class="w-full bg-transparent border-0 border-b py-2 px-0 font-sans text-base placeholder:text-brand-charcoal/40 focus:outline-none focus:border-brand-sage focus:ring-0 pr-10" 
+              id="login-password" 
+              placeholder="••••••••••••">
+            <button type="button" (click)="togglePassword()" class="absolute right-0 top-2 text-brand-charcoal/60 hover:text-brand-charcoal font-mono text-xs">
+              <span>{{ showPassword ? 'Ocultar' : 'Ver' }}</span>
+            </button>
+            <p *ngIf="loginPasswordInvalid" class="mt-1 font-mono text-[10px] text-brand-red uppercase">
+              La contraseña debe tener al menos 8 caracteres.
+            </p>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-6 flex flex-col md:flex-row items-center justify-between gap-6">
+          <button 
+            [disabled]="loading"
+            class="w-full md:w-auto px-12 py-4 bg-brand-sage text-brand-paper font-mono text-[11px] font-bold uppercase tracking-widest hover:bg-brand-charcoal transition-all duration-150 disabled:opacity-50" 
+            type="submit">
+            {{ loading ? 'INICIANDO...' : 'INICIAR SESIÓN' }}
+          </button>
+          <span class="font-mono text-[11px] text-brand-charcoal/60">
+            ¿No tienes cuenta? <a (click)="toggleMode(false)" class="text-brand-charcoal font-bold hover:text-brand-red underline cursor-pointer">Crear una cuenta</a>
           </span>
         </div>
       </form>

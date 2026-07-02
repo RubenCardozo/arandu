@@ -102,7 +102,8 @@ export class MediaService {
         ? new Date(row.published_at)
             .toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
             .toUpperCase()
-        : ''
+        : '',
+      clicks: row.clicks || 0
     };
   }
 }

@@ -11,6 +11,48 @@ export class JobsService {
   constructor(private supabase: SupabaseService) {}
 
   /**
+   * Creates a new job listing in Supabase.
+   */
+  async create(jobData: {
+    title: string;
+    company: string;
+    description: string;
+    requirements: string;
+    salary: string;
+    jobType: string;
+    contactEmail: string;
+    contactPhone: string;
+    ownerId: string;
+  }): Promise<{ data?: any; error?: string }> {
+    try {
+      const { data, error } = await this.supabase.client
+        .from('jobs')
+        .insert([{
+          title: jobData.title,
+          company: jobData.company,
+          description: jobData.description,
+          requirements: jobData.requirements,
+          salary: jobData.salary,
+          job_type: jobData.jobType,
+          contact_email: jobData.contactEmail,
+          contact_phone: jobData.contactPhone,
+          owner_id: jobData.ownerId
+        }])
+        .select();
+
+      if (error) {
+        console.error('JobsService.create – Supabase insert error:', error);
+        return { error: error.message };
+      }
+
+      return { data };
+    } catch (err: any) {
+      console.error('JobsService.create – unexpected error:', err);
+      return { error: err.message || 'An unexpected error occurred.' };
+    }
+  }
+
+  /**
    * Fetches all jobs ordered by created_at DESC.
    * Maps DB rows (snake_case) to view models (camelCase).
    * @returns Array of JobViewModel, or empty array on error.

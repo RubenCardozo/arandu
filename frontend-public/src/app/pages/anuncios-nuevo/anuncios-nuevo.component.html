@@ -1,0 +1,395 @@
+<ng-container *ngIf="!isEmbedded; else embeddedLayout">
+  <main class="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4 bg-brand-paper">
+    <div class="w-full max-w-2xl bg-brand-paper border-2 border-brand-charcoal relative z-10">
+      <div class="absolute top-0 left-0 w-2 h-full bg-brand-sage"></div>
+      <div class="p-8 md:p-12 pl-10 md:pl-16">
+        <ng-container *ngTemplateOutlet="formTemplate"></ng-container>
+      </div>
+    </div>
+  </main>
+</ng-container>
+
+<ng-template #embeddedLayout>
+  <div class="w-full bg-brand-paper py-4">
+    <ng-container *ngTemplateOutlet="formTemplate"></ng-container>
+  </div>
+</ng-template>
+
+<ng-template #formTemplate>
+  <!-- Title Block -->
+  <div class="mb-8 border-b border-brand-charcoal pb-6">
+    <h1 class="font-serif text-3xl md:text-4xl mb-2 italic">Publicar un Anuncio</h1>
+    <p class="font-sans text-xs text-brand-charcoal/70">
+      Crea un anuncio clasificado en Arandu. Rellena los datos para que otros usuarios se contacten contigo.
+    </p>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="successMessage" class="mb-6 p-3 bg-brand-sage/10 border border-brand-sage text-brand-sage font-sans text-xs">
+    {{ successMessage }}
+  </div>
+  <div *ngIf="errorMessage" class="mb-6 p-3 bg-brand-red/10 border border-brand-red text-brand-red font-sans text-xs">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Incomplete profile notice -->
+  <div *ngIf="isProfileIncomplete" class="p-6 bg-brand-red/5 border border-brand-red text-brand-charcoal">
+    <h3 class="font-serif font-bold italic text-lg text-brand-red mb-2">Inscripción requerida</h3>
+    <p class="font-sans text-xs text-brand-charcoal/80 leading-relaxed mb-4">
+      Para garantizar la seguridad de nuestra comunidad y el correcto contacto de los clasificados, debes completar tu Dirección, Localidad y Teléfono Móvil en tu cuenta antes de publicar anuncios.
+    </p>
+    <div class="flex items-center gap-4">
+      <a routerLink="/session" class="px-6 py-2.5 bg-brand-red text-white font-mono text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity">
+        Completar Ficha de Inscripción
+      </a>
+      <a routerLink="/anuncios" class="font-mono text-xs text-brand-charcoal/60 hover:text-brand-charcoal underline">
+        Volver
+      </a>
+    </div>
+  </div>
+
+  <!-- Form content (only if profile is complete) -->
+  <form *ngIf="!isProfileIncomplete" [formGroup]="adForm" (ngSubmit)="onSubmit()" class="space-y-6">
+    
+    <!-- Type Selection Tab Buttons -->
+    <div class="flex flex-col gap-2">
+      <span class="font-mono text-[10px] text-brand-charcoal/50 uppercase tracking-widest">Tipo de Clasificado</span>
+      <div class="grid grid-cols-2 gap-4">
+        <button 
+          type="button" 
+          (click)="adForm.patchValue({ type: 'service' })"
+          [class.bg-brand-sage]="type === 'service'"
+          [class.text-brand-paper]="type === 'service'"
+          [class.border-brand-sage]="type === 'service'"
+          [class.bg-transparent]="type !== 'service'"
+          [class.text-brand-charcoal]="type !== 'service'"
+          [class.border-brand-charcoal/30]="type !== 'service'"
+          class="py-3 px-4 border font-mono text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer text-center">
+          Ofrecer Servicio
+        </button>
+        <button 
+          type="button" 
+          (click)="adForm.patchValue({ type: 'job' })"
+          [class.bg-brand-sage]="type === 'job'"
+          [class.text-brand-paper]="type === 'job'"
+          [class.border-brand-sage]="type === 'job'"
+          [class.bg-transparent]="type !== 'job'"
+          [class.text-brand-charcoal]="type !== 'job'"
+          [class.border-brand-charcoal/30]="type !== 'job'"
+          class="py-3 px-4 border font-mono text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer text-center">
+          Buscar Colaborador (Empleo)
+        </button>
+      </div>
+    </div>
+
+    <!-- Category selector (only for services) -->
+    <div *ngIf="type === 'service'" class="flex flex-col gap-1">
+      <label class="font-serif text-sm italic" for="category">Categoría del Servicio</label>
+      <select 
+        formControlName="category" 
+        class="w-full bg-transparent border-0 border-b border-brand-charcoal py-2 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0 cursor-pointer" 
+        id="category">
+        <option value="Electricidad">Electricidad</option>
+        <option value="Trabajos Casa">Trabajos Casa / Reparaciones</option>
+        <option value="Otros">Otros</option>
+      </select>
+    </div>
+
+    <!-- Company Name (only for jobs) -->
+    <div *ngIf="type === 'job'" class="flex flex-col gap-1">
+      <label class="font-serif text-sm italic" for="company">Empresa / Negocio</label>
+      <input 
+        formControlName="company"
+        [ngClass]="companyInvalid ? 'border-brand-red' : 'border-brand-charcoal'"
+        class="w-full bg-transparent border-0 border-b py-2 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+        id="company"
+        placeholder="Ej: Cafetería Central S.A.">
+      <p *ngIf="companyInvalid" class="font-mono text-[9px] text-brand-red uppercase mt-0.5">El nombre de la empresa es obligatorio.</p>
+    </div>
+
+    <!-- Title -->
+    <div class="flex flex-col gap-1">
+      <label class="font-serif text-sm italic" for="title">Título del Anuncio</label>
+      <input 
+        formControlName="title"
+        [ngClass]="titleInvalid ? 'border-brand-red' : 'border-brand-charcoal'"
+        class="w-full bg-transparent border-0 border-b py-2 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+        id="title"
+        placeholder="Ej: Instalación eléctrica doméstica o Chef de cocina">
+      <p *ngIf="titleInvalid" class="font-mono text-[9px] text-brand-red uppercase mt-0.5">El título es requerido (mínimo 3 caracteres).</p>
+    </div>
+
+    <!-- Description -->
+    <div class="flex flex-col gap-1">
+      <label class="font-serif text-sm italic" for="description">Descripción del Anuncio</label>
+      <textarea 
+        formControlName="description"
+        [ngClass]="descInvalid ? 'border-brand-red' : 'border-brand-charcoal'"
+        class="w-full bg-transparent border border-brand-charcoal/30 p-3 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0 min-h-[120px]" 
+        id="description"
+        placeholder="Describe detalladamente tu propuesta o requisitos del empleo."></textarea>
+      <p *ngIf="descInvalid" class="font-mono text-[9px] text-brand-red uppercase mt-0.5">La descripción es obligatoria (mínimo 10 caracteres).</p>
+    </div>
+
+    <!-- Keywords -->
+    <div class="flex flex-col gap-1">
+      <label class="font-serif text-sm italic inline-flex items-center gap-1.5" for="keywords">
+        Palabras clave (Mínimo 3, separadas por comas)
+        <button type="button" (click)="openKeywordsModal()" class="text-brand-sage hover:text-brand-sage/80 inline-flex items-center justify-center p-0.5 bg-transparent border-0 cursor-pointer" title="Ver ayuda">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 14px; height: 14px;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </button>
+      </label>
+      <input 
+        formControlName="keywords"
+        [ngClass]="keywordsInvalid ? 'border-brand-red' : 'border-brand-charcoal'"
+        class="w-full bg-transparent border-0 border-b py-2 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+        id="keywords"
+        placeholder="Ej: electricista, urgencia, instalación">
+      <p *ngIf="keywordsInvalid" class="font-mono text-[9px] text-brand-red uppercase mt-0.5">Debes introducir al menos 3 palabras clave separadas por comas.</p>
+    </div>
+
+    <!-- Job-specific optional fields -->
+    <div *ngIf="type === 'job'" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="flex flex-col gap-1">
+        <label class="font-serif text-sm italic" for="jobType">Tipo de Contrato</label>
+        <select 
+          formControlName="jobType" 
+          class="w-full bg-transparent border-0 border-b border-brand-charcoal py-2 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+          id="jobType">
+          <option value="Full-time">Tiempo completo (Full-time)</option>
+          <option value="Part-time">Tiempo parcial (Part-time)</option>
+          <option value="Temporary">Temporal</option>
+          <option value="Otros">Otros</option>
+        </select>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="font-serif text-sm italic" for="salary">Salario Estimado</label>
+        <input 
+          formControlName="salary"
+          class="w-full bg-transparent border-0 border-b border-brand-charcoal py-2 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+          id="salary"
+          placeholder="Ej: A convenir / 3800 CHF">
+      </div>
+    </div>
+
+    <!-- Requirements (only for jobs) -->
+    <div *ngIf="type === 'job'" class="flex flex-col gap-1">
+      <label class="font-serif text-sm italic" for="requirements">Requisitos / Perfil</label>
+      <textarea 
+        formControlName="requirements"
+        class="w-full bg-transparent border border-brand-charcoal/30 p-3 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0 min-h-[80px]" 
+        id="requirements"
+        placeholder="Requisitos de experiencia, idiomas, etc."></textarea>
+    </div>
+
+    <!-- Image Upload (services only) -->
+    <div *ngIf="type === 'service'" class="flex flex-col gap-2">
+      <span class="font-serif text-sm italic">Fotografía del Servicio</span>
+      <div class="border-2 border-dashed border-brand-charcoal/30 p-6 flex flex-col items-center justify-center bg-brand-charcoal/5 relative">
+        
+        <!-- Hide input but overlay button -->
+        <input 
+          type="file" 
+          accept="image/*" 
+          (change)="onFileSelected($event)" 
+          class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+          *ngIf="!imagePreviewUrl">
+        
+        <!-- Upload placeholder info -->
+        <div *ngIf="!imagePreviewUrl" class="text-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-8 w-8 text-brand-charcoal/50 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <p class="font-mono text-[10px] text-brand-charcoal/60 uppercase">Haga clic o arrastre aquí su imagen</p>
+          <p class="text-[9px] text-brand-charcoal/40 mt-1">Se comprimirá automáticamente antes del envío (Máximo 1 foto)</p>
+        </div>
+
+        <!-- Preview mode -->
+        <div *ngIf="imagePreviewUrl" class="w-full flex flex-col items-center gap-3">
+          <img [src]="imagePreviewUrl" alt="Preview" class="max-h-[200px] max-w-full object-contain border border-brand-charcoal">
+          <button 
+            type="button" 
+            (click)="removeFile()" 
+            class="px-4 py-1.5 bg-brand-red text-white font-mono text-[9px] font-bold uppercase tracking-wider hover:opacity-90 transition-opacity z-30 cursor-pointer">
+            Quitar Foto
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact details header -->
+    <div class="pt-4 border-t border-brand-charcoal/10">
+      <h4 class="font-serif italic font-bold text-base mb-3">Información de Contacto</h4>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Contact Name -->
+        <div class="flex flex-col gap-1">
+          <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="contactName">Nombre</label>
+          <input 
+            formControlName="contactName"
+            [ngClass]="contactInvalid ? 'border-brand-red' : 'border-brand-charcoal'"
+            class="w-full bg-transparent border-0 border-b py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+            id="contactName">
+        </div>
+        <!-- Contact Phone -->
+        <div class="flex flex-col gap-1">
+          <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="phone">Teléfono</label>
+          <input 
+            formControlName="phone"
+            [ngClass]="phoneInvalid ? 'border-brand-red' : 'border-brand-charcoal'"
+            class="w-full bg-transparent border-0 border-b py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+            id="phone">
+        </div>
+        <!-- Contact Email -->
+        <div class="flex flex-col gap-1">
+          <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="email">E-mail</label>
+          <input 
+            formControlName="email"
+            [ngClass]="emailInvalid ? 'border-brand-red' : 'border-brand-charcoal'"
+            class="w-full bg-transparent border-0 border-b py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+            id="email">
+        </div>
+        <!-- Website (optional) -->
+        <div class="flex flex-col gap-1">
+          <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="website">Sitio Web (Opcional)</label>
+          <input 
+            formControlName="website"
+            class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+            id="website"
+            placeholder="http://miservicio.ch">
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit & Preview Buttons -->
+    <div class="pt-6 border-t border-brand-charcoal/10 flex flex-wrap items-center gap-4">
+      <button 
+        [disabled]="submitting || loading"
+        type="submit" 
+        class="px-8 py-3.5 bg-brand-sage text-brand-paper font-mono text-xs font-bold uppercase tracking-widest hover:bg-brand-charcoal transition-colors disabled:opacity-50 cursor-pointer">
+        {{ submitting ? 'PUBLICANDO...' : 'PUBLICAR ANUNCIO' }}
+      </button>
+      <button 
+        type="button"
+        (click)="openPreview()"
+        class="px-8 py-3.5 border-2 border-brand-charcoal hover:bg-brand-charcoal hover:text-brand-paper font-mono text-xs font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1.5">
+        <span>👁️</span> Previsualizar
+      </button>
+      <a *ngIf="!isEmbedded" routerLink="/anuncios" class="font-mono text-xs text-brand-charcoal/60 hover:text-brand-charcoal underline ml-auto">
+        Cancelar y Volver
+      </a>
+    </div>
+
+  </form>
+</ng-template>
+
+<!-- PREVIEW MODAL -->
+<div *ngIf="showPreviewModal && previewAd" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <!-- Backdrop -->
+  <div (click)="closePreview()" class="fixed inset-0 bg-brand-charcoal/60 backdrop-blur-sm"></div>
+
+  <!-- Modal Content Box -->
+  <div class="bg-brand-paper border-2 border-brand-charcoal w-full max-w-2xl max-h-[90vh] overflow-y-auto relative z-10 p-6 md:p-10 shadow-2xl">
+    <!-- Close button -->
+    <button (click)="closePreview()" class="absolute top-4 right-4 font-mono text-xl text-brand-charcoal hover:text-brand-sage transition-colors cursor-pointer focus:outline-none" aria-label="Cerrar previsualización">
+      ✕
+    </button>
+
+    <div class="mb-4 bg-brand-red/10 border border-brand-red/30 p-2.5 text-center text-brand-red font-mono text-[10px] font-bold uppercase tracking-wider">
+      VISTA PREVIA — ASÍ SE VERÁ TU ANUNCIO EN LA PLATAFORMA
+    </div>
+
+    <!-- Modal Category & Date -->
+    <div class="flex justify-between items-center mb-4 pb-2 border-b border-brand-charcoal/10">
+      <span class="font-mono text-[10px] bg-brand-sage/10 text-brand-sage px-2.5 py-0.5 rounded font-bold uppercase">{{ previewAd.category }}</span>
+      <span class="font-mono text-[10px] text-brand-charcoal/50">{{ previewAd.createdAt }}</span>
+    </div>
+
+    <!-- Title -->
+    <h2 class="font-serif text-3xl font-bold text-brand-charcoal mb-6 leading-tight">
+      {{ previewAd.title }}
+    </h2>
+
+    <!-- Image -->
+    <div class="w-full h-64 md:h-80 overflow-hidden border border-brand-charcoal mb-6 bg-brand-charcoal/5 flex items-center justify-center">
+      <ng-container *ngIf="previewAd.imageUrl; else fallbackPreviewImage">
+        <img [alt]="previewAd.title" class="w-full h-full object-cover" [src]="previewAd.imageUrl">
+      </ng-container>
+      <ng-template #fallbackPreviewImage>
+        <div [ngClass]="getCategoryBgClass(previewAd.category)" class="w-full h-full flex flex-col items-center justify-center p-6">
+          <span class="text-7xl mb-3">{{ getCategoryEmoji(previewAd.category) }}</span>
+          <span class="font-mono text-xs tracking-widest uppercase font-bold text-brand-charcoal/60">{{ previewAd.category }}</span>
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- Description -->
+    <div class="mb-8">
+      <h4 class="font-mono text-[10px] uppercase font-bold text-brand-charcoal/50 tracking-wider mb-2">Descripción</h4>
+      <p class="font-sans text-sm text-brand-charcoal/80 leading-relaxed whitespace-pre-line">
+        {{ previewAd.cleanDescription }}
+      </p>
+    </div>
+
+    <!-- Job Specific Fields if Job -->
+    <div *ngIf="previewAd.entityType === 'job'" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 p-4 bg-brand-charcoal/5 border border-brand-charcoal/10 font-mono text-xs text-brand-charcoal/80">
+      <div *ngIf="previewAd.company"><span class="text-brand-charcoal/50">Empresa:</span> {{ previewAd.company }}</div>
+      <div *ngIf="previewAd.jobType"><span class="text-brand-charcoal/50">Contrato:</span> {{ previewAd.jobType }}</div>
+      <div *ngIf="previewAd.salary"><span class="text-brand-charcoal/50">Salario:</span> {{ previewAd.salary }}</div>
+      <div *ngIf="previewAd.requirements" class="col-span-1 sm:col-span-2 mt-2 pt-2 border-t border-brand-charcoal/10">
+        <span class="text-brand-charcoal/50 block mb-1">Requisitos:</span>
+        <p class="font-sans text-xs whitespace-pre-line">{{ previewAd.requirements }}</p>
+      </div>
+    </div>
+
+    <!-- Contact Details -->
+    <div class="mb-8 p-5 border border-brand-charcoal bg-brand-paper relative">
+      <div class="absolute top-0 left-0 w-1 h-full bg-brand-red"></div>
+      <h4 class="font-serif italic font-bold text-base mb-3 text-brand-charcoal">Información de Contacto</h4>
+      <div class="space-y-3 text-sm font-sans text-brand-charcoal/80">
+        <div *ngIf="previewAd.announcerName" class="pb-2 border-b border-brand-charcoal/5">
+          <span class="font-mono text-[10px] text-brand-charcoal/50 uppercase block">Anunciante</span>
+          <span class="font-bold text-brand-charcoal text-base">{{ previewAd.announcerName }}</span>
+          <span *ngIf="previewAd.registeredSince" class="font-mono text-[9px] text-brand-charcoal/55 block mt-0.5">Inscrito desde el {{ previewAd.registeredSince }}</span>
+        </div>
+        <div *ngIf="previewAd.contactPhone">
+          <span class="font-mono text-[10px] text-brand-charcoal/50 uppercase block">Teléfono Móvil</span>
+          <span class="font-mono text-lg font-bold text-brand-red">{{ previewAd.contactPhone }}</span>
+        </div>
+        <div *ngIf="previewAd.contactEmail">
+          <span class="font-mono text-[10px] text-brand-charcoal/50 uppercase block">Correo de Contacto</span>
+          <span class="underline text-brand-sage">{{ previewAd.contactEmail }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HELP KEYWORDS MODAL -->
+<div *ngIf="keywordsModalVisible" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <!-- Backdrop -->
+  <div (click)="closeKeywordsModal()" class="fixed inset-0 bg-brand-charcoal/60 backdrop-blur-sm"></div>
+
+  <!-- Modal Content Box -->
+  <div class="bg-brand-paper border-2 border-brand-charcoal w-full max-w-md overflow-hidden relative z-10 p-6 shadow-2xl">
+    <!-- Close button -->
+    <button (click)="closeKeywordsModal()" class="absolute top-4 right-4 font-mono text-xl text-brand-charcoal hover:text-brand-sage transition-colors cursor-pointer focus:outline-none" aria-label="Cerrar ayuda">
+      ✕
+    </button>
+    <h3 class="font-serif text-lg font-bold text-brand-charcoal mb-3 flex items-center gap-1.5">
+      💡 Cómo elegir palabras clave
+    </h3>
+    <div class="text-xs text-brand-charcoal/90 space-y-2 leading-relaxed font-sans">
+      <p>
+        Elige palabras descriptivas que los usuarios buscarían para encontrar tu servicio. Escribe al menos 3 términos separados por comas, incluyendo tu oficio, especialidad y localidad.
+      </p>
+      <div class="border-t border-brand-charcoal/10 pt-2.5 space-y-1.5 text-[11px]">
+        <div><strong>⚡ Electricidad:</strong> <span class="italic">"electricista, urgencias 24h, boletín, enchufe, Ginebra"</span></div>
+        <div><strong>🏠 Servicios:</strong> <span class="italic">"limpieza, pintor, reformas, carpintería, Ginebra"</span></div>
+        <div><strong>💼 Empleo:</strong> <span class="italic">"cocinero, ayudante, camarero, hostelería, Ginebra"</span></div>
+        <div><strong>🛍️ Ventas/Donaciones:</strong> <span class="italic">"coche, nevera, muebles gratis, liquidación, Ginebra"</span></div>
+      </div>
+    </div>
+  </div>
+</div>

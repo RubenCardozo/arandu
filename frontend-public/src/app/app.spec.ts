@@ -1,13 +1,24 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { App } from './app';
+import { AuthService } from './services/auth.service';
+import { of } from 'rxjs';
+import { vi, describe, beforeEach, it, expect } from 'vitest';
 
 describe('App', () => {
+  let authServiceMock: any;
+
   beforeEach(async () => {
+    authServiceMock = {
+      currentUser$: of(null),
+      getUserInitials: vi.fn().mockReturnValue('')
+    };
+
     await TestBed.configureTestingModule({
       imports: [App],
       providers: [
-        provideRouter([])
+        provideRouter([]),
+        { provide: AuthService, useValue: authServiceMock }
       ]
     }).compileComponents();
   });

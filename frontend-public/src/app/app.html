@@ -1,25 +1,111 @@
 <!-- TopAppBar -->
 <header class="bg-brand-paper border-b border-brand-charcoal sticky top-0 z-50">
-  <div class="flex justify-between items-center w-full px-8 py-4 max-w-[1280px] mx-auto">
+  <div class="flex justify-between items-center w-full px-6 md:px-8 py-4 max-w-[1280px] mx-auto">
     <div class="flex items-center gap-3">
-      <a routerLink="/" class="flex items-center gap-3">
-        <img alt="Arandu Logo" class="h-[44px] w-auto object-contain" src="/logo.png">
-        <span class="font-serif text-[42px] font-bold text-brand-sage tracking-tight uppercase leading-none">Arandu</span>
+      <a routerLink="/" (click)="closeMobileMenu()" class="flex items-center gap-3">
+        <img alt="Arandu Logo" class="h-[44px] md:h-[56px] w-auto object-contain" src="/logo.png">
+        <span class="hidden sm:inline font-serif text-[32px] md:text-[42px] font-bold text-brand-sage tracking-tight uppercase leading-none">Arandu</span>
       </a>
     </div>
+
+    <!-- Desktop Navigation (hidden on mobile) -->
     <nav class="hidden md:flex gap-8 items-center">
-      <a routerLink="/" routerLinkActive="border-b-2 border-brand-charcoal font-bold pb-1" [routerLinkActiveOptions]="{exact: true}" class="text-brand-charcoal font-mono tracking-widest text-[11px] hover:text-brand-sage transition-colors">INICIO</a>
-      <a routerLink="/editorial" routerLinkActive="border-b-2 border-brand-charcoal font-bold pb-1" class="text-brand-charcoal font-mono tracking-widest text-[11px] hover:text-brand-sage transition-colors">EDITORIAL</a>
-      <a routerLink="/anuncios" routerLinkActive="border-b-2 border-brand-charcoal font-bold pb-1" class="text-brand-charcoal font-mono tracking-widest text-[11px] hover:text-brand-sage transition-colors">CLASIFICADOS</a>
-      <a routerLink="/registro" routerLinkActive="border-b-2 border-brand-charcoal font-bold pb-1" class="text-brand-charcoal font-mono tracking-widest text-[11px] hover:text-brand-sage transition-colors">REGISTRO</a>
-    </nav>
-    <div class="flex items-center gap-4">
-      <button class="hover:bg-brand-charcoal/5 p-2 rounded-full transition-colors">
-        <span class="font-mono text-xs">BUSCAR</span>
-      </button>
-      <a routerLink="/registro" class="bg-brand-charcoal text-brand-paper px-6 py-2 font-mono text-[11px] font-bold uppercase tracking-widest hover:bg-brand-sage transition-colors">
-        INGRESAR
+      <a routerLink="/" routerLinkActive="border-b-2 border-brand-charcoal font-bold pb-1" [routerLinkActiveOptions]="{exact: true}" class="text-brand-charcoal font-mono tracking-widest text-[11px] hover:text-brand-sage transition-colors flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" points="9 22 9 12 15 12 15 22"></polyline></svg>
+        INICIO
       </a>
+      <a routerLink="/anuncios" routerLinkActive="border-b-2 border-brand-charcoal font-bold pb-1" class="text-brand-charcoal font-mono tracking-widest text-[11px] hover:text-brand-sage transition-colors flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M11 5L6 9H2v6h4l5 4V5z"></path><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+        ANUNCIOS
+      </a>
+    </nav>
+
+    <!-- Desktop Actions (hidden on mobile) -->
+    <div class="hidden md:flex items-center gap-4">
+      <a *ngIf="isLoggedIn" routerLink="/anuncios/nuevo" class="border border-brand-charcoal text-brand-charcoal px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-widest hover:bg-brand-sage hover:text-brand-paper hover:border-brand-sage transition-all duration-150 cursor-pointer">
+        PUBLICAR ANUNCIO
+      </a>
+      <a routerLink="/buscar" class="border border-brand-charcoal px-4 py-2 hover:bg-brand-charcoal hover:text-brand-paper transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke-width="2" stroke-linecap="square"></circle><line x1="21" y1="21" x2="16.65" y2="16.65" stroke-width="2" stroke-linecap="square"></line></svg><span class="font-mono text-[11px] font-bold uppercase tracking-widest">BUSCAR</span>
+      </a>
+      <button *ngIf="!isLoggedIn" (click)="openAuthModal()" class="bg-brand-charcoal text-brand-paper px-6 py-2 font-mono text-[11px] font-bold uppercase tracking-widest hover:bg-brand-sage transition-colors cursor-pointer">
+        ENTRAR
+      </button>
+      <!-- Desktop Avatar and Dropdown -->
+      <div *ngIf="isLoggedIn" class="relative">
+        <button (click)="toggleUserDropdown($event)" class="bg-brand-sage text-brand-paper w-9 h-9 rounded-full flex items-center justify-center font-mono text-xs font-bold hover:bg-brand-charcoal transition-colors border border-brand-charcoal/10 cursor-pointer" title="Opciones de usuario">
+          {{ userInitials }}
+        </button>
+        
+        <!-- Dropdown Menu -->
+        <div *ngIf="showUserDropdown" class="absolute right-0 mt-2 w-48 bg-brand-paper border-2 border-brand-charcoal shadow-xl z-50">
+          <div (click)="closeUserDropdown()" class="fixed inset-0 z-[-1]"></div>
+          <a routerLink="/session" (click)="closeUserDropdown()" class="block px-4 py-2.5 font-mono text-[11px] font-bold text-brand-charcoal hover:bg-brand-sage hover:text-brand-paper border-b border-brand-charcoal/10">
+            MI CUENTA
+          </a>
+          <button (click)="signOut()" class="w-full text-left block px-4 py-2.5 font-mono text-[11px] font-bold text-brand-red hover:bg-brand-red hover:text-brand-paper cursor-pointer">
+            CERRAR SESIÓN
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Actions & Hamburger (visible on mobile only) -->
+    <div class="flex md:hidden items-center gap-3">
+      <!-- Mobile Avatar and Dropdown -->
+      <div *ngIf="isLoggedIn" class="relative">
+        <button (click)="toggleUserDropdown($event)" class="bg-brand-sage text-brand-paper w-8 h-8 rounded-full flex items-center justify-center font-mono text-[10px] font-bold hover:bg-brand-charcoal transition-colors border border-brand-charcoal/10 cursor-pointer" title="Opciones de usuario">
+          {{ userInitials }}
+        </button>
+        
+        <!-- Mobile Dropdown Menu -->
+        <div *ngIf="showUserDropdown" class="absolute right-0 mt-2 w-40 bg-brand-paper border-2 border-brand-charcoal shadow-xl z-50">
+          <div (click)="closeUserDropdown()" class="fixed inset-0 z-[-1]"></div>
+          <a routerLink="/session" (click)="closeUserDropdown()" class="block px-3 py-2 font-mono text-[10px] font-bold text-brand-charcoal hover:bg-brand-sage hover:text-brand-paper border-b border-brand-charcoal/10">
+            MI CUENTA
+          </a>
+          <button (click)="signOut()" class="w-full text-left block px-3 py-2 font-mono text-[10px] font-bold text-brand-red hover:bg-brand-red hover:text-brand-paper cursor-pointer">
+            CERRAR SESIÓN
+          </button>
+        </div>
+      </div>
+      <button *ngIf="!isLoggedIn" (click)="openAuthModal()" class="bg-brand-charcoal text-brand-paper px-3 py-1.5 font-mono text-[9px] font-bold uppercase tracking-wider hover:bg-brand-sage transition-colors cursor-pointer">
+        ENTRAR
+      </button>
+      
+      <!-- Hamburger Button (3 lines) -->
+      <button (click)="toggleMobileMenu()" class="text-brand-charcoal focus:outline-none p-1 flex flex-col justify-between w-6 h-5" aria-label="Menú">
+        <span class="w-full h-[2px] bg-brand-charcoal transition-all duration-300 origin-left" [class.rotate-45]="mobileMenuOpen" [class.translate-y-[2px]]="mobileMenuOpen"></span>
+        <span class="w-full h-[2px] bg-brand-charcoal transition-all duration-300" [class.opacity-0]="mobileMenuOpen"></span>
+        <span class="w-full h-[2px] bg-brand-charcoal transition-all duration-300 origin-left" [class.-rotate-45]="mobileMenuOpen" [class.-translate-y-[2px]]="mobileMenuOpen"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Collapsible Menu -->
+  <div *ngIf="mobileMenuOpen" class="md:hidden border-t border-brand-charcoal/20 bg-brand-paper px-6 py-6 flex flex-col gap-6 shadow-md transition-all duration-200">
+    <a routerLink="/" (click)="closeMobileMenu()" routerLinkActive="font-bold text-brand-sage" [routerLinkActiveOptions]="{exact: true}" class="text-brand-charcoal font-mono tracking-widest text-xs py-2 border-b border-brand-charcoal/10 flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" points="9 22 9 12 15 12 15 22"></polyline></svg> INICIO
+    </a>
+    <a routerLink="/anuncios" (click)="closeMobileMenu()" routerLinkActive="font-bold text-brand-sage" class="text-brand-charcoal font-mono tracking-widest text-xs py-2 border-b border-brand-charcoal/10 flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M11 5L6 9H2v6h4l5 4V5z"></path><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg> ANUNCIOS
+    </a>
+    <a *ngIf="isLoggedIn" routerLink="/anuncios/nuevo" (click)="closeMobileMenu()" routerLinkActive="font-bold text-brand-sage" class="text-brand-charcoal font-mono tracking-widest text-xs py-2 border-b border-brand-charcoal/10">PUBLICAR ANUNCIO</a>
+    
+    <!-- Mobile Search Field -->
+    <div class="flex flex-col gap-2 pt-2">
+      <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase tracking-wider">Búsqueda</span>
+      <div class="flex gap-2">
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="onMobileSearch()"
+          placeholder="Buscar anuncios..." 
+          class="flex-1 bg-transparent border border-brand-charcoal/30 px-3 py-2 font-sans text-xs focus:outline-none focus:border-brand-sage">
+        <button (click)="onMobileSearch()" class="bg-brand-charcoal text-brand-paper px-4 py-2 font-mono text-[10px] font-bold uppercase hover:bg-brand-sage transition-colors">
+          BUSCAR
+        </button>
+      </div>
     </div>
   </div>
 </header>
@@ -29,47 +115,583 @@
   <router-outlet></router-outlet>
 </div>
 
-<!-- Footer -->
+<!-- Compact Footer -->
 <footer class="bg-brand-charcoal text-brand-paper border-t border-brand-charcoal/20">
-  <div class="max-w-[1280px] mx-auto px-8 py-16">
-    <div class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
-      <div class="md:col-span-4">
-        <div class="flex items-center gap-3 mb-6">
+  <div class="max-w-[1280px] mx-auto px-6 md:px-8 py-10">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-8 mb-8">
+      <!-- Brand & Slogan Column -->
+      <div class="md:col-span-4 space-y-3">
+        <div class="flex items-center gap-3">
           <img alt="Arandu Icon" class="h-6 w-6 object-contain" src="/logo.png">
-          <span class="font-serif text-lg font-semibold uppercase tracking-tight" style="color: #fbfaf7;">Arandu</span>
+          <span class="font-serif text-xl font-bold uppercase tracking-tight" style="color: #fbfaf7;">Arandu</span>
         </div>
-        <p class="font-mono text-xs text-brand-paper/60 leading-relaxed">
-          Periodismo de datos, cultura, deportes e interés público para la comunidad hispanohablante de Ginebra.
+        <p class="font-sans text-xs text-brand-paper/80 leading-relaxed max-w-sm">
+          Ginebra te abre las puertas; Arandu te da las llaves. Tu radar local para vivir, conectarte y florecer en el cantón. Tu ciudad. Tu gente. Tu idioma.
         </p>
       </div>
-      <div class="md:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-8">
-        <div class="flex flex-col gap-4">
+
+      <!-- Links Grid -->
+      <div class="md:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div class="flex flex-col gap-2.5">
           <span class="font-mono text-[10px] font-bold tracking-widest uppercase text-brand-paper">Explorar</span>
-          <a routerLink="/" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-paper transition-colors">INICIO</a>
-          <a routerLink="/editorial" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-paper transition-colors">EDITORIAL</a>
-          <a routerLink="/anuncios" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-paper transition-colors">CLASIFICADOS</a>
+          <a routerLink="/" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-sage transition-colors">INICIO</a>
+          <a routerLink="/anuncios" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-sage transition-colors">ANUNCIOS</a>
+          <a routerLink="/buscar" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-sage transition-colors">BÚSQUEDA</a>
         </div>
-        <div class="flex flex-col gap-4">
+
+        <div class="flex flex-col gap-2.5">
           <span class="font-mono text-[10px] font-bold tracking-widest uppercase text-brand-paper">Institucional</span>
-          <a href="#" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-paper transition-colors">MISIÓN</a>
-          <a href="#" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-paper transition-colors">FUENTES</a>
-          <a href="#" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-paper transition-colors">SOPORTE</a>
+          <a (click)="openFooterModal('mision', $event)" href="#" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-sage transition-colors">MISIÓN</a>
+          <a (click)="openFooterModal('guarani', $event)" href="#" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-sage transition-colors">EL ORIGEN (GUARANÍ)</a>
+          <a (click)="openFooterModal('fuentes', $event)" href="#" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-sage transition-colors">FUENTES Y PRENSA</a>
         </div>
-        <div class="flex flex-col gap-4">
+
+        <div class="flex flex-col gap-2.5">
           <span class="font-mono text-[10px] font-bold tracking-widest uppercase text-brand-paper">Contacto</span>
-          <a href="#" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-paper transition-colors">CONTACTAR</a>
-          <a href="#" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-paper transition-colors">BOLETÍN</a>
+          <a (click)="openFooterModal('contactar', $event)" href="#" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-sage transition-colors">CONTACTAR</a>
+          <a (click)="openFooterModal('boletin', $event)" href="#" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-sage transition-colors">BOLETÍN</a>
         </div>
-        <div class="flex flex-col gap-4">
+
+        <div class="flex flex-col gap-2.5">
           <span class="font-mono text-[10px] font-bold tracking-widest uppercase text-brand-paper">Legal</span>
-          <a href="#" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-paper transition-colors">CONDICIONES</a>
-          <a href="#" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-paper transition-colors">PRIVACIDAD</a>
+          <a (click)="openFooterModal('condiciones', $event)" href="#" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-sage transition-colors">CONDICIONES</a>
+          <a (click)="openFooterModal('privacidad', $event)" href="#" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-sage transition-colors">PRIVACIDAD</a>
         </div>
       </div>
     </div>
-    <div class="pt-8 border-t border-brand-paper/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+
+    <!-- Bottom Bar -->
+    <div class="pt-6 border-t border-brand-paper/10 flex flex-col md:flex-row justify-between items-center gap-2">
       <p class="font-mono text-[10px] text-brand-paper/40">© 2026 Arandu. Todos los derechos reservados.</p>
-      <p class="font-mono text-[10px] text-brand-paper/40 tracking-widest">ISSN 2754-9216</p>
+      <p class="font-mono text-[9px] text-brand-paper/40 uppercase tracking-widest">Edición Digital — Ginebra, Suiza</p>
     </div>
   </div>
 </footer>
+
+<!-- FOOTER INTERACTIVE MODALS -->
+<div *ngIf="footerModalType" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <!-- Backdrop -->
+  <div (click)="closeFooterModal()" class="fixed inset-0 bg-brand-charcoal/60 backdrop-blur-sm"></div>
+
+  <!-- Modal Content Card -->
+  <div class="bg-brand-paper border-2 border-brand-charcoal w-full max-w-2xl max-h-[85vh] overflow-y-auto relative z-10 p-6 md:p-8 shadow-2xl">
+    
+    <!-- Sticky Top Header Bar for Modal -->
+    <div class="sticky -top-6 md:-top-8 -mx-6 md:-mx-8 px-6 md:px-8 pt-3 pb-3 bg-brand-paper border-b border-brand-charcoal/20 z-30 flex items-center justify-between shadow-xs mb-4">
+      <span class="font-mono text-[10px] text-brand-sage uppercase font-bold tracking-widest">
+        {{ footerModalType === 'mision' ? 'Institucional' : (footerModalType === 'guarani' ? 'El Origen' : (footerModalType === 'fuentes' ? 'Transparencia & Fuentes' : (footerModalType === 'contactar' ? 'Atención al Lector' : 'Información')) ) }}
+      </span>
+      <button (click)="closeFooterModal()" class="font-mono text-xl text-brand-charcoal hover:text-brand-sage transition-colors cursor-pointer leading-none" aria-label="Cerrar modal">
+        ✕
+      </button>
+    </div>
+
+    <!-- 1. MISIÓN MODAL (MANIFIESTO ARANDU) -->
+    <div *ngIf="footerModalType === 'mision'" class="space-y-5">
+      <div class="border-b border-brand-charcoal/20 pb-3">
+        <span class="font-mono text-[10px] text-brand-sage uppercase font-bold tracking-widest block mb-1">El Manifiesto Arandu</span>
+        <h2 class="font-serif text-2xl md:text-3xl font-bold text-brand-charcoal">Ginebra a tu ritmo. Ginebra sin barreras.</h2>
+        <p class="font-serif text-sm text-brand-sage italic mt-1 font-bold">"Ginebra te abre las puertas; Arandu te da las llaves."</p>
+      </div>
+
+      <div class="space-y-4 font-sans text-sm text-brand-charcoal/80 leading-relaxed">
+        <p class="text-base font-medium text-brand-charcoal">
+          Olvídate de sentirte como un extranjero intentando descifrar el cantón. Aterrizar (o vivir) en Ginebra no tiene por qué ser un laberinto. En <strong>Arandu</strong> hemos venido a romper el hielo.
+        </p>
+
+        <p>
+          No somos solo una guía; somos tu red de apoyo en el cantón. Somos la plataforma que te cuenta sin rodeos lo que pasa en la ciudad, te conecta con nuestra comunidad y se convierte en tu radar para encontrar exactamente lo que buscas: desde el trámite más burocrático hasta tu próximo gran plan de viernes.
+        </p>
+
+        <!-- What We Do Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
+          <div class="bg-white border border-brand-charcoal/20 p-3.5 hover:border-brand-sage transition-colors rounded">
+            <span class="text-base block mb-1">📰</span>
+            <strong class="font-mono text-xs uppercase text-brand-charcoal block mb-1">Te Informamos</strong>
+            <p class="font-sans text-[11px] text-brand-charcoal/70 leading-normal">
+              Traducimos la realidad local. Desde la actualidad de Ginebra hasta cómo domar el sistema de impuestos o los permisos de residencia (*permis de séjour*).
+            </p>
+          </div>
+
+          <div class="bg-white border border-brand-charcoal/20 p-3.5 hover:border-brand-sage transition-colors rounded">
+            <span class="text-base block mb-1">🤝</span>
+            <strong class="font-mono text-xs uppercase text-brand-charcoal block mb-1">Te Conectamos</strong>
+            <p class="font-sans text-[11px] text-brand-charcoal/70 leading-normal">
+              Creamos el espacio para encontrarnos, hacer networking, construir amistades y fortalecer nuestra comunidad en Suiza.
+            </p>
+          </div>
+
+          <div class="bg-white border border-brand-charcoal/20 p-3.5 hover:border-brand-sage transition-colors rounded">
+            <span class="text-base block mb-1">🔍</span>
+            <strong class="font-mono text-xs uppercase text-brand-charcoal block mb-1">Encontramos lo que Buscas</strong>
+            <p class="font-sans text-[11px] text-brand-charcoal/70 leading-normal">
+              Empleo, cultura, vivienda, trámites o ese consejo práctico que solo te da alguien que ya pasó por ahí.
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-brand-sage/10 border-l-4 border-brand-sage p-4 my-3 rounded-r">
+          <p class="font-serif italic text-sm text-brand-charcoal font-semibold">
+            "Conquista la vida suiza, pero hazlo sintiéndote en casa. La vida en Ginebra no viene con manual de instrucciones. Viene con Arandu. Bienvenido."
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. GUARANÍ ORIGIN MODAL -->
+    <div *ngIf="footerModalType === 'guarani'" class="space-y-4">
+      <div class="border-b border-brand-charcoal/20 pb-3">
+        <h2 class="font-serif text-2xl md:text-3xl font-bold text-brand-charcoal">¿Qué significa ARANDU?</h2>
+        <p class="font-sans text-xs text-brand-charcoal/60 italic mt-1">La sabiduría y resiliencia del Pueblo Guaraní</p>
+      </div>
+      <div class="space-y-3 font-sans text-sm text-brand-charcoal/80 leading-relaxed">
+        <p>
+          La palabra <strong class="text-brand-sage font-mono uppercase">Arandu</strong> proviene de la lengua ancestral <strong>Guaraní</strong>, una de las lenguas indígenas vivas más ricas de América del Sur.
+        </p>
+        <div class="bg-brand-charcoal/5 p-4 border border-brand-charcoal/20 font-mono text-xs space-y-1">
+          <p>• <strong>Ara</strong>: significa tiempo, época, universo o cielo.</p>
+          <p>• <strong>Ndu</strong>: significa sentir, percibir u oír.</p>
+          <p class="pt-2 text-brand-charcoal font-bold">👉 ARANDU = "Sabiduría, conocimiento profundo y el resplandor de la experiencia compartida."</p>
+        </div>
+        <p>
+          El <strong>Pueblo Guaraní</strong> ha destacado históricamente por su extraordinaria fuerza espiritual, su resiliencia inquebrantable frente a las adversidades y su profundo sentido comunitarios de fraternidad. 
+        </p>
+        <p>
+          Esa misma energía de lucha, dignidad y superación se refleja en el espíritu latinoamericano que vive en el extranjero. Al igual que la tradición guaraní, los inmigrantes hispanohablantes traen consigo el valor del trabajo duro, la calidez humana y el deseo constante de aprender y crecer en armonía con su nuevo entorno en Suiza.
+        </p>
+      </div>
+    </div>
+
+    <!-- 3. FUENTES Y PRENSA MODAL (LOGOS OFICIALES) -->
+    <div *ngIf="footerModalType === 'fuentes'" class="space-y-4">
+      <div class="border-b border-brand-charcoal/20 pb-3">
+        <h2 class="font-serif text-2xl md:text-3xl font-bold text-brand-charcoal">Nuestras Fuentes Oficiales y Medios Aliados</h2>
+        <p class="font-sans text-xs text-brand-charcoal/60 italic mt-1">Recopilamos, traducimos e interpretamos información de los portales líderes de Ginebra y Suiza</p>
+      </div>
+
+      <p class="font-sans text-xs text-brand-charcoal/70">
+        Información periodística verificada directamente desde las fuentes primarias y medios oficiales del cantón:
+      </p>
+
+      <!-- Official Logo Badges Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+        
+        <!-- Tribune de Genève Logo -->
+        <div class="border border-brand-charcoal/20 p-3 bg-white hover:border-brand-sage transition-colors rounded">
+          <div class="flex items-center gap-3 mb-2 pb-1.5 border-b border-brand-charcoal/10">
+            <div class="bg-[#002d62] text-white px-2 py-0.5 font-serif font-bold text-xs uppercase tracking-tight rounded-xs">
+              TdG
+            </div>
+            <strong class="font-mono text-xs text-brand-charcoal uppercase tracking-tight">Tribune de Genève</strong>
+          </div>
+          <p class="font-sans text-[11px] text-brand-charcoal/60">Noticias locales, política cantonal, tráfico y actualidad ginebrina.</p>
+        </div>
+
+        <!-- Le Temps Logo -->
+        <div class="border border-brand-charcoal/20 p-3 bg-white hover:border-brand-sage transition-colors rounded">
+          <div class="flex items-center gap-3 mb-2 pb-1.5 border-b border-brand-charcoal/10">
+            <div class="bg-[#111] text-white px-2 py-0.5 font-serif font-bold text-xs tracking-wider rounded-xs italic">
+              Le Temps
+            </div>
+            <strong class="font-mono text-xs text-brand-charcoal uppercase tracking-tight">Le Temps</strong>
+          </div>
+          <p class="font-sans text-[11px] text-brand-charcoal/60">Análisis económico, política federal suiza e investigación de referencia.</p>
+        </div>
+
+        <!-- GHI Logo -->
+        <div class="border border-brand-charcoal/20 p-3 bg-white hover:border-brand-sage transition-colors rounded">
+          <div class="flex items-center gap-3 mb-2 pb-1.5 border-b border-brand-charcoal/10">
+            <div class="bg-[#e30613] text-white px-2 py-0.5 font-sans font-black text-xs tracking-tighter rounded-xs">
+              GHI
+            </div>
+            <strong class="font-mono text-xs text-brand-charcoal uppercase tracking-tight">GHI (Genève Home Info)</strong>
+          </div>
+          <p class="font-sans text-[11px] text-brand-charcoal/60">Semanario de la vida comunitaria, eventos locales y avisos cantonales.</p>
+        </div>
+
+        <!-- 20 Minutes Logo -->
+        <div class="border border-brand-charcoal/20 p-3 bg-white hover:border-brand-sage transition-colors rounded">
+          <div class="flex items-center gap-3 mb-2 pb-1.5 border-b border-brand-charcoal/10">
+            <div class="bg-[#0038a8] text-white px-2 py-0.5 font-sans font-black text-xs rounded-xs">
+              20 min
+            </div>
+            <strong class="font-mono text-xs text-brand-charcoal uppercase tracking-tight">20 Minutes Suiza</strong>
+          </div>
+          <p class="font-sans text-[11px] text-brand-charcoal/60">Actualidad ágil, información cotidiana, tendencias y transporte.</p>
+        </div>
+
+        <!-- Blick Logo -->
+        <div class="border border-brand-charcoal/20 p-3 bg-white hover:border-brand-sage transition-colors rounded">
+          <div class="flex items-center gap-3 mb-2 pb-1.5 border-b border-brand-charcoal/10">
+            <div class="bg-[#d71921] text-white px-2 py-0.5 font-sans font-black text-xs uppercase rounded-xs">
+              BLICK
+            </div>
+            <strong class="font-mono text-xs text-brand-charcoal uppercase tracking-tight">Blick.ch</strong>
+          </div>
+          <p class="font-sans text-[11px] text-brand-charcoal/60">Cobertura mediática nacional e información directa de interés general.</p>
+        </div>
+
+        <!-- ge.ch Portal Cantonal -->
+        <div class="border border-brand-charcoal/20 p-3 bg-white hover:border-brand-sage transition-colors rounded">
+          <div class="flex items-center gap-3 mb-2 pb-1.5 border-b border-brand-charcoal/10">
+            <div class="bg-[#ffcc00] text-[#111] px-2 py-0.5 font-mono font-bold text-xs uppercase rounded-xs border border-brand-charcoal/30">
+              GE.CH
+            </div>
+            <strong class="font-mono text-xs text-brand-charcoal uppercase tracking-tight">Estado de Ginebra (ge.ch)</strong>
+          </div>
+          <p class="font-sans text-[11px] text-brand-charcoal/60">Portal cantonal oficial: OCPM, regulación de residencia y normas legales.</p>
+        </div>
+
+        <!-- Jobup.ch Logo -->
+        <div class="border border-brand-charcoal/20 p-3 bg-white hover:border-brand-sage transition-colors rounded">
+          <div class="flex items-center gap-3 mb-2 pb-1.5 border-b border-brand-charcoal/10">
+            <div class="bg-[#008080] text-white px-2 py-0.5 font-sans font-bold text-xs lowercase rounded-xs">
+              jobup
+            </div>
+            <strong class="font-mono text-xs text-brand-charcoal uppercase tracking-tight">Jobup.ch</strong>
+          </div>
+          <p class="font-sans text-[11px] text-brand-charcoal/60">Principal portal de empleo y mercado de trabajo en la Suiza Romanda.</p>
+        </div>
+
+        <!-- AFC Genève (Impuestos) Logo -->
+        <div class="border border-brand-charcoal/20 p-3 bg-white hover:border-brand-sage transition-colors rounded">
+          <div class="flex items-center gap-3 mb-2 pb-1.5 border-b border-brand-charcoal/10">
+            <div class="bg-[#2d3748] text-white px-2 py-0.5 font-mono font-bold text-xs uppercase rounded-xs">
+              AFC GE
+            </div>
+            <strong class="font-mono text-xs text-brand-charcoal uppercase tracking-tight">Administración Fiscal (AFC)</strong>
+          </div>
+          <p class="font-sans text-[11px] text-brand-charcoal/60">Información tributaria cantonal, declaración de impuestos e impositivos.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 4. CONTACTAR MODAL -->
+    <div *ngIf="footerModalType === 'contactar'" class="space-y-4">
+      <div class="border-b border-brand-charcoal/20 pb-3">
+        <span class="font-mono text-[10px] text-brand-sage uppercase font-bold tracking-widest">Atención al Lector</span>
+        <h2 class="font-serif text-2xl md:text-3xl font-bold text-brand-charcoal">Formulario de Contacto</h2>
+        <p class="font-sans text-xs text-brand-charcoal/60 italic mt-1">Escríbenos para sugerencias, prensa o consultas de la plataforma</p>
+      </div>
+
+      <!-- Info Alert Box -->
+      <div class="bg-brand-sage/10 border border-brand-sage/30 p-3.5 flex items-start gap-2.5">
+        <span class="text-base">ℹ️</span>
+        <p class="font-sans text-xs text-brand-charcoal/80">
+          <strong>Aviso importante:</strong> Si lo que deseas es <strong>publicar un anuncio clasificado</strong> o interactuar en las noticias, por favor <a (click)="closeFooterModal(); openAuthModal()" class="underline font-bold text-brand-charcoal hover:text-brand-sage cursor-pointer">Inicia Sesión o Regístrate aquí</a>.
+        </p>
+      </div>
+
+      <div *ngIf="contactSubmitted" class="bg-green-100 border border-green-400 text-green-800 p-4 text-center font-mono text-xs uppercase font-bold">
+        ✓ Mensaje enviado con éxito. Te responderemos a la brevedad.
+      </div>
+
+      <form *ngIf="!contactSubmitted" (ngSubmit)="submitContact()" class="space-y-3 pt-1">
+        <div>
+          <label class="block font-mono text-[10px] uppercase text-brand-charcoal/70 mb-1">Tu Nombre Completo *</label>
+          <input type="text" [(ngModel)]="contactName" name="cName" required class="w-full bg-white border border-brand-charcoal p-2 font-sans text-xs focus:outline-none focus:border-brand-sage" placeholder="Juan Pérez">
+        </div>
+        <div>
+          <label class="block font-mono text-[10px] uppercase text-brand-charcoal/70 mb-1">Tu Correo Electrónico *</label>
+          <input type="email" [(ngModel)]="contactEmail" name="cEmail" required class="w-full bg-white border border-brand-charcoal p-2 font-sans text-xs focus:outline-none focus:border-brand-sage" placeholder="correo@ejemplo.ch">
+        </div>
+        <div>
+          <label class="block font-mono text-[10px] uppercase text-brand-charcoal/70 mb-1">Asunto</label>
+          <input type="text" [(ngModel)]="contactSubject" name="cSubject" class="w-full bg-white border border-brand-charcoal p-2 font-sans text-xs focus:outline-none focus:border-brand-sage" placeholder="Consulta general / Prensa">
+        </div>
+        <div>
+          <label class="block font-mono text-[10px] uppercase text-brand-charcoal/70 mb-1">Mensaje *</label>
+          <textarea [(ngModel)]="contactMessage" name="cMsg" rows="3" required class="w-full bg-white border border-brand-charcoal p-2 font-sans text-xs focus:outline-none focus:border-brand-sage" placeholder="Escribe tu consulta aquí..."></textarea>
+        </div>
+        <button type="submit" [disabled]="!contactName || !contactEmail || !contactMessage" class="w-full py-2.5 bg-brand-charcoal text-brand-paper font-mono text-xs font-bold uppercase tracking-widest hover:bg-brand-sage transition-colors disabled:opacity-50 cursor-pointer">
+          ENVIAR MENSAJE
+        </button>
+      </form>
+    </div>
+
+    <!-- 5. BOLETÍN MODAL -->
+    <div *ngIf="footerModalType === 'boletin'" class="space-y-4">
+      <div class="border-b border-brand-charcoal/20 pb-3">
+        <span class="font-mono text-[10px] text-brand-sage uppercase font-bold tracking-widest">Suscripción</span>
+        <h2 class="font-serif text-2xl md:text-3xl font-bold text-brand-charcoal">Boletín Informativo Arandu</h2>
+        <p class="font-sans text-xs text-brand-charcoal/60 italic mt-1">Recibe las novedades de Ginebra semanalmente en tu correo</p>
+      </div>
+
+      <div class="space-y-2.5 font-sans text-xs text-brand-charcoal/80">
+        <p>Al suscribirte al boletín de Arandu recibirás:</p>
+        <ul class="space-y-1.5 list-disc pl-5 font-mono text-[11px] text-brand-charcoal/70">
+          <li>📩 Resumen semanal de noticias traducidas y explicadas.</li>
+          <li>🏛️ Alertas sobre cambios en trámites cantonales, permisos e impuestos.</li>
+          <li>💼 Destacados de ofertas laborales en Ginebra y Vaud.</li>
+          <li>🎭 Recomendaciones de eventos culturales y lugares para visitar.</li>
+        </ul>
+      </div>
+
+      <div *ngIf="newsletterSubmitted" class="bg-green-100 border border-green-400 text-green-800 p-4 text-center font-mono text-xs uppercase font-bold">
+        ✓ ¡Gracias por suscribirte! Recibirás nuestro próximo boletín en tu e-mail.
+      </div>
+
+      <form *ngIf="!newsletterSubmitted" (ngSubmit)="submitNewsletter()" class="space-y-3 pt-2">
+        <div>
+          <label class="block font-mono text-[10px] uppercase text-brand-charcoal/70 mb-1">Ingresa tu E-mail *</label>
+          <input type="email" [(ngModel)]="newsletterEmail" name="nEmail" required class="w-full bg-white border border-brand-charcoal p-2.5 font-sans text-xs focus:outline-none focus:border-brand-sage" placeholder="tu.correo@ejemplo.ch">
+        </div>
+        <button type="submit" [disabled]="!newsletterEmail" class="w-full py-2.5 bg-brand-sage text-brand-paper font-mono text-xs font-bold uppercase tracking-widest hover:bg-brand-charcoal transition-colors disabled:opacity-50 cursor-pointer">
+          SUSCRIBIRME AL BOLETÍN
+        </button>
+      </form>
+    </div>
+
+    <!-- 6. CONDICIONES MODAL -->
+    <div *ngIf="footerModalType === 'condiciones'" class="space-y-4">
+      <div class="border-b border-brand-charcoal/20 pb-3">
+        <span class="font-mono text-[10px] text-brand-sage uppercase font-bold tracking-widest">Legal</span>
+        <h2 class="font-serif text-2xl font-bold text-brand-charcoal">Condiciones Generales de Uso</h2>
+      </div>
+      <div class="space-y-2 font-sans text-xs text-brand-charcoal/80 leading-relaxed max-h-60 overflow-y-auto pr-2">
+        <p><strong>1. Uso de la plataforma:</strong> Arandu es un espacio comunitario de información y clasificación de anuncios sin fines lucrativos ilícitos.</p>
+        <p><strong>2. Publicaciones y anuncios:</strong> Los usuarios son responsables del contenido publicado en los anuncios clasificados.</p>
+        <p><strong>3. Respeto comunitario:</strong> Queda estrictamente prohibido cualquier discurso de odio, discriminación o spam.</p>
+      </div>
+    </div>
+
+    <!-- 7. PRIVACIDAD MODAL -->
+    <div *ngIf="footerModalType === 'privacidad'" class="space-y-4">
+      <div class="border-b border-brand-charcoal/20 pb-3">
+        <span class="font-mono text-[10px] text-brand-sage uppercase font-bold tracking-widest">Legal</span>
+        <h2 class="font-serif text-2xl font-bold text-brand-charcoal">Política de Privacidad</h2>
+      </div>
+      <div class="space-y-2 font-sans text-xs text-brand-charcoal/80 leading-relaxed max-h-60 overflow-y-auto pr-2">
+        <p><strong>Protección de Datos:</strong> Cumplimos estrictamente con la Ley Federal de Protección de Datos de Suiza (LPD/nLPD).</p>
+        <p>Sus datos personales (correo electrónico, nombre) son confidenciales y nunca serán compartidos con terceros sin su consentimiento explícito.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Auth Modal Backdrop -->
+<div *ngIf="showAuthModal" class="fixed inset-0 bg-brand-charcoal/80 flex items-center justify-center z-50 px-4 transition-all duration-300">
+  <!-- Modal Card -->
+  <div class="w-full max-w-lg bg-brand-paper border-2 border-brand-charcoal relative shadow-2xl max-h-[90vh] overflow-y-auto">
+    <!-- Sage green side bar accent -->
+    <div class="absolute top-0 left-0 w-2 h-full bg-brand-sage"></div>
+    
+    <!-- Close button ("X") -->
+    <button (click)="closeAuthModal()" class="absolute top-3 right-3 text-brand-charcoal/60 hover:text-brand-charcoal p-1.5 focus:outline-none transition-colors cursor-pointer" aria-label="Cerrar">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+    
+    <div class="p-6 pl-8">
+      
+      <!-- Title Block -->
+      <div class="mb-4 border-b border-brand-charcoal pb-2 pr-6">
+        <h2 class="font-serif text-2xl md:text-3xl mb-0.5 italic">
+          {{ isLoginMode ? 'Iniciar Sesión' : 'Crear una cuenta' }}
+        </h2>
+      </div>
+
+      <!-- Messages -->
+      <div *ngIf="successMessage" class="mb-4 p-3 bg-brand-sage/10 border border-brand-sage text-brand-sage font-sans text-xs">
+        {{ successMessage }}
+      </div>
+      <div *ngIf="errorMessage" class="mb-4 p-3 bg-brand-red/10 border border-brand-red text-brand-red font-sans text-xs">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Registration Form -->
+      <form *ngIf="!isLoginMode" [formGroup]="registroForm" (ngSubmit)="onSubmitAuth()" class="space-y-4">
+        
+        <!-- Nombre Field -->
+        <div class="flex flex-col md:flex-row md:items-baseline gap-1 md:gap-4">
+          <label class="font-serif text-base italic md:w-1/3 shrink-0" for="modal-firstName">Nombre</label>
+          <div class="w-full">
+            <input 
+              formControlName="firstName" 
+              [ngClass]="firstNameInvalid ? 'border-brand-red' : 'border-brand-charcoal'" 
+              class="w-full bg-transparent border-0 border-b py-1 px-0 font-sans text-sm placeholder:text-brand-charcoal/40 focus:outline-none focus:border-brand-sage focus:ring-0" 
+              id="modal-firstName" 
+              placeholder="JUAN">
+            <p *ngIf="firstNameInvalid" class="mt-0.5 font-mono text-[9px] text-brand-red uppercase">
+              El nombre es requerido (mínimo 2 caracteres).
+            </p>
+          </div>
+        </div>
+
+        <!-- Apellido Field -->
+        <div class="flex flex-col md:flex-row md:items-baseline gap-1 md:gap-4">
+          <label class="font-serif text-base italic md:w-1/3 shrink-0" for="modal-lastName">Apellido</label>
+          <div class="w-full">
+            <input 
+              formControlName="lastName" 
+              [ngClass]="lastNameInvalid ? 'border-brand-red' : 'border-brand-charcoal'" 
+              class="w-full bg-transparent border-0 border-b py-1 px-0 font-sans text-sm placeholder:text-brand-charcoal/40 focus:outline-none focus:border-brand-sage focus:ring-0" 
+              id="modal-lastName" 
+              placeholder="PÉREZ">
+            <p *ngIf="lastNameInvalid" class="mt-0.5 font-mono text-[9px] text-brand-red uppercase">
+              El apellido es requerido (mínimo 2 caracteres).
+            </p>
+          </div>
+        </div>
+
+        <!-- Email Field -->
+        <div class="flex flex-col md:flex-row md:items-baseline gap-1 md:gap-4">
+          <label class="font-serif text-base italic md:w-1/3 shrink-0" for="modal-email">E-mail</label>
+          <div class="w-full">
+            <input 
+              formControlName="email" 
+              [ngClass]="emailInvalid ? 'border-brand-red' : 'border-brand-charcoal'" 
+              class="w-full bg-transparent border-0 border-b py-1 px-0 font-sans text-sm placeholder:text-brand-charcoal/40 focus:outline-none focus:border-brand-sage focus:ring-0" 
+              id="modal-email" 
+              placeholder="DIRECCION@CORREO.CH">
+            <p class="mt-0.5 font-mono text-[9px] uppercase" [ngClass]="emailInvalid ? 'text-brand-red' : 'text-brand-sage'">
+              * Correo electrónico de confirmación.
+            </p>
+          </div>
+        </div>
+
+        <!-- Password Field -->
+        <div class="flex flex-col md:flex-row md:items-baseline gap-1 md:gap-4">
+          <label class="font-serif text-base italic md:w-1/3 shrink-0" for="modal-password">Contraseña</label>
+          <div class="w-full relative">
+            <input 
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password" 
+              [ngClass]="passwordInvalid ? 'border-brand-red' : 'border-brand-charcoal'" 
+              class="w-full bg-transparent border-0 border-b py-1 px-0 font-sans text-sm placeholder:text-brand-charcoal/40 focus:outline-none focus:border-brand-sage focus:ring-0 pr-10" 
+              id="modal-password" 
+              placeholder="••••••••••••">
+            <button type="button" (click)="togglePassword()" class="absolute right-0 top-1 text-brand-charcoal/60 hover:text-brand-charcoal font-mono text-[10px]">
+              <span>{{ showPassword ? 'Ocultar' : 'Ver' }}</span>
+            </button>
+            <p *ngIf="passwordInvalid" class="mt-0.5 font-mono text-[9px] text-brand-red uppercase">
+              Mínimo 8 caracteres.
+            </p>
+          </div>
+        </div>
+
+        <!-- Terms Checkbox -->
+        <div class="flex items-start gap-2 pt-2">
+          <input 
+            formControlName="terms" 
+            class="mt-1 w-3.5 h-3.5 border-brand-charcoal text-brand-charcoal focus:ring-brand-sage rounded-none" 
+            id="modal-terms" 
+            type="checkbox">
+          <label class="font-sans text-[11px] text-brand-charcoal/70" for="modal-terms">
+            Acepto las <a class="underline hover:text-brand-sage" href="#">condiciones</a> y políticas de Arandu.
+          </label>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <button 
+            [disabled]="loading"
+            class="w-full sm:w-auto px-6 py-2.5 bg-brand-sage text-brand-paper font-mono text-[10px] font-bold uppercase tracking-widest hover:bg-brand-charcoal transition-all duration-150 disabled:opacity-50 cursor-pointer" 
+            type="submit">
+            {{ loading ? 'ENVIANDO...' : 'REGISTRARME' }}
+          </button>
+          <span class="font-mono text-[10px] text-brand-charcoal/60">
+            ¿Ya eres miembro? <a (click)="toggleAuthMode(true)" class="text-brand-charcoal font-bold hover:text-brand-red underline cursor-pointer">Iniciar Sesión</a>
+          </span>
+        </div>
+
+        <!-- O separator -->
+        <div class="relative my-4">
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-brand-charcoal/20"></div>
+          </div>
+          <div class="relative flex justify-center text-sm">
+            <span class="px-2 bg-brand-paper font-serif italic text-brand-charcoal/60 text-base">o continuar con</span>
+          </div>
+        </div>
+
+        <!-- Google Auth Button -->
+        <button 
+          type="button"
+          (click)="onGoogleSignIn()"
+          [disabled]="loading"
+          class="w-full flex items-center justify-center gap-3 px-6 py-3 border border-brand-charcoal bg-white text-brand-charcoal font-sans text-xs font-bold hover:bg-gray-50 transition-colors disabled:opacity-50 cursor-pointer shadow-sm">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          GOOGLE
+        </button>
+      </form>
+
+      <!-- Login Form -->
+      <form *ngIf="isLoginMode" [formGroup]="loginForm" (ngSubmit)="onSubmitAuth()" class="space-y-4">
+        
+        <!-- Email Field -->
+        <div class="flex flex-col md:flex-row md:items-baseline gap-1 md:gap-4">
+          <label class="font-serif text-base italic md:w-1/3 shrink-0" for="modal-login-email">E-mail</label>
+          <div class="w-full">
+            <input 
+              formControlName="email" 
+              [ngClass]="loginEmailInvalid ? 'border-brand-red' : 'border-brand-charcoal'" 
+              class="w-full bg-transparent border-0 border-b py-1 px-0 font-sans text-sm placeholder:text-brand-charcoal/40 focus:outline-none focus:border-brand-sage focus:ring-0" 
+              id="modal-login-email" 
+              placeholder="DIRECCION@CORREO.CH">
+            <p *ngIf="loginEmailInvalid" class="mt-0.5 font-mono text-[9px] text-brand-red uppercase">
+              Ingresa un correo válido.
+            </p>
+          </div>
+        </div>
+
+        <!-- Password Field -->
+        <div class="flex flex-col md:flex-row md:items-baseline gap-1 md:gap-4">
+          <label class="font-serif text-base italic md:w-1/3 shrink-0" for="modal-login-password">Contraseña</label>
+          <div class="w-full relative">
+            <input 
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password" 
+              [ngClass]="loginPasswordInvalid ? 'border-brand-red' : 'border-brand-charcoal'" 
+              class="w-full bg-transparent border-0 border-b py-1 px-0 font-sans text-sm placeholder:text-brand-charcoal/40 focus:outline-none focus:border-brand-sage focus:ring-0 pr-10" 
+              id="modal-login-password" 
+              placeholder="••••••••••••">
+            <button type="button" (click)="togglePassword()" class="absolute right-0 top-1 text-brand-charcoal/60 hover:text-brand-charcoal font-mono text-[10px]">
+              <span>{{ showPassword ? 'Ocultar' : 'Ver' }}</span>
+            </button>
+            <p *ngIf="loginPasswordInvalid" class="mt-0.5 font-mono text-[9px] text-brand-red uppercase">
+              Mínimo 8 caracteres.
+            </p>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <button 
+            [disabled]="loading"
+            class="w-full sm:w-auto px-6 py-2.5 bg-brand-sage text-brand-paper font-mono text-[10px] font-bold uppercase tracking-widest hover:bg-brand-charcoal transition-all duration-150 disabled:opacity-50 cursor-pointer" 
+            type="submit">
+            {{ loading ? 'INICIANDO...' : 'INICIAR SESIÓN' }}
+          </button>
+          <span class="font-mono text-[10px] text-brand-charcoal/60">
+            ¿No tienes cuenta? <a (click)="toggleAuthMode(false)" class="text-brand-charcoal font-bold hover:text-brand-red underline cursor-pointer">Crear una cuenta</a>
+          </span>
+        </div>
+
+        <!-- O separator -->
+        <div class="relative my-4">
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-brand-charcoal/20"></div>
+          </div>
+          <div class="relative flex justify-center text-sm">
+            <span class="px-2 bg-brand-paper font-serif italic text-brand-charcoal/60 text-base">o continuar con</span>
+          </div>
+        </div>
+
+        <!-- Google Auth Button -->
+        <button 
+          type="button"
+          (click)="onGoogleSignIn()"
+          [disabled]="loading"
+          class="w-full flex items-center justify-center gap-3 px-6 py-3 border border-brand-charcoal bg-white text-brand-charcoal font-sans text-xs font-bold hover:bg-gray-50 transition-colors disabled:opacity-50 cursor-pointer shadow-sm">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          GOOGLE
+        </button>
+      </form>
+
+    </div>
+  </div>
+</div>

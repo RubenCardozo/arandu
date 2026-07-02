@@ -1,0 +1,805 @@
+<main class="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4 bg-brand-paper">
+  <div class="w-full max-w-3xl bg-brand-paper border-2 border-brand-charcoal relative z-10">
+    <div class="absolute top-0 left-0 w-2 h-full bg-brand-sage"></div>
+    <div class="p-8 md:p-12 pl-10 md:pl-16">
+      
+      <!-- Loading State -->
+      <div *ngIf="loading" class="flex flex-col items-center justify-center py-12">
+        <div class="w-8 h-8 border-4 border-brand-sage border-t-transparent rounded-full animate-spin"></div>
+        <p class="mt-4 font-mono text-xs text-brand-charcoal/60 uppercase">Cargando perfil...</p>
+      </div>
+
+      <!-- Session Profile Details -->
+      <div *ngIf="!loading && user">
+        <!-- Title Block -->
+        <div class="mb-10 border-b border-brand-charcoal pb-6">
+          <h1 class="font-serif text-4xl md:text-5xl mb-2 italic">Cuenta</h1>
+          <p *ngIf="isProfileIncomplete" class="font-sans text-sm text-brand-charcoal/70">
+            Completa tu ficha de inscripción para poder interactuar y publicar en la plataforma.
+          </p>
+          <p *ngIf="!isProfileIncomplete && showCompletionBanner" class="font-sans text-sm text-brand-sage font-bold">
+            ✓ Ficha de inscripción completa. ¡Ya puedes publicar anuncios e interactuar!
+          </p>
+        </div>
+
+        <!-- Success & Error messages -->
+        <div *ngIf="successMessage" class="mb-6 p-3 bg-brand-sage/10 border border-brand-sage text-brand-sage font-sans text-xs">
+          {{ successMessage }}
+        </div>
+        <div *ngIf="errorMessage" class="mb-6 p-3 bg-brand-red/10 border border-brand-red text-brand-red font-sans text-xs">
+          {{ errorMessage }}
+        </div>
+
+        <!-- Profile incomplete warning banner -->
+        <div *ngIf="isProfileIncomplete && !editMode" class="mb-8 p-4 bg-brand-red/5 border-l-4 border-brand-red text-brand-charcoal">
+          <h4 class="font-serif font-bold italic text-base text-brand-red mb-1">Inscripción Incompleta</h4>
+          <p class="font-sans text-xs text-brand-charcoal/80 leading-relaxed mb-3">
+            Para finalizar tu inscripción en Arandu y publicar anuncios, debes completar tu Dirección, Localidad y Teléfono.
+          </p>
+          <button (click)="toggleEditMode(true)" class="px-4 py-2 bg-brand-red text-white font-mono text-[10px] font-bold uppercase tracking-wider hover:opacity-90 transition-opacity cursor-pointer">
+            Completar Inscripción
+          </button>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="flex flex-wrap border-b border-brand-charcoal/20 mb-8 gap-y-2" *ngIf="!editMode">
+          <button 
+            type="button"
+            (click)="setTab('publications')"
+            [class.border-b-2]="activeTab === 'publications'"
+            [class.border-brand-sage]="activeTab === 'publications'"
+            [class.font-bold]="activeTab === 'publications'"
+            [class.text-brand-sage]="activeTab === 'publications'"
+            [class.text-brand-charcoal/60]="activeTab !== 'publications'"
+            class="pb-3 px-4 font-mono text-xs uppercase tracking-wider focus:outline-none transition-all cursor-pointer flex items-center gap-1.5">
+            PUBLICACIONES
+            <span *ngIf="myAnuncios.length > 0" class="bg-brand-sage text-brand-paper rounded-full text-[9px] w-4.5 h-4.5 flex items-center justify-center font-bold">
+              {{ myAnuncios.length }}
+            </span>
+          </button>
+          <button 
+            type="button"
+            (click)="setTab('publish')"
+            [class.border-b-2]="activeTab === 'publish'"
+            [class.border-brand-sage]="activeTab === 'publish'"
+            [class.font-bold]="activeTab === 'publish'"
+            [class.text-brand-sage]="activeTab === 'publish'"
+            [class.text-brand-charcoal/60]="activeTab !== 'publish'"
+            class="pb-3 px-4 font-mono text-xs uppercase tracking-wider focus:outline-none transition-all cursor-pointer">
+            ANUNCIOS
+          </button>
+          <button 
+            type="button"
+            (click)="setTab('profile')"
+            [class.border-b-2]="activeTab === 'profile'"
+            [class.border-brand-sage]="activeTab === 'profile'"
+            [class.font-bold]="activeTab === 'profile'"
+            [class.text-brand-sage]="activeTab === 'profile'"
+            [class.text-brand-charcoal/60]="activeTab !== 'profile'"
+            class="pb-3 px-4 font-mono text-xs uppercase tracking-wider focus:outline-none transition-all cursor-pointer">
+            PERFIL
+          </button>
+          <button 
+            type="button"
+            (click)="setTab('stats')"
+            [class.border-b-2]="activeTab === 'stats'"
+            [class.border-brand-sage]="activeTab === 'stats'"
+            [class.font-bold]="activeTab === 'stats'"
+            [class.text-brand-sage]="activeTab === 'stats'"
+            [class.text-brand-charcoal/60]="activeTab !== 'stats'"
+            class="pb-3 px-4 font-mono text-xs uppercase tracking-wider focus:outline-none transition-all cursor-pointer">
+            ESTADISTICAS
+          </button>
+        </div>
+
+        <!-- READ-ONLY MODE -->
+        <div *ngIf="!editMode" class="space-y-6">
+          
+          <!-- TAB 1: PERFIL -->
+          <div *ngIf="activeTab === 'profile'" class="space-y-6">
+            <!-- Name Details -->
+            <div class="flex flex-col gap-1 border-b border-brand-charcoal/10 pb-4">
+              <span class="font-mono text-[10px] text-brand-charcoal/50 uppercase tracking-widest">Nombre Completo</span>
+              <span class="font-serif text-2xl font-bold text-brand-charcoal">{{ userFullName }}</span>
+            </div>
+
+            <!-- Email Details -->
+            <div class="flex flex-col gap-1 border-b border-brand-charcoal/10 pb-4">
+              <span class="font-mono text-[10px] text-brand-charcoal/50 uppercase tracking-widest">Correo Electrónico</span>
+              <span class="font-sans text-base text-brand-charcoal">{{ user.email }}</span>
+            </div>
+
+            <!-- Address Details -->
+            <div class="flex flex-col gap-1 border-b border-brand-charcoal/10 pb-4">
+              <span class="font-mono text-[10px] text-brand-charcoal/50 uppercase tracking-widest">Dirección</span>
+              <span class="font-sans text-base text-brand-charcoal">{{ userAddress }}</span>
+            </div>
+
+            <!-- Locality Details -->
+            <div class="flex flex-col gap-1 border-b border-brand-charcoal/10 pb-4">
+              <span class="font-mono text-[10px] text-brand-charcoal/50 uppercase tracking-widest">Localidad</span>
+              <span class="font-sans text-base text-brand-charcoal">{{ userLocality }}</span>
+            </div>
+
+            <!-- Phone Details -->
+            <div class="flex flex-col gap-1 border-b border-brand-charcoal/10 pb-4">
+              <span class="font-mono text-[10px] text-brand-charcoal/50 uppercase tracking-widest">Teléfono Móvil</span>
+              <span class="font-sans text-base text-brand-charcoal">{{ userPhone }}</span>
+            </div>
+
+            <!-- Newsletter Details -->
+            <div class="flex flex-col gap-1 border-b border-brand-charcoal/10 pb-4">
+              <span class="font-mono text-[10px] text-brand-charcoal/50 uppercase tracking-widest">Newsletter Boletín</span>
+              <span class="font-sans text-base text-brand-charcoal">{{ user?.user_metadata?.['subscribe_newsletter'] ? 'Suscrito ✅' : 'No suscrito ❌' }}</span>
+            </div>
+
+            <!-- Actions -->
+            <div class="mt-12 flex flex-col sm:flex-row items-center gap-4">
+              <button 
+                (click)="toggleEditMode(true)"
+                class="w-full sm:w-auto px-8 py-3 bg-brand-sage text-brand-paper font-mono text-[11px] font-bold uppercase tracking-widest hover:bg-brand-charcoal transition-all duration-150 cursor-pointer"
+                type="button">
+                EDITAR PERFIL
+              </button>
+              <button 
+                (click)="onSignOut()"
+                class="w-full sm:w-auto px-8 py-3 bg-brand-charcoal text-brand-paper font-mono text-[11px] font-bold uppercase tracking-widest hover:bg-brand-sage transition-all duration-150 cursor-pointer"
+                type="button">
+                CERRAR SESIÓN
+              </button>
+            </div>
+          </div>
+
+          <!-- TAB 2: PUBLICACIONES -->
+          <div *ngIf="activeTab === 'publications'" class="space-y-6">
+            <div *ngIf="loadingAnuncios" class="py-12 text-center">
+              <div class="w-8 h-8 border-4 border-brand-sage border-t-transparent rounded-full animate-spin mx-auto"></div>
+              <p class="mt-4 font-mono text-xs text-brand-charcoal/60 uppercase">Cargando tus anuncios...</p>
+            </div>
+
+            <!-- EDITING AD VIEW -->
+            <div *ngIf="!loadingAnuncios && editingAd" class="border border-brand-charcoal p-6 md:p-8 bg-brand-paper relative shadow-sm">
+              <div class="absolute top-0 left-0 w-1.5 h-full bg-brand-sage"></div>
+              <div class="flex justify-between items-center mb-6 pb-3 border-b border-brand-charcoal/10">
+                <h3 class="font-serif text-2xl font-bold italic">Modificar Anuncio</h3>
+                <button type="button" (click)="cancelEditAd()" class="font-mono text-xs text-brand-charcoal/50 hover:text-brand-red underline cursor-pointer">
+                  Cancelar
+                </button>
+              </div>
+
+              <form [formGroup]="editAdForm" (ngSubmit)="saveEditAd()" class="space-y-5">
+                <!-- Title -->
+                <div class="flex flex-col gap-1">
+                  <label class="font-serif text-sm italic" for="editTitle">Título del Anuncio</label>
+                  <input 
+                    formControlName="title"
+                    [ngClass]="editTitleInvalid ? 'border-brand-red' : 'border-brand-charcoal'"
+                    class="w-full bg-transparent border-0 border-b py-2 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+                    id="editTitle">
+                  <p *ngIf="editTitleInvalid" class="font-mono text-[9px] text-brand-red uppercase mt-0.5">El título es requerido (mínimo 3 caracteres).</p>
+                </div>
+
+                <!-- Category (only for service type) -->
+                <div *ngIf="editType === 'service'" class="flex flex-col gap-1">
+                  <label class="font-serif text-sm italic" for="editCategory">Categoría del Servicio</label>
+                  <select 
+                    formControlName="category" 
+                    class="w-full bg-transparent border-0 border-b border-brand-charcoal py-2 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0 cursor-pointer" 
+                    id="editCategory">
+                    <option value="Electricidad">Electricidad</option>
+                    <option value="Servicios">Servicios</option>
+                    <option value="Cursos">Cursos</option>
+                    <option value="Venta y Donaciones">Venta y Donaciones</option>
+                    <option value="Otros">Otros</option>
+                  </select>
+                </div>
+
+                <!-- Company Name (only for job type) -->
+                <div *ngIf="editType === 'job'" class="flex flex-col gap-1">
+                  <label class="font-serif text-sm italic" for="editCompany">Empresa / Negocio</label>
+                  <input 
+                    formControlName="company"
+                    [ngClass]="editCompanyInvalid ? 'border-brand-red' : 'border-brand-charcoal'"
+                    class="w-full bg-transparent border-0 border-b py-2 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+                    id="editCompany">
+                  <p *ngIf="editCompanyInvalid" class="font-mono text-[9px] text-brand-red uppercase mt-0.5">El nombre de la empresa es obligatorio.</p>
+                </div>
+
+                <!-- Description -->
+                <div class="flex flex-col gap-1">
+                  <label class="font-serif text-sm italic" for="editDescription">Descripción del Anuncio</label>
+                  <textarea 
+                    formControlName="description"
+                    [ngClass]="editDescInvalid ? 'border-brand-red' : 'border-brand-charcoal'"
+                    class="w-full bg-transparent border border-brand-charcoal/30 p-3 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0 min-h-[120px]" 
+                    id="editDescription"></textarea>
+                  <p *ngIf="editDescInvalid" class="font-mono text-[9px] text-brand-red uppercase mt-0.5">La descripción es obligatoria (mínimo 10 caracteres).</p>
+                </div>
+
+                <!-- Keywords -->
+                <div class="flex flex-col gap-1">
+                  <label class="font-serif text-sm italic inline-flex items-center gap-1.5" for="editKeywords">
+                    Palabras clave (Mínimo 3, separadas por comas)
+                    <button type="button" (click)="openKeywordsModal()" class="text-brand-sage hover:text-brand-sage/80 inline-flex items-center justify-center p-0.5 bg-transparent border-0 cursor-pointer" title="Ver ayuda">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 14px; height: 14px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </button>
+                  </label>
+                  <input 
+                    formControlName="keywords"
+                    [ngClass]="editKeywordsInvalid ? 'border-brand-red' : 'border-brand-charcoal'"
+                    class="w-full bg-transparent border-0 border-b py-2 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+                    id="editKeywords"
+                    placeholder="Ej: electricista, urgencia, instalación">
+                  <p *ngIf="editKeywordsInvalid" class="font-mono text-[9px] text-brand-red uppercase mt-0.5">Debes introducir al menos 3 palabras clave separadas por comas.</p>
+                </div>
+
+                <!-- Job-specific fields (only for job type) -->
+                <div *ngIf="editType === 'job'" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div class="flex flex-col gap-1">
+                    <label class="font-serif text-sm italic" for="editJobType">Tipo de Contrato</label>
+                    <select formControlName="jobType" class="w-full bg-transparent border-0 border-b border-brand-charcoal py-2 px-0 font-sans text-sm focus:outline-none" id="editJobType">
+                      <option value="Full-time">Tiempo completo</option>
+                      <option value="Part-time">Tiempo parcial</option>
+                      <option value="Temporary">Temporal</option>
+                      <option value="Otros">Otros</option>
+                    </select>
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <label class="font-serif text-sm italic" for="editSalary">Salario Estimado</label>
+                    <input formControlName="salary" class="w-full bg-transparent border-0 border-b border-brand-charcoal py-2 px-0 font-sans text-sm focus:outline-none" id="editSalary">
+                  </div>
+                  <div class="flex flex-col gap-1 md:col-span-2">
+                    <label class="font-serif text-sm italic" for="editRequirements">Requisitos Especiales</label>
+                    <textarea formControlName="requirements" class="w-full bg-transparent border border-brand-charcoal/30 p-3 font-sans text-sm focus:outline-none min-h-[80px]" id="editRequirements"></textarea>
+                  </div>
+                </div>
+
+                <!-- Image Upload (services only) -->
+                <div *ngIf="editType === 'service'" class="flex flex-col gap-2">
+                  <span class="font-serif text-sm italic">Fotografía del Servicio</span>
+                  <div class="border-2 border-dashed border-brand-charcoal/30 p-6 flex flex-col items-center justify-center bg-brand-charcoal/5 relative">
+                    
+                    <!-- Hide input but overlay button -->
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      (change)="onEditFileSelected($event)" 
+                      class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+                      *ngIf="!editImagePreviewUrl">
+                    
+                    <!-- Upload placeholder info -->
+                    <div *ngIf="!editImagePreviewUrl" class="text-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-8 w-8 text-brand-charcoal/50 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 32px; height: 32px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <p class="font-mono text-[10px] text-brand-charcoal/60 uppercase">Haga clic o arrastre aquí su imagen</p>
+                      <p class="text-[9px] text-brand-charcoal/40 mt-1">Se comprimirá automáticamente antes del envío (Máximo 1 foto)</p>
+                    </div>
+
+                    <!-- Preview mode -->
+                    <div *ngIf="editImagePreviewUrl" class="w-full flex flex-col items-center gap-3">
+                      <img [src]="editImagePreviewUrl" alt="Preview" class="max-h-[200px] max-w-full object-contain border border-brand-charcoal">
+                      <button 
+                        type="button" 
+                        (click)="removeEditFile()" 
+                        class="px-4 py-1.5 bg-brand-red text-white font-mono text-[9px] font-bold uppercase tracking-wider hover:opacity-90 transition-opacity z-30 cursor-pointer">
+                        Quitar Foto
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-brand-charcoal/10">
+                  <div class="flex flex-col gap-1">
+                    <label class="font-serif text-sm italic" for="editEmail">E-mail de Contacto</label>
+                    <input 
+                      formControlName="email"
+                      [ngClass]="editEmailInvalid ? 'border-brand-red' : 'border-brand-charcoal'"
+                      class="w-full bg-transparent border-0 border-b py-2 px-0 font-sans text-sm focus:outline-none" 
+                      id="editEmail">
+                    <p *ngIf="editEmailInvalid" class="font-mono text-[9px] text-brand-red uppercase mt-0.5">El e-mail es inválido o requerido.</p>
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <label class="font-serif text-sm italic" for="editPhone">Teléfono de Contacto</label>
+                    <input 
+                      formControlName="phone"
+                      [ngClass]="editPhoneInvalid ? 'border-brand-red' : 'border-brand-charcoal'"
+                      class="w-full bg-transparent border-0 border-b py-2 px-0 font-sans text-sm focus:outline-none" 
+                      id="editPhone">
+                    <p *ngIf="editPhoneInvalid" class="font-mono text-[9px] text-brand-red uppercase mt-0.5">El teléfono debe ser válido.</p>
+                  </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center gap-4 pt-4">
+                  <button type="submit" class="px-6 py-3 bg-brand-sage text-brand-paper font-mono text-[10px] font-bold uppercase tracking-widest hover:bg-brand-charcoal transition-colors cursor-pointer">
+                    Guardar Cambios
+                  </button>
+                  <button type="button" (click)="cancelEditAd()" class="px-6 py-3 border border-brand-charcoal/30 text-brand-charcoal/60 font-mono text-[10px] font-bold uppercase tracking-widest hover:bg-brand-charcoal/5 transition-colors cursor-pointer">
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- LIST OF USER ADS -->
+            <div *ngIf="!loadingAnuncios && !editingAd">
+              <div *ngIf="myAnuncios.length === 0" class="p-8 border border-dashed border-brand-charcoal/30 bg-brand-charcoal/5 text-center">
+                <p class="font-sans text-sm text-brand-charcoal/60 mb-4">Aún no has publicado ningún anuncio.</p>
+                <button (click)="setTab('publish')" class="inline-block px-6 py-3 bg-brand-sage text-brand-paper font-mono text-[10px] font-bold uppercase tracking-widest hover:bg-brand-charcoal transition-colors cursor-pointer">
+                  Publicar mi primer anuncio
+                </button>
+              </div>
+
+              <div *ngIf="myAnuncios.length > 0" class="space-y-4">
+                <div *ngFor="let ad of myAnuncios" class="border border-brand-charcoal p-5 bg-brand-paper relative shadow-sm">
+                  <div class="flex justify-between items-start mb-3">
+                    <div>
+                      <h4 class="font-serif text-xl font-bold text-brand-charcoal leading-tight">{{ ad.title }}</h4>
+                      <div class="flex gap-4 mt-2">
+                        <button type="button" (click)="startEditAd(ad)" class="font-mono text-[9px] font-bold text-brand-sage uppercase tracking-wider hover:underline cursor-pointer flex items-center gap-1">
+                          <span>✍️</span> Modificar
+                        </button>
+                        <button type="button" (click)="deleteAd(ad)" class="font-mono text-[9px] font-bold text-brand-red uppercase tracking-wider hover:underline cursor-pointer flex items-center gap-1">
+                          <span>🗑️</span> Borrar
+                        </button>
+                        <button type="button" (click)="openPreviewModal(ad)" class="font-mono text-[9px] font-bold text-brand-charcoal uppercase tracking-wider hover:underline cursor-pointer flex items-center gap-1">
+                          <span>👁️</span> Vista Cliente
+                        </button>
+                      </div>
+                    </div>
+                    <span class="font-mono text-[9px] bg-brand-sage/10 text-brand-sage px-2.5 py-0.5 rounded font-bold uppercase">{{ ad.category }}</span>
+                  </div>
+
+                  <!-- Performance Metrics -->
+                  <div class="flex items-center gap-6 mt-4 pt-4 border-t border-brand-charcoal/10 text-xs font-mono text-brand-charcoal/70">
+                    <span class="flex items-center gap-1.5" title="Visualizaciones (Clicks)">
+                      <span>👁️</span>
+                      <span class="font-bold text-brand-charcoal">{{ ad.clicks }}</span> <span class="text-brand-charcoal/40 text-[10px]">vistas</span>
+                    </span>
+                    <span class="flex items-center gap-1.5" title="Me gusta">
+                      <span class="text-brand-red">❤️</span>
+                      <span class="font-bold text-brand-charcoal">{{ ad.totalLikes }}</span> <span class="text-brand-charcoal/40 text-[10px]">likes</span>
+                    </span>
+                    <span class="flex items-center gap-1.5" title="Valoración media">
+                      <span class="text-brand-sage font-bold">★</span>
+                      <span class="font-bold text-brand-charcoal">{{ ad.avgStars || '0.0' }}</span> <span class="text-brand-charcoal/40 text-[10px]">rating</span>
+                    </span>
+                  </div>
+
+                  <!-- Comments dropdown toggle -->
+                  <button type="button" (click)="toggleAdComments(ad)" class="w-full text-left mt-4 pt-2.5 border-t border-brand-charcoal/5 flex justify-between items-center text-[10px] font-mono text-brand-charcoal/50 hover:text-brand-sage transition-colors cursor-pointer">
+                    <span>{{ ad.showComments ? 'Ocultar comentarios ↑' : 'Ver comentarios ↓' }}</span>
+                    <span>{{ ad.comments?.length || 0 }} comentarios</span>
+                  </button>
+
+                  <!-- Comments Thread -->
+                  <div *ngIf="ad.showComments" class="mt-4 pt-3 border-t border-brand-charcoal/5 space-y-2 max-h-40 overflow-y-auto pr-1">
+                    <div *ngIf="ad.comments.length === 0" class="text-[10px] font-mono text-brand-charcoal/40 py-1">
+                      No hay comentarios en este anuncio.
+                    </div>
+                    <div *ngFor="let c of ad.comments" class="bg-brand-charcoal/5 p-2 border border-brand-charcoal/10">
+                      <div class="flex justify-between font-mono text-[8px] text-brand-charcoal/40 mb-1">
+                        <span class="font-bold">{{ c.authorName }}</span>
+                        <span>{{ c.createdAt }}</span>
+                      </div>
+                      <p class="font-sans text-[11px] leading-tight text-brand-charcoal/80">{{ c.content }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 3: PUBLICAR ANUNCIO -->
+          <div *ngIf="activeTab === 'publish'" class="space-y-6 bg-brand-paper p-1">
+            <div *ngIf="isProfileIncomplete; else showPublishForm" class="p-8 border border-dashed border-brand-red bg-brand-red/5 text-center">
+              <p class="font-sans text-sm text-brand-charcoal mb-4">Debes completar tu perfil con tu Dirección, Localidad y Teléfono para poder publicar anuncios.</p>
+              <button (click)="setTab('profile'); toggleEditMode(true)" class="px-6 py-2.5 bg-brand-red text-brand-paper font-mono text-[10px] font-bold uppercase tracking-widest hover:bg-brand-charcoal transition-colors cursor-pointer border-0">
+                Completar Perfil
+              </button>
+            </div>
+            <ng-template #showPublishForm>
+              <app-anuncios-nuevo [isEmbedded]="true" (adPublished)="onAdPublished()"></app-anuncios-nuevo>
+            </ng-template>
+          </div>
+
+          <!-- TAB 4: ESTADISTICAS -->
+          <div *ngIf="activeTab === 'stats'" class="space-y-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Total Views Widget -->
+              <div class="border border-brand-charcoal p-5 bg-brand-charcoal/5 flex flex-col justify-between">
+                <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase tracking-wider font-bold">Total de Visualizaciones</span>
+                <span class="font-serif text-3xl font-bold text-brand-sage mt-2">{{ totalViews }}</span>
+                <span class="font-mono text-[9px] text-brand-charcoal/40 mt-1">vistas de todos tus anuncios</span>
+              </div>
+
+              <!-- Most Visited Widget -->
+              <div class="border border-brand-charcoal p-5 bg-brand-charcoal/5 flex flex-col justify-between">
+                <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase tracking-wider font-bold">Anuncio más popular</span>
+                <span class="font-sans text-sm font-bold text-brand-charcoal mt-2 truncate" [title]="mostVisitedAd?.title || 'Ninguno'">
+                  {{ mostVisitedAd?.title || 'Sin anuncios' }}
+                </span>
+                <span class="font-mono text-[9px] text-brand-charcoal/40 mt-1" *ngIf="mostVisitedAd">
+                  {{ mostVisitedAd.clicks }} vistas • {{ mostVisitedAd.totalLikes }} likes
+                </span>
+              </div>
+
+              <!-- Best Rated Widget -->
+              <div class="border border-brand-charcoal p-5 bg-brand-charcoal/5 flex flex-col justify-between">
+                <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase tracking-wider font-bold font-bold">Mejor valorado</span>
+                <span class="font-sans text-sm font-bold text-brand-charcoal mt-2 truncate" [title]="bestRatedAd?.title || 'Ninguno'">
+                  {{ bestRatedAd?.title || 'Sin valoraciones' }}
+                </span>
+                <span class="font-mono text-[9px] text-brand-sage mt-1" *ngIf="bestRatedAd">
+                  ★ {{ bestRatedAd.avgStars | number:'1.1-1' }} / 5.0
+                </span>
+              </div>
+
+              <!-- Most Commented Widget -->
+              <div class="border border-brand-charcoal p-5 bg-brand-charcoal/5 flex flex-col justify-between">
+                <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase tracking-wider font-bold font-bold">Más comentado</span>
+                <span class="font-sans text-sm font-bold text-brand-charcoal mt-2 truncate" [title]="mostCommentedAd?.title || 'Ninguno'">
+                  {{ mostCommentedAd?.title || 'Sin comentarios' }}
+                </span>
+                <span class="font-mono text-[9px] text-brand-charcoal/40 mt-1" *ngIf="mostCommentedAd">
+                  {{ mostCommentedAd.comments?.length || 0 }} comentarios
+                </span>
+              </div>
+            </div>
+
+            <!-- Global Searches Trends Section -->
+            <div class="border border-brand-charcoal p-5 bg-brand-paper relative">
+              <div class="absolute top-0 left-0 w-1.5 h-full bg-brand-sage"></div>
+              <h4 class="font-serif italic font-bold text-lg mb-4 text-brand-charcoal">Tendencias de Búsqueda Global</h4>
+              <p class="font-sans text-xs text-brand-charcoal/70 mb-4 leading-relaxed">
+                Descubre qué categorías y términos de servicios o empleos están buscando más usuarios en Ginebra actualmente.
+              </p>
+              
+              <div class="space-y-3">
+                <div *ngFor="let trend of mostSearchedGlobal" class="flex justify-between items-center py-2 border-b border-brand-charcoal/10 last:border-b-0">
+                  <div class="flex items-center gap-2">
+                    <span class="font-mono text-[9px] bg-brand-charcoal/10 px-2 py-0.5 rounded uppercase font-bold text-brand-charcoal/70">{{ trend.category }}</span>
+                    <span class="font-sans text-xs font-bold text-brand-charcoal">{{ trend.term }}</span>
+                  </div>
+                  <span class="font-mono text-[9px] text-brand-sage font-bold">{{ trend.popularity }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- EDIT MODE FORM -->
+        <form *ngIf="editMode" [formGroup]="profileForm" (ngSubmit)="onSaveProfile()" class="space-y-5">
+          <!-- Nombre -->
+          <div class="flex flex-col gap-1">
+            <label class="font-serif text-sm italic" for="firstName">Nombre</label>
+            <input 
+              formControlName="firstName"
+              [ngClass]="fNameInvalid ? 'border-brand-red' : 'border-brand-charcoal'"
+              class="w-full bg-transparent border-0 border-b py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0"
+              id="firstName"
+              placeholder="Tu nombre">
+            <p *ngIf="fNameInvalid" class="font-mono text-[9px] text-brand-red uppercase mt-0.5">El nombre es requerido.</p>
+          </div>
+
+          <!-- Apellido -->
+          <div class="flex flex-col gap-1">
+            <label class="font-serif text-sm italic" for="lastName">Apellido</label>
+            <input 
+              formControlName="lastName"
+              [ngClass]="lNameInvalid ? 'border-brand-red' : 'border-brand-charcoal'"
+              class="w-full bg-transparent border-0 border-b py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0"
+              id="lastName"
+              placeholder="Tu apellido">
+            <p *ngIf="lNameInvalid" class="font-mono text-[9px] text-brand-red uppercase mt-0.5">El apellido es requerido.</p>
+          </div>
+
+          <!-- Email (Readonly) -->
+          <div class="flex flex-col gap-1 opacity-60">
+            <label class="font-serif text-sm italic" for="email">E-mail (No modificable)</label>
+            <input 
+              [value]="user.email"
+              disabled
+              class="w-full bg-transparent border-0 border-b py-1 px-0 font-sans text-sm cursor-not-allowed"
+              id="email">
+          </div>
+
+          <!-- Dirección -->
+          <div class="flex flex-col gap-1">
+            <label class="font-serif text-sm italic" for="address">Dirección</label>
+            <input 
+              formControlName="address"
+              [ngClass]="addressInvalid ? 'border-brand-red' : 'border-brand-charcoal'"
+              class="w-full bg-transparent border-0 border-b py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0"
+              id="address"
+              placeholder="Rue de la Scie 4, 1207 Genève">
+            <p *ngIf="addressInvalid" class="font-mono text-[9px] text-brand-red uppercase mt-0.5">La dirección es requerida (mínimo 5 caracteres).</p>
+          </div>
+
+          <!-- Localidad -->
+          <div class="flex flex-col gap-1">
+            <label class="font-serif text-sm italic" for="locality">Localidad</label>
+            <input 
+              formControlName="locality"
+              [ngClass]="localityInvalid ? 'border-brand-red' : 'border-brand-charcoal'"
+              class="w-full bg-transparent border-0 border-b py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0"
+              id="locality"
+              placeholder="Genève">
+            <p *ngIf="localityInvalid" class="font-mono text-[9px] text-brand-red uppercase mt-0.5">La localidad es requerida.</p>
+          </div>
+
+          <!-- Teléfono -->
+          <div class="flex flex-col gap-1">
+            <label class="font-serif text-sm italic" for="phone">Teléfono Móvil</label>
+            <input 
+              formControlName="phone"
+              [ngClass]="phoneInvalid ? 'border-brand-red' : 'border-brand-charcoal'"
+              class="w-full bg-transparent border-0 border-b py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0"
+              id="phone"
+              placeholder="+41 79 000 00 00">
+            <p *ngIf="phoneInvalid" class="font-mono text-[9px] text-brand-red uppercase mt-0.5">Ingresa un teléfono válido.</p>
+          </div>
+
+          <!-- Newsletter Checkbox -->
+          <div class="flex items-start gap-3 pt-2">
+            <input 
+              formControlName="subscribeNewsletter" 
+              class="mt-1 w-4 h-4 border-brand-charcoal text-brand-charcoal focus:ring-brand-sage rounded-none" 
+              id="subscribeNewsletterProfile" 
+              type="checkbox">
+            <label class="font-sans text-xs text-brand-charcoal/70 cursor-pointer" for="subscribeNewsletterProfile">
+              Deseo suscribirme al boletín informativo / newsletter para recibir noticias locales.
+            </label>
+          </div>
+
+          <!-- Actions -->
+          <div class="mt-8 pt-4 flex flex-col sm:flex-row items-center gap-4">
+            <button 
+              class="w-full sm:w-auto px-8 py-3 bg-brand-sage text-brand-paper font-mono text-[11px] font-bold uppercase tracking-widest hover:bg-brand-charcoal transition-all duration-150 cursor-pointer"
+              type="submit">
+              GUARDAR CAMBIOS
+            </button>
+            <button 
+              (click)="toggleEditMode(false)"
+              class="w-full sm:w-auto px-8 py-3 border border-brand-charcoal text-brand-charcoal font-mono text-[11px] font-bold uppercase tracking-widest hover:bg-brand-charcoal/5 transition-all duration-150 cursor-pointer"
+              type="button">
+              CANCELAR
+            </button>
+          </div>
+        </form>
+
+        <div class="mt-8 pt-6 border-t border-brand-charcoal/10">
+          <a 
+            routerLink="/"
+            class="font-mono text-[11px] text-brand-charcoal/60 hover:text-brand-charcoal underline">
+            Volver al Inicio
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL FOR DETAILED AD VIEW PREVIEW (CLIENT VIEW) -->
+  <div *ngIf="showPreviewModal && previewAd" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <!-- Backdrop -->
+    <div (click)="closePreviewModal()" class="fixed inset-0 bg-brand-charcoal/60 backdrop-blur-sm"></div>
+
+    <!-- Modal Content Box -->
+    <div class="bg-brand-paper border-2 border-brand-charcoal w-full max-w-2xl max-h-[90vh] overflow-y-auto relative z-10 p-6 md:p-10 shadow-2xl">
+      <!-- Close button -->
+      <button (click)="closePreviewModal()" class="absolute top-4 right-4 font-mono text-xl text-brand-charcoal hover:text-brand-sage transition-colors cursor-pointer focus:outline-none" aria-label="Cerrar modal">
+        ✕
+      </button>
+
+      <!-- Preview Banner Info -->
+      <div class="bg-brand-sage text-brand-paper px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-wider mb-6 text-center">
+        Vista de Cliente (Cómo verán otros usuarios tu anuncio)
+      </div>
+
+      <!-- Modal Category & Date -->
+      <div class="flex justify-between items-center mb-4 pb-2 border-b border-brand-charcoal/10">
+        <span class="font-mono text-[10px] bg-brand-sage/10 text-brand-sage px-2.5 py-0.5 rounded font-bold uppercase">{{ previewAd.category }}</span>
+        <div class="flex items-center gap-3">
+          <span class="font-mono text-[10px] text-brand-charcoal/50" title="Vistas">👁️ {{ previewAd.clicks || 0 }} vistas</span>
+          <span class="font-mono text-[10px] text-brand-charcoal/30">|</span>
+          <span class="font-mono text-[10px] text-brand-charcoal/50">{{ previewAd.createdAt }}</span>
+        </div>
+      </div>
+
+      <!-- Title -->
+      <h2 class="font-serif text-3xl font-bold text-brand-charcoal mb-6 leading-tight">
+        {{ previewAd.title }}
+      </h2>
+
+      <!-- Image -->
+      <div class="w-full h-64 md:h-80 overflow-hidden border border-brand-charcoal mb-6 bg-brand-charcoal/5 flex items-center justify-center">
+        <ng-container *ngIf="previewAd.imageUrl; else fallbackModalImage">
+          <img [alt]="previewAd.title" class="w-full h-full object-cover" [src]="previewAd.imageUrl" (error)="onImageError($event, previewAd.category)">
+        </ng-container>
+        <ng-template #fallbackModalImage>
+          <div [ngClass]="getCategoryBgClass(previewAd.category)" class="w-full h-full flex flex-col items-center justify-center p-6">
+            <span class="text-7xl mb-3">{{ getCategoryEmoji(previewAd.category) }}</span>
+            <span class="font-mono text-xs tracking-widest uppercase font-bold text-brand-charcoal/60">{{ previewAd.category }}</span>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- Description -->
+      <div class="mb-8">
+        <h4 class="font-mono text-[10px] uppercase font-bold text-brand-charcoal/50 tracking-wider mb-2">Descripción</h4>
+        <p class="font-sans text-sm text-brand-charcoal/80 leading-relaxed whitespace-pre-line">
+          {{ previewAd.cleanDescription || previewAd.description }}
+        </p>
+      </div>
+
+      <!-- Job Specific Fields if Job -->
+      <div *ngIf="previewAd.type === 'job'" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 p-4 bg-brand-charcoal/5 border border-brand-charcoal/10 font-mono text-xs text-brand-charcoal/80">
+        <div *ngIf="previewAd.company"><span class="text-brand-charcoal/50">Empresa:</span> {{ previewAd.company }}</div>
+        <div *ngIf="previewAd.jobType"><span class="text-brand-charcoal/50">Contrato:</span> {{ previewAd.jobType }}</div>
+        <div *ngIf="previewAd.salary"><span class="text-brand-charcoal/50">Salario:</span> {{ previewAd.salary }}</div>
+        <div *ngIf="previewAd.requirements" class="col-span-1 sm:col-span-2 mt-2 pt-2 border-t border-brand-charcoal/10">
+          <span class="text-brand-charcoal/50 block mb-1">Requisitos:</span>
+          <p class="font-sans text-xs whitespace-pre-line">{{ previewAd.requirements }}</p>
+        </div>
+      </div>
+
+      <!-- Contact Details -->
+      <div class="mb-8 p-5 border border-brand-charcoal bg-brand-paper relative">
+        <div class="absolute top-0 left-0 w-1 h-full bg-brand-red"></div>
+        <h4 class="font-serif italic font-bold text-base mb-3 text-brand-charcoal">Información de Contacto</h4>
+        <div class="space-y-3 text-sm font-sans text-brand-charcoal/80">
+          <div class="pb-2 border-b border-brand-charcoal/5">
+            <span class="font-mono text-[10px] text-brand-charcoal/50 uppercase block">Anunciante</span>
+            <span class="font-bold text-brand-charcoal text-base">{{ previewAd.announcerName }}</span>
+            <span *ngIf="previewAd.registeredSince" class="font-mono text-[9px] text-brand-charcoal/55 block mt-0.5">Inscrito desde el {{ previewAd.registeredSince }}</span>
+          </div>
+          <div *ngIf="previewAd.phone || previewAd.contactPhone">
+            <span class="font-mono text-[10px] text-brand-charcoal/50 uppercase block">Teléfono Móvil</span>
+            <span class="font-mono text-lg font-bold text-brand-red">{{ previewAd.phone || previewAd.contactPhone }}</span>
+          </div>
+          <div *ngIf="previewAd.email || previewAd.contactEmail">
+            <span class="font-mono text-[10px] text-brand-charcoal/50 uppercase block">Correo de Contacto</span>
+            <a href="mailto:{{ previewAd.email || previewAd.contactEmail }}" class="underline text-brand-sage hover:text-brand-charcoal">{{ previewAd.email || previewAd.contactEmail }}</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactions / Ratings & Comments -->
+      <div class="border-t border-brand-charcoal/20 pt-6 mt-6 space-y-6">
+        <h4 class="font-serif text-xl italic font-bold text-brand-charcoal">Valoraciones y Comentarios</h4>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pb-6 border-b border-brand-charcoal/10">
+          <!-- Rate Option -->
+          <div class="flex items-center justify-between p-3 bg-brand-charcoal/5 border border-brand-charcoal/10">
+            <span class="font-mono text-[10px] uppercase text-brand-charcoal/60 font-bold">Valorar servicio:</span>
+            <div class="flex gap-0.5">
+              <button *ngFor="let s of [1,2,3,4,5]" 
+                      (click)="rateAd(previewAd, s)" 
+                      class="text-xl text-brand-charcoal/30 hover:text-brand-sage hover:scale-125 transition-all focus:outline-none">
+                ★
+              </button>
+            </div>
+          </div>
+
+          <!-- Like Option -->
+          <div class="flex items-center justify-between p-3 bg-brand-charcoal/5 border border-brand-charcoal/10">
+            <span class="font-mono text-[10px] uppercase text-brand-charcoal/60 font-bold">¿Te sirve este anuncio?</span>
+            <button (click)="likeAd(previewAd)" 
+                    class="px-3 py-1 bg-brand-charcoal text-brand-paper font-mono text-[9px] font-bold uppercase hover:bg-brand-sage transition-colors">
+              ¡Me gusta! ❤️
+            </button>
+          </div>
+        </div>
+
+        <!-- Comments List -->
+        <div class="space-y-4">
+          <div class="flex justify-between items-center">
+            <span class="font-mono text-[10px] uppercase font-bold text-brand-charcoal/60">Comentarios ({{ previewAd.comments?.length || 0 }})</span>
+          </div>
+
+          <div *ngIf="!previewAd.comments || previewAd.comments.length === 0" class="text-xs font-mono text-brand-charcoal/40 py-2">
+            Aún no hay comentarios. ¡Escribe el primero abajo!
+          </div>
+
+          <div *ngIf="previewAd.comments && previewAd.comments.length > 0" class="space-y-3 max-h-60 overflow-y-auto pr-1">
+            <div *ngFor="let c of previewAd.comments" class="bg-brand-charcoal/5 p-3 border border-brand-charcoal/10 rounded">
+              <div class="flex justify-between font-mono text-[9px] text-brand-charcoal/40 mb-1.5">
+                <span class="font-bold text-brand-charcoal/60">{{ c.authorName }}</span>
+                <span>{{ c.createdAt }}</span>
+              </div>
+              <p class="font-sans text-xs leading-relaxed text-brand-charcoal/80">{{ getCleanCommentContent(c.content) }}</p>
+            </div>
+          </div>
+
+          <!-- Chat Input for Comments -->
+          <div class="bg-brand-charcoal/[0.03] p-4 border border-brand-charcoal/10 rounded space-y-3 mt-3">
+            <div class="flex justify-between items-center mb-1">
+              <div class="font-mono text-[9px] text-brand-charcoal/50">
+                Comentario de opinión como: <span class="font-bold text-brand-charcoal/70">{{ user?.user_metadata?.['first_name'] }} {{ user?.user_metadata?.['last_name'] }}</span>
+              </div>
+              <span class="font-mono text-[9px] text-brand-charcoal/40 font-semibold">{{ (previewAd.newCommentText || '').length }}/200</span>
+            </div>
+
+            <!-- Emoji Quick Selector -->
+            <div class="flex flex-wrap gap-1 py-1 border-t border-b border-brand-charcoal/5">
+              <span class="font-mono text-[9px] text-brand-charcoal/40 uppercase mr-1 flex items-center">Emojis:</span>
+              <button type="button" 
+                      *ngFor="let emoji of ['😊','👍','👎','❤️','😂','😮','😢','👏','💡','🎉','🚀','🔥']"
+                      (click)="addEmoji(previewAd, emoji)"
+                      class="w-6 h-6 flex items-center justify-center hover:bg-brand-charcoal/10 transition-colors text-sm border-0 bg-transparent cursor-pointer">
+                {{ emoji }}
+              </button>
+            </div>
+
+            <!-- Message input and Send button -->
+            <div class="flex gap-2">
+              <input type="text" 
+                     [(ngModel)]="previewAd.newCommentText" 
+                     maxlength="200"
+                     placeholder="Escribe tu opinión aquí... (Máx. 200 caracteres)" 
+                     class="flex-1 bg-brand-paper border border-brand-charcoal/20 px-3 py-2 font-sans text-xs focus:outline-none focus:border-brand-charcoal"
+                     (keyup.enter)="postChatComment(previewAd)" />
+              <button (click)="postChatComment(previewAd)" 
+                      class="px-4 py-2 bg-brand-charcoal text-brand-paper font-mono text-[10px] font-bold uppercase hover:bg-brand-sage transition-colors cursor-pointer border-0">
+                Enviar
+              </button>
+            </div>
+          </div>
+
+          <!-- Private Message Form to Announcer -->
+          <div class="space-y-3 pt-6 border-t border-brand-charcoal/15 mt-6">
+            <h5 class="font-mono text-[9px] uppercase font-bold text-brand-charcoal/50">Enviar un mensaje al anunciador</h5>
+            <div>
+              <input type="text" 
+                     [(ngModel)]="previewAd.messageSubject" 
+                     placeholder="Asunto / Objeto de tu consulta (Ej. Duda sobre tarifas, disponibilidad...)" 
+                     class="w-full bg-brand-paper border border-brand-charcoal/20 px-3 py-2 font-mono text-xs focus:outline-none focus:border-brand-charcoal" />
+            </div>
+            <textarea [(ngModel)]="previewAd.messageText" 
+                      placeholder="Escribe aquí tus cuestiones o mensaje para el anunciador..." 
+                      rows="3"
+                      class="w-full bg-brand-paper border border-brand-charcoal/20 px-3 py-2 font-sans text-xs focus:outline-none focus:border-brand-charcoal"></textarea>
+            <button (click)="sendMessage(previewAd)" 
+                    class="px-6 py-2.5 bg-brand-sage text-brand-paper font-mono text-[10px] font-bold uppercase hover:bg-brand-charcoal transition-colors cursor-pointer border-0">
+              Enviar Mensaje
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- HELP KEYWORDS MODAL -->
+<div *ngIf="keywordsModalVisible" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <!-- Backdrop -->
+  <div (click)="closeKeywordsModal()" class="fixed inset-0 bg-brand-charcoal/60 backdrop-blur-sm"></div>
+
+  <!-- Modal Content Box -->
+  <div class="bg-brand-paper border-2 border-brand-charcoal w-full max-w-md overflow-hidden relative z-10 p-6 shadow-2xl">
+    <!-- Close button -->
+    <button (click)="closeKeywordsModal()" class="absolute top-4 right-4 font-mono text-xl text-brand-charcoal hover:text-brand-sage transition-colors cursor-pointer focus:outline-none" aria-label="Cerrar ayuda">
+      ✕
+    </button>
+    <h3 class="font-serif text-lg font-bold text-brand-charcoal mb-3 flex items-center gap-1.5">
+      💡 Cómo elegir palabras clave
+    </h3>
+    <div class="text-xs text-brand-charcoal/90 space-y-2 leading-relaxed font-sans">
+      <p>
+        Elige palabras descriptivas que los usuarios buscarían para encontrar tu servicio. Escribe al menos 3 términos separados por comas, incluyendo tu oficio, especialidad y localidad.
+      </p>
+      <div class="border-t border-brand-charcoal/10 pt-2.5 space-y-1.5 text-[11px]">
+        <div><strong>⚡ Electricidad:</strong> <span class="italic">"electricista, urgencias 24h, boletín, enchufe, Ginebra"</span></div>
+        <div><strong>🏠 Servicios:</strong> <span class="italic">"limpieza, pintor, reformas, carpintería, Ginebra"</span></div>
+        <div><strong>💼 Empleo:</strong> <span class="italic">"cocinero, ayudante, camarero, hostelería, Ginebra"</span></div>
+        <div><strong>🛍️ Ventas/Donaciones:</strong> <span class="italic">"coche, nevera, muebles gratis, liquidación, Ginebra"</span></div>
+      </div>
+    </div>
+  </div>
+</div>

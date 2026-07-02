@@ -14,6 +14,7 @@ export interface MediaRow {
   image_url?: string;
   published_at?: string;
   created_at?: string;
+  clicks?: number;
 }
 
 /**
@@ -31,4 +32,5 @@ export interface MediaViewModel {
   author: string;
   imageUrl?: string;
   publishedAt: string;
+  clicks?: number;
 }

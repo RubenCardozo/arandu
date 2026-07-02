@@ -58,6 +58,42 @@ export class MediaService {
   }
 
   /**
+   * Updates an existing media record.
+   * @param id - The UUID of the media item.
+   * @param media - The media payload to update.
+   */
+  async update(id: string, media: NewMedia): Promise<void> {
+    const { error } = await this.supabase.client
+      .from('media')
+      .update({
+        title: media.title,
+        type: media.type,
+        category: media.category,
+        description: media.description,
+        content_url: media.contentUrl,
+        embed_url: media.embedUrl,
+        author: media.author,
+        image_url: media.imageUrl
+      })
+      .eq('id', id);
+
+    if (error) throw error;
+  }
+
+  /**
+   * Deletes an existing media record.
+   * @param id - The UUID of the media item.
+   */
+  async delete(id: string): Promise<void> {
+    const { error } = await this.supabase.client
+      .from('media')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+  }
+
+  /**
    * Uploads a file to the specified Supabase Storage bucket and path.
    * @param bucket - The storage bucket name (e.g. 'assets').
    * @param path   - The destination path inside the bucket.
@@ -88,7 +124,8 @@ export class MediaService {
       author: row.author,
       imageUrl: row.image_url,
       publishedAt: row.published_at,
-      createdAt: row.created_at
+      createdAt: row.created_at,
+      clicks: row.clicks || 0
     };
   }
 }

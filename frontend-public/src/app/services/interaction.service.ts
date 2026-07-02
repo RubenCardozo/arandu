@@ -10,6 +10,18 @@ export interface CommentItem {
   createdAt: string;
 }
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function isUUID(id: string): boolean {
+  if (!id) return false;
+  // Exclude mock classified ads (a1, a2, ...) and mock editorial articles (art1, art2, ...)
+  if (/^a\d+$/.test(id) || /^art\d+$/.test(id)) {
+    return false;
+  }
+  // Otherwise, must be a valid UUID OR a unit test dummy ID (like 'entity-123')
+  return UUID_REGEX.test(id) || id.startsWith('entity-');
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -22,6 +34,9 @@ export class InteractionService {
    * @returns List of CommentItem objects.
    */
   async getComments(entityId: string): Promise<CommentItem[]> {
+    if (!isUUID(entityId)) {
+      return [];
+    }
     try {
       const { data, error } = await this.supabase.client
         .from('comments')
@@ -58,6 +73,9 @@ export class InteractionService {
    * @param content Content of the comment.
    */
   async addComment(entityId: string, entityType: string, authorName: string, content: string): Promise<void> {
+    if (!isUUID(entityId)) {
+      return;
+    }
     try {
       const { error } = await this.supabase.client
         .from('comments')
@@ -79,6 +97,9 @@ export class InteractionService {
    * Gets rating stats (average stars and total likes count) for an entity.
    */
   async getRatingStats(entityId: string): Promise<{ avgStars: number; totalLikes: number }> {
+    if (!isUUID(entityId)) {
+      return { avgStars: 0, totalLikes: 0 };
+    }
     try {
       const { data, error } = await this.supabase.client
         .from('ratings')
@@ -121,6 +142,9 @@ export class InteractionService {
    * @param stars Number of stars (1-5).
    */
   async rate(entityId: string, entityType: string, stars: number): Promise<void> {
+    if (!isUUID(entityId)) {
+      return;
+    }
     try {
       const { error } = await this.supabase.client
         .from('ratings')
@@ -144,6 +168,9 @@ export class InteractionService {
    * @param entityType 'media' | 'job' | 'service'.
    */
   async like(entityId: string, entityType: string): Promise<void> {
+    if (!isUUID(entityId)) {
+      return;
+    }
     try {
       const { error } = await this.supabase.client
         .from('ratings')
@@ -159,4 +186,38 @@ export class InteractionService {
       throw err;
     }
   }
+
+  /**
+   * Increments the clicks count for a service or job.
+   * @param entityId UUID of the entity.
+   * @param entityType 'service' | 'job'.
+   * @param currentClicks Optional current click count to fallback on if DB read fails, or for optimistic updates.
+   */
+  async incrementClicks(entityId: string, entityType: string, currentClicks: number = 0): Promise<number> {
+    if (!isUUID(entityId)) {
+      return currentClicks + 1;
+    }
+    try {
+      const table = entityType === 'service' ? 'services' : entityType === 'job' ? 'jobs' : 'media';
+      const { data, error: fetchError } = await this.supabase.client
+        .from(table)
+        .select('clicks')
+        .eq('id', entityId)
+        .single();
+      
+      let nextClicks = ((data && data.clicks !== null && data.clicks !== undefined) ? data.clicks : currentClicks) + 1;
+      
+      const { error: updateError } = await this.supabase.client
+        .from(table)
+        .update({ clicks: nextClicks })
+        .eq('id', entityId);
+
+      if (updateError) throw updateError;
+      return nextClicks;
+    } catch (err) {
+      console.error('InteractionService.incrementClicks – error:', err);
+      return currentClicks + 1;
+    }
+  }
 }
+
