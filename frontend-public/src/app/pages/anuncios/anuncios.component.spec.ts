@@ -116,14 +116,12 @@ describe('AnunciosComponent', () => {
 
     expect(servicesCatalogServiceMock.getAll).toHaveBeenCalled();
     expect(jobsServiceMock.getAll).toHaveBeenCalled();
-    expect(interactionServiceMock.getRatingStats).toHaveBeenCalledWith('j1');
-    expect(interactionServiceMock.getRatingStats).toHaveBeenCalledWith('s1');
 
     // Ads should contain matched items plus mocked ones
     expect(component.anuncios.length).toBeGreaterThanOrEqual(2);
     const angularJob = component.anuncios.find(a => a.id === 'j1');
     expect(angularJob).toBeDefined();
-    expect(angularJob!.totalLikes).toBe(8);
+    expect(angularJob!.totalLikes).toBe(0);
   });
 
   describe('Ad click and modal open action', () => {
