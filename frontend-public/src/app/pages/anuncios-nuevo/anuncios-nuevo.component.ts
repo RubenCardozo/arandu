@@ -685,9 +685,6 @@ export class AnunciosNuevoComponent implements OnInit, OnDestroy {
     };
 
     if (config.heroImage) {
-      styles['background-image'] = `linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url(${config.heroImage})`;
-      styles['background-size'] = 'cover';
-      styles['background-position'] = 'center';
       styles['color'] = '#fdfbf7';
       styles['--landing-text'] = '#fdfbf7';
       styles['--landing-card-bg'] = 'rgba(255, 255, 255, 0.1)';
