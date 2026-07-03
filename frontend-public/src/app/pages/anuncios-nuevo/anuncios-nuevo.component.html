@@ -54,7 +54,7 @@
     <!-- Type Selection Tab Buttons -->
     <div class="flex flex-col gap-2">
       <span class="font-mono text-[10px] text-brand-charcoal/50 uppercase tracking-widest">Tipo de Clasificado</span>
-      <div class="grid grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <button 
           type="button" 
           (click)="adForm.patchValue({ type: 'service' })"
@@ -64,7 +64,7 @@
           [class.bg-transparent]="type !== 'service'"
           [class.text-brand-charcoal]="type !== 'service'"
           [class.border-brand-charcoal/30]="type !== 'service'"
-          class="py-3 px-4 border font-mono text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer text-center rounded">
+          class="py-3 px-2 border font-mono text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer text-center rounded">
           Ofrecer Servicio
         </button>
         <button 
@@ -76,26 +76,26 @@
           [class.bg-transparent]="type !== 'job'"
           [class.text-brand-charcoal]="type !== 'job'"
           [class.border-brand-charcoal/30]="type !== 'job'"
-          class="py-3 px-4 border font-mono text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer text-center rounded">
+          class="py-3 px-2 border font-mono text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer text-center rounded">
           Buscar Colaborador (Empleo)
+        </button>
+        <button 
+          type="button" 
+          (click)="adForm.patchValue({ type: 'landing' })"
+          [class.bg-brand-sage]="type === 'landing'"
+          [class.text-brand-paper]="type === 'landing'"
+          [class.border-brand-sage]="type === 'landing'"
+          [class.bg-transparent]="type !== 'landing'"
+          [class.text-brand-charcoal]="type !== 'landing'"
+          [class.border-brand-charcoal/30]="type !== 'landing'"
+          class="py-3 px-2 border font-mono text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer text-center rounded flex items-center justify-center gap-1">
+          👑 Crear Landing Page
         </button>
       </div>
     </div>
 
-    <!-- Toggle Landing Page Premium (only for services) -->
-    <div *ngIf="type === 'service'" class="flex items-center gap-3 bg-brand-sage/10 p-4 border border-brand-sage/20 rounded-lg">
-      <input 
-        type="checkbox" 
-        formControlName="hasLanding" 
-        id="hasLanding"
-        class="h-5 w-5 rounded border-brand-charcoal/30 text-brand-sage focus:ring-brand-sage cursor-pointer">
-      <label for="hasLanding" class="font-serif font-bold text-sm text-brand-charcoal cursor-pointer flex items-center gap-1.5 select-none">
-        👑 ¿Quieres activar una Landing Page Premium gratis para tu negocio?
-      </label>
-    </div>
-
-    <!-- Category selector (only for services) -->
-    <div *ngIf="type === 'service'" class="flex flex-col gap-1">
+    <!-- Category selector (only for services or landing pages) -->
+    <div *ngIf="type === 'service' || type === 'landing'" class="flex flex-col gap-1">
       <label class="font-serif text-sm italic" for="category">Categoría del Anuncio</label>
       <select 
         formControlName="category" 
@@ -275,7 +275,7 @@
     </div>
 
     <!-- EXPRESS LANDING PAGES CONFIGURATOR (Landings Only) -->
-    <div *ngIf="type === 'service' && adForm.get('hasLanding')?.value" class="border-t border-brand-charcoal/15 pt-6 mt-6 space-y-6">
+    <div *ngIf="type === 'landing'" class="border-t border-brand-charcoal/15 pt-6 mt-6 space-y-6">
       <div class="flex items-center justify-between border-b border-brand-sage/20 pb-4">
         <h3 class="font-serif italic font-bold text-xl text-brand-charcoal">Creador de Landing Page Premium 👑</h3>
         <span class="bg-brand-sage/20 text-brand-sage font-mono text-[9px] uppercase px-2.5 py-1 tracking-wider font-bold rounded">Personalizado</span>

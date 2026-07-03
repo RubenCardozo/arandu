@@ -289,8 +289,8 @@ export class AnunciosNuevoComponent implements OnInit, OnDestroy {
     }
 
     try {
-      if (formValues.type === 'service') {
-        const isLanding = formValues.hasLanding;
+      if (formValues.type === 'service' || formValues.type === 'landing') {
+        const isLanding = formValues.type === 'landing';
         const galleryUrls = isLanding && formValues.galleryUrlsRaw
           ? formValues.galleryUrlsRaw.split(',').map((url: string) => url.trim()).filter((url: string) => url.length > 0)
           : [];
