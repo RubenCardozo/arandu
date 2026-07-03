@@ -282,57 +282,57 @@
           </div>
         </div>
 
-        <!-- Template Style: cursos -->
-        <div *ngIf="selectedAd.landingTemplate === 'cursos'" class="space-y-4">
+        <!-- Template Style: medicos -->
+        <div *ngIf="selectedAd.landingTemplate === 'medicos'" class="space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="p-4 bg-brand-charcoal/5 border border-brand-charcoal/10 rounded-lg">
-              <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Tarifas / Precios</span>
-              <span class="text-xs font-sans text-brand-charcoal/80 font-semibold">{{ selectedAd.landingConfig.tarifa || 'Consultar tarifas' }}</span>
+              <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Tipo de Consulta</span>
+              <span class="text-xs font-sans text-brand-charcoal/80 font-semibold">{{ selectedAd.landingConfig.consulta || 'Presencial' }}</span>
             </div>
             <div class="p-4 bg-brand-charcoal/5 border border-brand-charcoal/10 rounded-lg">
-              <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Niveles / Edades</span>
-              <span class="text-xs font-sans text-brand-charcoal/80 font-semibold">{{ selectedAd.landingConfig.niveles || 'Todos los niveles' }}</span>
+              <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Seguro LaMal</span>
+              <span class="text-xs font-sans text-brand-charcoal/80 font-semibold">Acepta seguro básico: {{ selectedAd.landingConfig.seguro || 'Sí' }}</span>
             </div>
           </div>
-          <div *ngIf="selectedAd.landingConfig.metodologia" class="p-4 bg-brand-charcoal/5 border border-brand-charcoal/10 rounded-lg">
-            <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Metodología de Enseñanza</span>
-            <p class="text-xs font-sans text-brand-charcoal/80 mt-1 whitespace-pre-line leading-relaxed">{{ selectedAd.landingConfig.metodologia }}</p>
+          <div *ngIf="selectedAd.landingConfig.especialidad" class="p-4 bg-brand-charcoal/5 border border-brand-charcoal/10 rounded-lg">
+            <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Especialidades & Servicios</span>
+            <p class="text-xs font-sans text-brand-charcoal/80 mt-1 whitespace-pre-line leading-relaxed">{{ selectedAd.landingConfig.especialidad }}</p>
           </div>
         </div>
 
-        <!-- Template Style: empleo -->
-        <div *ngIf="selectedAd.landingTemplate === 'empleo'" class="space-y-4">
+        <!-- Template Style: restaurantes -->
+        <div *ngIf="selectedAd.landingTemplate === 'restaurantes'" class="space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="p-4 bg-brand-charcoal/5 border border-brand-charcoal/10 rounded-lg">
-              <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Habilidades Clave</span>
-              <span class="text-xs font-sans text-brand-charcoal/80 font-semibold">{{ selectedAd.landingConfig.habilidades || 'Habilidades profesionales' }}</span>
+              <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Especialidad de la Casa</span>
+              <span class="text-xs font-sans text-brand-charcoal/80 font-semibold">{{ selectedAd.landingConfig.menu || 'Carta Variada' }}</span>
             </div>
             <div class="p-4 bg-brand-charcoal/5 border border-brand-charcoal/10 rounded-lg">
-              <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Disponibilidad</span>
-              <span class="text-xs font-sans text-brand-charcoal/80 font-semibold">{{ selectedAd.landingConfig.disponibilidad || 'Inmediata' }}</span>
+              <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Servicios</span>
+              <span class="text-xs font-sans text-brand-charcoal/80 font-semibold">{{ selectedAd.landingConfig.servicios || 'Servicio completo' }}</span>
             </div>
           </div>
-          <div *ngIf="selectedAd.landingConfig.biografia" class="p-4 bg-brand-charcoal/5 border border-brand-charcoal/10 rounded-lg">
-            <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Biografía / Presentación</span>
-            <p class="text-xs font-sans text-brand-charcoal/80 mt-1 whitespace-pre-line leading-relaxed">{{ selectedAd.landingConfig.biografia }}</p>
+          <div *ngIf="selectedAd.landingConfig.presentacion" class="p-4 bg-brand-charcoal/5 border border-brand-charcoal/10 rounded-lg">
+            <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Nuestra Cocina & Ambiente</span>
+            <p class="text-xs font-sans text-brand-charcoal/80 mt-1 whitespace-pre-line leading-relaxed">{{ selectedAd.landingConfig.presentacion }}</p>
           </div>
         </div>
 
-        <!-- Template Style: venta -->
-        <div *ngIf="selectedAd.landingTemplate === 'venta'" class="space-y-4">
+        <!-- Template Style: comercios -->
+        <div *ngIf="selectedAd.landingTemplate === 'comercios'" class="space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="p-4 bg-brand-charcoal/5 border border-brand-charcoal/10 rounded-lg">
-              <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Estado del Producto</span>
-              <span class="text-xs font-sans text-brand-charcoal/80 font-semibold">{{ selectedAd.landingConfig.estado || 'Como nuevo' }}</span>
+              <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Productos Destacados</span>
+              <span class="text-xs font-sans text-brand-charcoal/80 font-semibold">{{ selectedAd.landingConfig.productos || 'Todo tipo de artículos' }}</span>
             </div>
             <div class="p-4 bg-brand-charcoal/5 border border-brand-charcoal/10 rounded-lg">
-              <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Método de Entrega</span>
-              <span class="text-xs font-sans text-brand-charcoal/80 font-semibold">{{ selectedAd.landingConfig.entrega || 'A recoger en Ginebra' }}</span>
+              <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Métodos de Pago</span>
+              <span class="text-xs font-sans text-brand-charcoal/80 font-semibold">{{ selectedAd.landingConfig.pago || 'Efectivo, Tarjeta, Twint' }}</span>
             </div>
           </div>
-          <div *ngIf="selectedAd.landingConfig.detalles" class="p-4 bg-brand-charcoal/5 border border-brand-charcoal/10 rounded-lg">
-            <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Detalles Adicionales</span>
-            <p class="text-xs font-sans text-brand-charcoal/80 mt-1 whitespace-pre-line leading-relaxed">{{ selectedAd.landingConfig.detalles }}</p>
+          <div *ngIf="selectedAd.landingConfig.sobreNosotros" class="p-4 bg-brand-charcoal/5 border border-brand-charcoal/10 rounded-lg">
+            <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Sobre Nuestro Comercio</span>
+            <p class="text-xs font-sans text-brand-charcoal/80 mt-1 whitespace-pre-line leading-relaxed">{{ selectedAd.landingConfig.sobreNosotros }}</p>
           </div>
         </div>
 

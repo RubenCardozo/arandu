@@ -91,15 +91,19 @@ export class SessionComponent implements OnInit, OnDestroy {
       landingHorario: [''],
       landingCobertura: [''],
       landingExperiencia: [''],
-      landingTarifa: [''],
-      landingNiveles: [''],
-      landingMetodologia: [''],
-      landingHabilidades: [''],
-      landingDisponibilidad: [''],
-      landingBiografia: [''],
-      landingEstado: [''],
-      landingEntrega: [''],
-      landingDetalles: [''],
+      // Médicos
+      landingConsulta: ['Presencial'],
+      landingSeguro: ['Sí'],
+      landingEspecialidad: [''],
+      // Restaurantes
+      landingMenu: [''],
+      landingServicios: [''],
+      landingPresentacion: [''],
+      // Comercios
+      landingProductos: [''],
+      landingPago: ['Efectivo, Tarjeta, Twint'],
+      landingSobreNosotros: [''],
+      
       galleryUrlsRaw: ['']
     });
 
@@ -639,15 +643,15 @@ export class SessionComponent implements OnInit, OnDestroy {
           landingHorario: config.horario || '',
           landingCobertura: config.cobertura || '',
           landingExperiencia: config.experiencia || '',
-          landingTarifa: config.tarifa || '',
-          landingNiveles: config.niveles || '',
-          landingMetodologia: config.metodologia || '',
-          landingHabilidades: config.habilidades || '',
-          landingDisponibilidad: config.disponibilidad || '',
-          landingBiografia: config.biografia || '',
-          landingEstado: config.estado || '',
-          landingEntrega: config.entrega || '',
-          landingDetalles: config.detalles || '',
+          landingConsulta: config.consulta || 'Presencial',
+          landingSeguro: config.seguro || 'Sí',
+          landingEspecialidad: config.especialidad || '',
+          landingMenu: config.menu || '',
+          landingServicios: config.servicios || '',
+          landingPresentacion: config.presentacion || '',
+          landingProductos: config.productos || '',
+          landingPago: config.pago || 'Efectivo, Tarjeta, Twint',
+          landingSobreNosotros: config.sobreNosotros || '',
           galleryUrlsRaw: (data.gallery_urls || []).join(', ')
         });
       } else {
@@ -753,23 +757,23 @@ export class SessionComponent implements OnInit, OnDestroy {
             cobertura: formValues.landingCobertura || '',
             experiencia: formValues.landingExperiencia || ''
           };
-        } else if (formValues.landingTemplate === 'cursos') {
+        } else if (formValues.landingTemplate === 'medicos') {
           config = {
-            tarifa: formValues.landingTarifa || '',
-            niveles: formValues.landingNiveles || '',
-            metodologia: formValues.landingMetodologia || ''
+            consulta: formValues.landingConsulta || 'Presencial',
+            seguro: formValues.landingSeguro || 'Sí',
+            especialidad: formValues.landingEspecialidad || ''
           };
-        } else if (formValues.landingTemplate === 'empleo') {
+        } else if (formValues.landingTemplate === 'restaurantes') {
           config = {
-            habilidades: formValues.landingHabilidades || '',
-            disponibilidad: formValues.landingDisponibilidad || '',
-            biografia: formValues.landingBiografia || ''
+            menu: formValues.landingMenu || '',
+            servicios: formValues.landingServicios || '',
+            presentacion: formValues.landingPresentacion || ''
           };
-        } else if (formValues.landingTemplate === 'venta') {
+        } else if (formValues.landingTemplate === 'comercios') {
           config = {
-            estado: formValues.landingEstado || '',
-            entrega: formValues.landingEntrega || '',
-            detalles: formValues.landingDetalles || ''
+            productos: formValues.landingProductos || '',
+            pago: formValues.landingPago || '',
+            sobreNosotros: formValues.landingSobreNosotros || ''
           };
         }
 

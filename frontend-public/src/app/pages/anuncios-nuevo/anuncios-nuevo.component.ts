@@ -74,15 +74,19 @@ export class AnunciosNuevoComponent implements OnInit, OnDestroy {
       landingHorario: [''],
       landingCobertura: [''],
       landingExperiencia: [''],
-      landingTarifa: [''],
-      landingNiveles: [''],
-      landingMetodologia: [''],
-      landingHabilidades: [''],
-      landingDisponibilidad: [''],
-      landingBiografia: [''],
-      landingEstado: [''],
-      landingEntrega: [''],
-      landingDetalles: [''],
+      // Médicos
+      landingConsulta: ['Presencial'],
+      landingSeguro: ['Sí'],
+      landingEspecialidad: [''],
+      // Restaurantes
+      landingMenu: [''],
+      landingServicios: [''],
+      landingPresentacion: [''],
+      // Comercios
+      landingProductos: [''],
+      landingPago: ['Efectivo, Tarjeta, Twint'],
+      landingSobreNosotros: [''],
+      
       galleryUrlsRaw: ['']
     });
 
@@ -276,36 +280,39 @@ export class AnunciosNuevoComponent implements OnInit, OnDestroy {
     }
 
     try {
-      if (formValues.type === 'service') {
-        const galleryUrls = formValues.galleryUrlsRaw
+      if (formValues.type === 'service' || formValues.type === 'landing') {
+        const isLanding = formValues.type === 'landing';
+        const galleryUrls = isLanding && formValues.galleryUrlsRaw
           ? formValues.galleryUrlsRaw.split(',').map((url: string) => url.trim()).filter((url: string) => url.length > 0)
           : [];
 
         let config: any = {};
-        if (formValues.landingTemplate === 'profesional') {
-          config = {
-            horario: formValues.landingHorario || '',
-            cobertura: formValues.landingCobertura || '',
-            experiencia: formValues.landingExperiencia || ''
-          };
-        } else if (formValues.landingTemplate === 'cursos') {
-          config = {
-            tarifa: formValues.landingTarifa || '',
-            niveles: formValues.landingNiveles || '',
-            metodologia: formValues.landingMetodologia || ''
-          };
-        } else if (formValues.landingTemplate === 'empleo') {
-          config = {
-            habilidades: formValues.landingHabilidades || '',
-            disponibilidad: formValues.landingDisponibilidad || '',
-            biografia: formValues.landingBiografia || ''
-          };
-        } else if (formValues.landingTemplate === 'venta') {
-          config = {
-            estado: formValues.landingEstado || '',
-            entrega: formValues.landingEntrega || '',
-            detalles: formValues.landingDetalles || ''
-          };
+        if (isLanding) {
+          if (formValues.landingTemplate === 'profesional') {
+            config = {
+              horario: formValues.landingHorario || '',
+              cobertura: formValues.landingCobertura || '',
+              experiencia: formValues.landingExperiencia || ''
+            };
+          } else if (formValues.landingTemplate === 'medicos') {
+            config = {
+              consulta: formValues.landingConsulta || 'Presencial',
+              seguro: formValues.landingSeguro || 'Sí',
+              especialidad: formValues.landingEspecialidad || ''
+            };
+          } else if (formValues.landingTemplate === 'restaurantes') {
+            config = {
+              menu: formValues.landingMenu || '',
+              servicios: formValues.landingServicios || '',
+              presentacion: formValues.landingPresentacion || ''
+            };
+          } else if (formValues.landingTemplate === 'comercios') {
+            config = {
+              productos: formValues.landingProductos || '',
+              pago: formValues.landingPago || '',
+              sobreNosotros: formValues.landingSobreNosotros || ''
+            };
+          }
         }
 
         const servicePayload = {
@@ -318,8 +325,8 @@ export class AnunciosNuevoComponent implements OnInit, OnDestroy {
           website: formValues.website,
           ownerId: this.user.id,
           galleryUrls: galleryUrls,
-          landingTemplate: formValues.landingTemplate,
-          landingConfig: config
+          landingTemplate: isLanding ? formValues.landingTemplate : null,
+          landingConfig: isLanding ? config : null
         };
 
         await this.servicesService.create(servicePayload, this.selectedFile || undefined);

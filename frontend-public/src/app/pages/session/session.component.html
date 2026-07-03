@@ -313,8 +313,8 @@
                   </div>
                 </div>
 
-                <!-- EXPRESS LANDING PAGES CONFIGURATOR (Services Only) -->
-                <div *ngIf="editType === 'service'" class="border-t border-brand-charcoal/15 pt-6 mt-6 space-y-6">
+                <!-- EXPRESS LANDING PAGES CONFIGURATOR (Landing Pages Only) -->
+                <div *ngIf="editType === 'service' && editAdForm.get('landingTemplate')?.value" class="border-t border-brand-charcoal/15 pt-6 mt-6 space-y-6">
                   <h3 class="font-serif italic font-bold text-lg text-brand-charcoal">Mi Landing Page Premium</h3>
                   <p class="font-sans text-xs text-brand-charcoal/70 leading-relaxed">
                     Personaliza tu página de presentación exclusiva en Arandu. Rellena los datos de tu plantilla favorita de forma guiada para que destaque ante tus clientes.
@@ -322,15 +322,15 @@
 
                   <!-- Template Style Selection -->
                   <div class="flex flex-col gap-1">
-                    <label class="font-serif text-sm italic" for="editLandingTemplate">Selecciona tu Plantilla</label>
+                    <label class="font-serif text-sm italic" for="editLandingTemplate">Selecciona tu Plantilla de Diseño</label>
                     <select 
                       formControlName="landingTemplate"
                       class="w-full bg-transparent border-0 border-b border-brand-charcoal py-2 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0 cursor-pointer"
                       id="editLandingTemplate">
-                      <option value="profesional">Plantilla Profesional (Obreros, Reformas, Especialistas)</option>
-                      <option value="cursos">Plantilla de Clases & Cursos (Profesores, Academias)</option>
-                      <option value="empleo">Plantilla de Portafolio / Candidatura (Empleo, Hostelería)</option>
-                      <option value="venta">Plantilla de Producto (Ventas, Donaciones, Traspasos)</option>
+                      <option value="profesional">Plantilla para Profesionales (Electricistas, Reformas, Técnicos)</option>
+                      <option value="medicos">Plantilla para Médicos & Salud (Consultorios, Terapeutas)</option>
+                      <option value="restaurantes">Plantilla para Restaurantes & Cafés (Locales de comida)</option>
+                      <option value="comercios">Plantilla para Comercios & Almacenes (Tiendas y Ventas)</option>
                     </select>
                   </div>
 
@@ -364,87 +364,86 @@
                     </div>
                   </div>
 
-                  <!-- cursos Template Fields -->
-                  <div *ngIf="editAdForm.get('landingTemplate')?.value === 'cursos'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <!-- medicos Template Fields -->
+                  <div *ngIf="editAdForm.get('landingTemplate')?.value === 'medicos'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="flex flex-col gap-1">
-                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingTarifa">Tarifas / Precios</label>
-                      <input 
-                        formControlName="landingTarifa"
-                        class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
-                        id="editLandingTarifa"
-                        placeholder="Ej: 35 CHF/hora (Descuentos por packs)">
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase">Tipo de Consulta</label>
+                      <select formControlName="landingConsulta" class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1.5 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0">
+                        <option value="Presencial">Consulta Presencial en Clínica</option>
+                        <option value="Online">Telemedicina / Online</option>
+                        <option value="Domicilio">Visita a Domicilio</option>
+                      </select>
                     </div>
                     <div class="flex flex-col gap-1">
-                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingNiveles">Niveles / Edades</label>
-                      <input 
-                        formControlName="landingNiveles"
-                        class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
-                        id="editLandingNiveles"
-                        placeholder="Ej: Desde principiantes hasta C1, niños y adultos">
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase">Acepta Seguro Médico (LaMal)</label>
+                      <select formControlName="landingSeguro" class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1.5 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0">
+                        <option value="Sí">Sí (Reembolsable por seguro básico)</option>
+                        <option value="No">No (Consulta privada)</option>
+                      </select>
                     </div>
                     <div class="flex flex-col gap-1 sm:col-span-2">
-                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingMetodologia">Metodología de Enseñanza</label>
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingEspecialidad">Especialidades Tratadas</label>
                       <textarea 
-                        formControlName="landingMetodologia"
+                        formControlName="landingEspecialidad"
                         class="w-full bg-transparent border border-brand-charcoal/30 p-3 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0 min-h-[80px]" 
-                        id="editLandingMetodologia"
-                        placeholder="Describe tu método pedagógico, materiales didácticos y si son clases online o presenciales..."></textarea>
+                        id="editLandingEspecialidad"
+                        placeholder="Ej: Pediatría, Medicina general, Fisioterapia deportiva, Cuidado dental..."></textarea>
                     </div>
                   </div>
 
-                  <!-- empleo Template Fields -->
-                  <div *ngIf="editAdForm.get('landingTemplate')?.value === 'empleo'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <!-- restaurantes Template Fields -->
+                  <div *ngIf="editAdForm.get('landingTemplate')?.value === 'restaurantes'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="flex flex-col gap-1">
-                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingHabilidades">Habilidades Clave</label>
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingMenu">Especialidad de la Casa</label>
                       <input 
-                        formControlName="landingHabilidades"
+                        formControlName="landingMenu"
                         class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
-                        id="editLandingHabilidades"
-                        placeholder="Ej: Cocina francesa, Limpieza industrial, Atención al cliente">
+                        id="editLandingMenu"
+                        placeholder="Ej: Fondue de queso / Cocina Italiana artesanal">
                     </div>
                     <div class="flex flex-col gap-1">
-                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingDisponibilidad">Disponibilidad</label>
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingServicios">Servicios Disponibles</label>
                       <input 
-                        formControlName="landingDisponibilidad"
+                        formControlName="landingServicios"
                         class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
-                        id="editLandingDisponibilidad"
-                        placeholder="Ej: Inmediata, tardes o fines de semana">
+                        id="editLandingServicios"
+                        placeholder="Ej: Terraza exterior, Reservas, Entrega a domicilio, Wi-Fi gratis">
                     </div>
                     <div class="flex flex-col gap-1 sm:col-span-2">
-                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingBiografia">Presentación Profesional</label>
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingPresentacion">Presentación de la Cocina y Ambiente</label>
                       <textarea 
-                        formControlName="landingBiografia"
+                        formControlName="landingPresentacion"
                         class="w-full bg-transparent border border-brand-charcoal/30 p-3 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0 min-h-[80px]" 
-                        id="editLandingBiografia"
-                        placeholder="Escribe una breve biografía sobre ti, tus metas y lo que puedes aportar a la empresa..."></textarea>
+                        id="editLandingPresentacion"
+                        placeholder="Describe tu restaurante, la historia de tu cocina y el tipo de ambiente para tus clientes..."></textarea>
                     </div>
                   </div>
 
-                  <!-- venta Template Fields -->
-                  <div *ngIf="editAdForm.get('landingTemplate')?.value === 'venta'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <!-- comercios Template Fields -->
+                  <div *ngIf="editAdForm.get('landingTemplate')?.value === 'comercios'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="flex flex-col gap-1">
-                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingEstado">Estado del Producto</label>
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingProductos">Productos Destacados</label>
                       <input 
-                        formControlName="landingEstado"
+                        formControlName="landingProductos"
                         class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
-                        id="editLandingEstado"
-                        placeholder="Ej: Nuevo en caja, Excelente estado, Usado con pocos detalles">
+                        id="editLandingProductos"
+                        placeholder="Ej: Alimentación biológica, Ropa vintage, Electrónica reacondicionada">
                     </div>
                     <div class="flex flex-col gap-1">
-                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingEntrega">Método de Entrega</label>
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingPago">Métodos de Pago Aceptados</label>
                       <input 
-                        formControlName="landingEntrega"
+                        formControlName="landingPago"
                         class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
-                        id="editLandingEntrega"
-                        placeholder="Ej: Retiro en mano en Plainpalais o Envío postal">
+                        id="editLandingPago"
+                        placeholder="Ej: Efectivo, Tarjetas de crédito, Twint, Apple Pay">
                     </div>
                     <div class="flex flex-col gap-1 sm:col-span-2">
-                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingDetalles">Detalles Adicionales del Producto</label>
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingSobreNosotros">Sobre Nuestro Comercio / Almacén</label>
                       <textarea 
-                        formControlName="editLandingDetalles"
+                        formControlName="landingSobreNosotros"
                         class="w-full bg-transparent border border-brand-charcoal/30 p-3 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0 min-h-[80px]" 
-                        id="editLandingDetalles"
-                        placeholder="Especifica dimensiones, marca, color o cualquier detalle relevante..."></textarea>
+                        id="editLandingSobreNosotros"
+                        placeholder="Cuéntales a tus compradores qué hace único a tu almacén o comercio y tu horario de apertura..."></textarea>
                     </div>
                   </div>
 
