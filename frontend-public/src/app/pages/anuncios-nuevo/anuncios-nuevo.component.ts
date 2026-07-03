@@ -69,20 +69,29 @@ export class AnunciosNuevoComponent implements OnInit, OnDestroy {
       requirements: [''],
       salary: ['A convenir'],
       jobType: ['Full-time'],
-      // Landing page fields
-      landingTemplate: ['profesional'],
+      // Landing page settings
+      hasLanding: [false],
+      landingTemplate: ['servicios'],
+      landingPalette: ['crosby'],
+      landingFont: ['serif'],
+      landingHeroImage: [''],
+      // Special Offers
+      landingOfertaTitulo: [''],
+      landingOfertaDesc: [''],
+      landingOfertaPrecio: [''],
+      // Specific template fields
       landingHorario: [''],
       landingCobertura: [''],
       landingExperiencia: [''],
-      // Médicos
+      // Médicos/Particulares
       landingConsulta: ['Presencial'],
       landingSeguro: ['Sí'],
       landingEspecialidad: [''],
-      // Restaurantes
+      // Restauración
       landingMenu: [''],
       landingServicios: [''],
       landingPresentacion: [''],
-      // Comercios
+      // Venta
       landingProductos: [''],
       landingPago: ['Efectivo, Tarjeta, Twint'],
       landingSobreNosotros: [''],
@@ -280,38 +289,43 @@ export class AnunciosNuevoComponent implements OnInit, OnDestroy {
     }
 
     try {
-      if (formValues.type === 'service' || formValues.type === 'landing') {
-        const isLanding = formValues.type === 'landing';
+      if (formValues.type === 'service') {
+        const isLanding = formValues.hasLanding;
         const galleryUrls = isLanding && formValues.galleryUrlsRaw
           ? formValues.galleryUrlsRaw.split(',').map((url: string) => url.trim()).filter((url: string) => url.length > 0)
           : [];
 
         let config: any = {};
         if (isLanding) {
-          if (formValues.landingTemplate === 'profesional') {
-            config = {
-              horario: formValues.landingHorario || '',
-              cobertura: formValues.landingCobertura || '',
-              experiencia: formValues.landingExperiencia || ''
-            };
-          } else if (formValues.landingTemplate === 'medicos') {
-            config = {
-              consulta: formValues.landingConsulta || 'Presencial',
-              seguro: formValues.landingSeguro || 'Sí',
-              especialidad: formValues.landingEspecialidad || ''
-            };
-          } else if (formValues.landingTemplate === 'restaurantes') {
-            config = {
-              menu: formValues.landingMenu || '',
-              servicios: formValues.landingServicios || '',
-              presentacion: formValues.landingPresentacion || ''
-            };
-          } else if (formValues.landingTemplate === 'comercios') {
-            config = {
-              productos: formValues.landingProductos || '',
-              pago: formValues.landingPago || '',
-              sobreNosotros: formValues.landingSobreNosotros || ''
-            };
+          config = {
+            palette: formValues.landingPalette || 'crosby',
+            font: formValues.landingFont || 'serif',
+            heroImage: formValues.landingHeroImage || '',
+            ofertaTitulo: formValues.landingOfertaTitulo || '',
+            ofertaDesc: formValues.landingOfertaDesc || '',
+            ofertaPrecio: formValues.landingOfertaPrecio || ''
+          };
+
+          if (formValues.landingTemplate === 'servicios') {
+            config.horario = formValues.landingHorario || '';
+            config.cobertura = formValues.landingCobertura || '';
+            config.experiencia = formValues.landingExperiencia || '';
+          } else if (formValues.landingTemplate === 'particulares') {
+            config.consulta = formValues.landingConsulta || 'Presencial';
+            config.seguro = formValues.landingSeguro || 'Sí';
+            config.especialidad = formValues.landingEspecialidad || '';
+          } else if (formValues.landingTemplate === 'restauracion') {
+            config.menu = formValues.landingMenu || '';
+            config.servicios = formValues.landingServicios || '';
+            config.presentacion = formValues.landingPresentacion || '';
+          } else if (formValues.landingTemplate === 'venta') {
+            config.productos = formValues.landingProductos || '';
+            config.pago = formValues.landingPago || '';
+            config.sobreNosotros = formValues.landingSobreNosotros || '';
+          } else if (formValues.landingTemplate === 'empleo') {
+            config.salary = formValues.salary || 'A convenir';
+            config.jobType = formValues.jobType || 'Full-time';
+            config.requirements = formValues.requirements || '';
           }
         }
 

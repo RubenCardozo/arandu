@@ -315,29 +315,222 @@
 
                 <!-- EXPRESS LANDING PAGES CONFIGURATOR (Landing Pages Only) -->
                 <div *ngIf="editType === 'service' && editAdForm.get('landingTemplate')?.value" class="border-t border-brand-charcoal/15 pt-6 mt-6 space-y-6">
-                  <h3 class="font-serif italic font-bold text-lg text-brand-charcoal">Mi Landing Page Premium</h3>
+                  <div class="flex items-center justify-between border-b border-brand-sage/20 pb-4">
+                    <h3 class="font-serif italic font-bold text-xl text-brand-charcoal">Creador de Landing Page Premium 👑</h3>
+                    <span class="bg-brand-sage/20 text-brand-sage font-mono text-[9px] uppercase px-2.5 py-1 tracking-wider font-bold rounded">Edición</span>
+                  </div>
                   <p class="font-sans text-xs text-brand-charcoal/70 leading-relaxed">
-                    Personaliza tu página de presentación exclusiva en Arandu. Rellena los datos de tu plantilla favorita de forma guiada para que destaque ante tus clientes.
+                    Personaliza tu página de presentación exclusiva en Arandu. Rellena los datos de tu plantilla favorita de forma guiada para que destaque ante tus clientes con estilos premium inspirados en diseños profesionales.
                   </p>
 
-                  <!-- Template Style Selection -->
+                  <!-- VISUAL TEMPLATE SELECTOR (5 Metiers) -->
+                  <div class="flex flex-col gap-3">
+                    <label class="font-serif text-sm italic">Elige tu Plantilla de Diseño (5 Estilos disponibles)</label>
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                      <!-- Card 1: Servicios -->
+                      <div 
+                        (click)="editAdForm.patchValue({ landingTemplate: 'servicios' })"
+                        [class.border-brand-sage]="editAdForm.get('landingTemplate')?.value === 'servicios'"
+                        [class.ring-2]="editAdForm.get('landingTemplate')?.value === 'servicios'"
+                        [class.ring-brand-sage]="editAdForm.get('landingTemplate')?.value === 'servicios'"
+                        class="border border-brand-charcoal/20 p-3 rounded-lg flex flex-col items-center justify-between text-center cursor-pointer hover:border-brand-sage transition-all bg-brand-paper min-h-[90px]">
+                        <span class="text-2xl">🔧</span>
+                        <span class="font-serif font-bold text-xs block mt-1 text-brand-charcoal">Servicios</span>
+                        <span class="text-[9px] font-sans text-brand-charcoal/60 mt-0.5">Electricistas, fontaneros, técnicos</span>
+                      </div>
+                      <!-- Card 2: Venta -->
+                      <div 
+                        (click)="editAdForm.patchValue({ landingTemplate: 'venta' })"
+                        [class.border-brand-sage]="editAdForm.get('landingTemplate')?.value === 'venta'"
+                        [class.ring-2]="editAdForm.get('landingTemplate')?.value === 'venta'"
+                        [class.ring-brand-sage]="editAdForm.get('landingTemplate')?.value === 'venta'"
+                        class="border border-brand-charcoal/20 p-3 rounded-lg flex flex-col items-center justify-between text-center cursor-pointer hover:border-brand-sage transition-all bg-brand-paper min-h-[90px]">
+                        <span class="text-2xl">🛍️</span>
+                        <span class="font-serif font-bold text-xs block mt-1 text-brand-charcoal">Ventas</span>
+                        <span class="text-[9px] font-sans text-brand-charcoal/60 mt-0.5">Almacenes, tiendas, boutiques</span>
+                      </div>
+                      <!-- Card 3: Empleo -->
+                      <div 
+                        (click)="editAdForm.patchValue({ landingTemplate: 'empleo' })"
+                        [class.border-brand-sage]="editAdForm.get('landingTemplate')?.value === 'empleo'"
+                        [class.ring-2]="editAdForm.get('landingTemplate')?.value === 'empleo'"
+                        [class.ring-brand-sage]="editAdForm.get('landingTemplate')?.value === 'empleo'"
+                        class="border border-brand-charcoal/20 p-3 rounded-lg flex flex-col items-center justify-between text-center cursor-pointer hover:border-brand-sage transition-all bg-brand-paper min-h-[90px]">
+                        <span class="text-2xl">💼</span>
+                        <span class="font-serif font-bold text-xs block mt-1 text-brand-charcoal">Empleo</span>
+                        <span class="text-[9px] font-sans text-brand-charcoal/60 mt-0.5">Ofertas de trabajo, portafolios</span>
+                      </div>
+                      <!-- Card 4: Restauración -->
+                      <div 
+                        (click)="editAdForm.patchValue({ landingTemplate: 'restauracion' })"
+                        [class.border-brand-sage]="editAdForm.get('landingTemplate')?.value === 'restauracion'"
+                        [class.ring-2]="editAdForm.get('landingTemplate')?.value === 'restauracion'"
+                        [class.ring-brand-sage]="editAdForm.get('landingTemplate')?.value === 'restauracion'"
+                        class="border border-brand-charcoal/20 p-3 rounded-lg flex flex-col items-center justify-between text-center cursor-pointer hover:border-brand-sage transition-all bg-brand-paper min-h-[90px]">
+                        <span class="text-2xl">🍽️</span>
+                        <span class="font-serif font-bold text-xs block mt-1 text-brand-charcoal">Restauración</span>
+                        <span class="text-[9px] font-sans text-brand-charcoal/60 mt-0.5">Restaurantes, cafés, pastelerías</span>
+                      </div>
+                      <!-- Card 5: Particulares -->
+                      <div 
+                        (click)="editAdForm.patchValue({ landingTemplate: 'particulares' })"
+                        [class.border-brand-sage]="editAdForm.get('landingTemplate')?.value === 'particulares'"
+                        [class.ring-2]="editAdForm.get('landingTemplate')?.value === 'particulares'"
+                        [class.ring-brand-sage]="editAdForm.get('landingTemplate')?.value === 'particulares'"
+                        class="border border-brand-charcoal/20 p-3 rounded-lg flex flex-col items-center justify-between text-center cursor-pointer hover:border-brand-sage transition-all bg-brand-paper min-h-[90px]">
+                        <span class="text-2xl">🧘‍♀️</span>
+                        <span class="font-serif font-bold text-xs block mt-1 text-brand-charcoal">Particulares</span>
+                        <span class="text-[9px] font-sans text-brand-charcoal/60 mt-0.5">Médicos, abogados, yoga, terapeutas</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- PALETAS DE COLORES & FUENTES (Estilo Crosby/Emmeline) -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 border border-brand-charcoal/10 bg-brand-charcoal/5 rounded-xl">
+                    <!-- Palettes -->
+                    <div class="flex flex-col gap-2">
+                      <span class="font-serif italic text-sm text-brand-charcoal font-semibold">Paleta de Colores</span>
+                      <div class="grid grid-cols-2 gap-2">
+                        <!-- Crosby -->
+                        <div 
+                          (click)="editAdForm.patchValue({ landingPalette: 'crosby' })"
+                          [class.ring-2]="editAdForm.get('landingPalette')?.value === 'crosby'"
+                          [class.ring-brand-sage]="editAdForm.get('landingPalette')?.value === 'crosby'"
+                          class="flex items-center gap-2 p-2 bg-brand-paper border border-brand-charcoal/25 rounded cursor-pointer select-none">
+                          <div class="flex gap-0.5">
+                            <span class="h-4 w-3 bg-[#1e2321] block rounded-sm"></span>
+                            <span class="h-4 w-3 bg-[#fdfbf7] block rounded-sm"></span>
+                            <span class="h-4 w-3 bg-[#8ba495] block rounded-sm"></span>
+                          </div>
+                          <span class="text-xs font-mono">Crosby Dark</span>
+                        </div>
+                        <!-- Emmeline -->
+                        <div 
+                          (click)="editAdForm.patchValue({ landingPalette: 'emmeline' })"
+                          [class.ring-2]="editAdForm.get('landingPalette')?.value === 'emmeline'"
+                          [class.ring-brand-sage]="editAdForm.get('landingPalette')?.value === 'emmeline'"
+                          class="flex items-center gap-2 p-2 bg-brand-paper border border-brand-charcoal/25 rounded cursor-pointer select-none">
+                          <div class="flex gap-0.5">
+                            <span class="h-4 w-3 bg-[#8b3d2b] block rounded-sm"></span>
+                            <span class="h-4 w-3 bg-[#fdfbf7] block rounded-sm"></span>
+                            <span class="h-4 w-3 bg-[#e8a342] block rounded-sm"></span>
+                          </div>
+                          <span class="text-xs font-mono">Emmeline Terra</span>
+                        </div>
+                        <!-- Sage Green -->
+                        <div 
+                          (click)="editAdForm.patchValue({ landingPalette: 'sage' })"
+                          [class.ring-2]="editAdForm.get('landingPalette')?.value === 'sage'"
+                          [class.ring-brand-sage]="editAdForm.get('landingPalette')?.value === 'sage'"
+                          class="flex items-center gap-2 p-2 bg-brand-paper border border-brand-charcoal/25 rounded cursor-pointer select-none">
+                          <div class="flex gap-0.5">
+                            <span class="h-4 w-3 bg-[#8ba495] block rounded-sm"></span>
+                            <span class="h-4 w-3 bg-[#fdfbf7] block rounded-sm"></span>
+                            <span class="h-4 w-3 bg-[#2d3a34] block rounded-sm"></span>
+                          </div>
+                          <span class="text-xs font-mono">Sage Soft</span>
+                        </div>
+                        <!-- Minimal Light -->
+                        <div 
+                          (click)="editAdForm.patchValue({ landingPalette: 'minimal' })"
+                          [class.ring-2]="editAdForm.get('landingPalette')?.value === 'minimal'"
+                          [class.ring-brand-sage]="editAdForm.get('landingPalette')?.value === 'minimal'"
+                          class="flex items-center gap-2 p-2 bg-brand-paper border border-brand-charcoal/25 rounded cursor-pointer select-none">
+                          <div class="flex gap-0.5">
+                            <span class="h-4 w-3 bg-[#ffffff] block rounded-sm"></span>
+                            <span class="h-4 w-3 bg-[#000000] block rounded-sm"></span>
+                            <span class="h-4 w-3 bg-[#e5e5e5] block rounded-sm"></span>
+                          </div>
+                          <span class="text-xs font-mono">Minimal Light</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Fonts -->
+                    <div class="flex flex-col gap-2">
+                      <span class="font-serif italic text-sm text-brand-charcoal font-semibold">Paquete de Fuentes</span>
+                      <div class="grid grid-cols-3 gap-2">
+                        <!-- Serif -->
+                        <div 
+                          (click)="editAdForm.patchValue({ landingFont: 'serif' })"
+                          [class.ring-2]="editAdForm.get('landingFont')?.value === 'serif'"
+                          [class.ring-brand-sage]="editAdForm.get('landingFont')?.value === 'serif'"
+                          class="p-2 bg-brand-paper border border-brand-charcoal/25 rounded cursor-pointer select-none text-center">
+                          <span class="font-serif font-bold text-xs block">Abc</span>
+                          <span class="text-[9px] font-sans text-brand-charcoal/60">Elegante Serif</span>
+                        </div>
+                        <!-- Sans -->
+                        <div 
+                          (click)="editAdForm.patchValue({ landingFont: 'sans' })"
+                          [class.ring-2]="editAdForm.get('landingFont')?.value === 'sans'"
+                          [class.ring-brand-sage]="editAdForm.get('landingFont')?.value === 'sans'"
+                          class="p-2 bg-brand-paper border border-brand-charcoal/25 rounded cursor-pointer select-none text-center">
+                          <span class="font-sans font-bold text-xs block">Abc</span>
+                          <span class="text-[9px] font-sans text-brand-charcoal/60">Moderno Sans</span>
+                        </div>
+                        <!-- Mono -->
+                        <div 
+                          (click)="editAdForm.patchValue({ landingFont: 'monospace' })"
+                          [class.ring-2]="editAdForm.get('landingFont')?.value === 'monospace'"
+                          [class.ring-brand-sage]="editAdForm.get('landingFont')?.value === 'monospace'"
+                          class="p-2 bg-brand-paper border border-brand-charcoal/25 rounded cursor-pointer select-none text-center">
+                          <span class="font-mono font-bold text-xs block">Abc</span>
+                          <span class="text-[9px] font-sans text-brand-charcoal/60">Técnico Mono</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Custom Main Background / Hero Image Link -->
                   <div class="flex flex-col gap-1">
-                    <label class="font-serif text-sm italic" for="editLandingTemplate">Selecciona tu Plantilla de Diseño</label>
-                    <select 
-                      formControlName="landingTemplate"
-                      class="w-full bg-transparent border-0 border-b border-brand-charcoal py-2 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0 cursor-pointer"
-                      id="editLandingTemplate">
-                      <option value="profesional">Plantilla para Profesionales (Electricistas, Reformas, Técnicos)</option>
-                      <option value="medicos">Plantilla para Médicos & Salud (Consultorios, Terapeutas)</option>
-                      <option value="restaurantes">Plantilla para Restaurantes & Cafés (Locales de comida)</option>
-                      <option value="comercios">Plantilla para Comercios & Almacenes (Tiendas y Ventas)</option>
-                    </select>
+                    <label class="font-serif text-sm italic" for="editLandingHeroImage">Imagen de Portada Principal (Enlace/URL - Opcional)</label>
+                    <input 
+                      formControlName="landingHeroImage"
+                      class="w-full bg-transparent border-0 border-b border-brand-charcoal py-2 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+                      id="editLandingHeroImage"
+                      placeholder="Ej: http://miweb.ch/foto-local.jpg (deja vacío para usar fondo liso)">
+                  </div>
+
+                  <!-- SPECIAL OFFERS SECTION -->
+                  <div class="border border-brand-sage/20 bg-brand-sage/5 p-4 rounded-xl space-y-4">
+                    <h4 class="font-serif italic font-bold text-sm text-brand-charcoal flex items-center gap-1.5">
+                      🎁 Oferta Especial, Menú del Día o Eventos
+                    </h4>
+                    <p class="text-[11px] font-sans text-brand-charcoal/70 mt-1">
+                      Añade una oferta destacada para atraer trabajadores, estudiantes o días especiales (Día de la Madre, San Valentín, Oferta de almuerzo, etc.).
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div class="flex flex-col gap-1">
+                        <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingOfertaTitulo">Título de la Oferta</label>
+                        <input 
+                          formControlName="landingOfertaTitulo"
+                          class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage" 
+                          id="editLandingOfertaTitulo"
+                          placeholder="Ej: Menú de Mediodía Estudiantes / Oferta Día de la Madre">
+                      </div>
+                      <div class="flex flex-col gap-1 sm:col-span-2">
+                        <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingOfertaDesc">Descripción</label>
+                        <input 
+                          formControlName="landingOfertaDesc"
+                          class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage" 
+                          id="editLandingOfertaDesc"
+                          placeholder="Ej: Incluye plato principal + postre + bebida a elección">
+                      </div>
+                      <div class="flex flex-col gap-1">
+                        <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingOfertaPrecio">Precio / Descuento</label>
+                        <input 
+                          formControlName="landingOfertaPrecio"
+                          class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage" 
+                          id="editLandingOfertaPrecio"
+                          placeholder="Ej: 15 CHF / -20% con carnet">
+                      </div>
+                    </div>
                   </div>
 
                   <!-- Conditional Template Fields -->
                   
-                  <!-- profesional Template Fields -->
-                  <div *ngIf="editAdForm.get('landingTemplate')?.value === 'profesional'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <!-- servicios Template Fields -->
+                  <div *ngIf="editAdForm.get('landingTemplate')?.value === 'servicios'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="flex flex-col gap-1">
                       <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingHorario">Horarios de Atención</label>
                       <input 
@@ -364,50 +557,50 @@
                     </div>
                   </div>
 
-                  <!-- medicos Template Fields -->
-                  <div *ngIf="editAdForm.get('landingTemplate')?.value === 'medicos'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <!-- particulares Template Fields -->
+                  <div *ngIf="editAdForm.get('landingTemplate')?.value === 'particulares'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="flex flex-col gap-1">
-                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase">Tipo de Consulta</label>
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase">Tipo de Consulta / Cita</label>
                       <select formControlName="landingConsulta" class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1.5 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0">
-                        <option value="Presencial">Consulta Presencial en Clínica</option>
-                        <option value="Online">Telemedicina / Online</option>
-                        <option value="Domicilio">Visita a Domicilio</option>
+                        <option value="Presencial">Consulta Presencial en Oficina/Estudio</option>
+                        <option value="Online">Sesión Online / Teleconsulta</option>
+                        <option value="Domicilio">Visita a Domicilio del Cliente</option>
                       </select>
                     </div>
                     <div class="flex flex-col gap-1">
-                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase">Acepta Seguro Médico (LaMal)</label>
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase">Acepta Seguro Médico / Mutualidad</label>
                       <select formControlName="landingSeguro" class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1.5 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0">
-                        <option value="Sí">Sí (Reembolsable por seguro básico)</option>
-                        <option value="No">No (Consulta privada)</option>
+                        <option value="Sí">Sí (Reembolsable por cajas de enfermedad/seguros)</option>
+                        <option value="No">No (Consulta privada / tarifa plana)</option>
                       </select>
                     </div>
                     <div class="flex flex-col gap-1 sm:col-span-2">
-                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingEspecialidad">Especialidades Tratadas</label>
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingEspecialidad">Servicios Especializados</label>
                       <textarea 
                         formControlName="landingEspecialidad"
                         class="w-full bg-transparent border border-brand-charcoal/30 p-3 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0 min-h-[80px]" 
                         id="editLandingEspecialidad"
-                        placeholder="Ej: Pediatría, Medicina general, Fisioterapia deportiva, Cuidado dental..."></textarea>
+                        placeholder="Ej: Medicina familiar, derecho inmobiliario, yoga terapéutico para adultos, etc..."></textarea>
                     </div>
                   </div>
 
-                  <!-- restaurantes Template Fields -->
-                  <div *ngIf="editAdForm.get('landingTemplate')?.value === 'restaurantes'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <!-- restauracion Template Fields -->
+                  <div *ngIf="editAdForm.get('landingTemplate')?.value === 'restauracion'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="flex flex-col gap-1">
-                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingMenu">Especialidad de la Casa</label>
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingMenu">Tipo de Cocina o Especialidad</label>
                       <input 
                         formControlName="landingMenu"
                         class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
                         id="editLandingMenu"
-                        placeholder="Ej: Fondue de queso / Cocina Italiana artesanal">
+                        placeholder="Ej: Fondue tradicional ginebrina, pastas italianas caseras">
                     </div>
                     <div class="flex flex-col gap-1">
-                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingServicios">Servicios Disponibles</label>
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingServicios">Detalles del Local</label>
                       <input 
                         formControlName="landingServicios"
                         class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
                         id="editLandingServicios"
-                        placeholder="Ej: Terraza exterior, Reservas, Entrega a domicilio, Wi-Fi gratis">
+                        placeholder="Ej: Terraza climatizada, área infantil, parking gratuito">
                     </div>
                     <div class="flex flex-col gap-1 sm:col-span-2">
                       <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingPresentacion">Presentación de la Cocina y Ambiente</label>
@@ -419,15 +612,15 @@
                     </div>
                   </div>
 
-                  <!-- comercios Template Fields -->
-                  <div *ngIf="editAdForm.get('landingTemplate')?.value === 'comercios'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <!-- venta Template Fields -->
+                  <div *ngIf="editAdForm.get('landingTemplate')?.value === 'venta'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="flex flex-col gap-1">
-                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingProductos">Productos Destacados</label>
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingProductos">Líneas de Productos Destacadas</label>
                       <input 
                         formControlName="landingProductos"
                         class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
                         id="editLandingProductos"
-                        placeholder="Ej: Alimentación biológica, Ropa vintage, Electrónica reacondicionada">
+                        placeholder="Ej: Alimentación local bio, artesanías regionales, ropa ecológica">
                     </div>
                     <div class="flex flex-col gap-1">
                       <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingPago">Métodos de Pago Aceptados</label>
@@ -435,7 +628,7 @@
                         formControlName="landingPago"
                         class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
                         id="editLandingPago"
-                        placeholder="Ej: Efectivo, Tarjetas de crédito, Twint, Apple Pay">
+                        placeholder="Ej: Efectivo, Tarjeta, Twint, Google Pay">
                     </div>
                     <div class="flex flex-col gap-1 sm:col-span-2">
                       <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingSobreNosotros">Sobre Nuestro Comercio / Almacén</label>
@@ -443,7 +636,35 @@
                         formControlName="landingSobreNosotros"
                         class="w-full bg-transparent border border-brand-charcoal/30 p-3 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0 min-h-[80px]" 
                         id="editLandingSobreNosotros"
-                        placeholder="Cuéntales a tus compradores qué hace único a tu almacén o comercio y tu horario de apertura..."></textarea>
+                        placeholder="Cuéntales a tus compradores qué hace único a tu almacén o comercio y tu historia..."></textarea>
+                    </div>
+                  </div>
+
+                  <!-- empleo Template Fields -->
+                  <div *ngIf="editAdForm.get('landingTemplate')?.value === 'empleo'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1">
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingSalary">Rango Salarial Ofrecido</label>
+                      <input 
+                        formControlName="salary"
+                        class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+                        id="editLandingSalary"
+                        placeholder="Ej: 4500 - 5200 CHF / Mes">
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingJobType">Tipo de Jornada</label>
+                      <select formControlName="jobType" class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1.5 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0">
+                        <option value="Full-time">Jornada Completa (100%)</option>
+                        <option value="Part-time">Jornada Parcial (50%-80%)</option>
+                        <option value="Freelance">Por horas / Freelance</option>
+                      </select>
+                    </div>
+                    <div class="flex flex-col gap-1 sm:col-span-2">
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingRequirements">Requisitos del Colaborador</label>
+                      <textarea 
+                        formControlName="requirements"
+                        class="w-full bg-transparent border border-brand-charcoal/30 p-3 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0 min-h-[80px]" 
+                        id="editLandingRequirements"
+                        placeholder="Especifica certificaciones necesarias, experiencia previa, idiomas..."></textarea>
                     </div>
                   </div>
 

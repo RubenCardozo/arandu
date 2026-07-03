@@ -639,7 +639,13 @@ export class SessionComponent implements OnInit, OnDestroy {
           requirements: '',
           salary: '',
           jobType: '',
-          landingTemplate: data.landing_template || 'profesional',
+          landingTemplate: data.landing_template || 'servicios',
+          landingPalette: config.palette || 'crosby',
+          landingFont: config.font || 'serif',
+          landingHeroImage: config.heroImage || '',
+          landingOfertaTitulo: config.ofertaTitulo || '',
+          landingOfertaDesc: config.ofertaDesc || '',
+          landingOfertaPrecio: config.ofertaPrecio || '',
           landingHorario: config.horario || '',
           landingCobertura: config.cobertura || '',
           landingExperiencia: config.experiencia || '',
@@ -751,30 +757,37 @@ export class SessionComponent implements OnInit, OnDestroy {
           : [];
 
         let config: any = {};
-        if (formValues.landingTemplate === 'profesional') {
+        if (formValues.landingTemplate) {
           config = {
-            horario: formValues.landingHorario || '',
-            cobertura: formValues.landingCobertura || '',
-            experiencia: formValues.landingExperiencia || ''
+            palette: formValues.landingPalette || 'crosby',
+            font: formValues.landingFont || 'serif',
+            heroImage: formValues.landingHeroImage || '',
+            ofertaTitulo: formValues.landingOfertaTitulo || '',
+            ofertaDesc: formValues.landingOfertaDesc || '',
+            ofertaPrecio: formValues.landingOfertaPrecio || ''
           };
-        } else if (formValues.landingTemplate === 'medicos') {
-          config = {
-            consulta: formValues.landingConsulta || 'Presencial',
-            seguro: formValues.landingSeguro || 'Sí',
-            especialidad: formValues.landingEspecialidad || ''
-          };
-        } else if (formValues.landingTemplate === 'restaurantes') {
-          config = {
-            menu: formValues.landingMenu || '',
-            servicios: formValues.landingServicios || '',
-            presentacion: formValues.landingPresentacion || ''
-          };
-        } else if (formValues.landingTemplate === 'comercios') {
-          config = {
-            productos: formValues.landingProductos || '',
-            pago: formValues.landingPago || '',
-            sobreNosotros: formValues.landingSobreNosotros || ''
-          };
+
+          if (formValues.landingTemplate === 'servicios') {
+            config.horario = formValues.landingHorario || '';
+            config.cobertura = formValues.landingCobertura || '';
+            config.experiencia = formValues.landingExperiencia || '';
+          } else if (formValues.landingTemplate === 'particulares') {
+            config.consulta = formValues.landingConsulta || 'Presencial';
+            config.seguro = formValues.landingSeguro || 'Sí';
+            config.especialidad = formValues.landingEspecialidad || '';
+          } else if (formValues.landingTemplate === 'restauracion') {
+            config.menu = formValues.landingMenu || '';
+            config.servicios = formValues.landingServicios || '';
+            config.presentacion = formValues.landingPresentacion || '';
+          } else if (formValues.landingTemplate === 'venta') {
+            config.productos = formValues.landingProductos || '';
+            config.pago = formValues.landingPago || '';
+            config.sobreNosotros = formValues.landingSobreNosotros || '';
+          } else if (formValues.landingTemplate === 'empleo') {
+            config.salary = formValues.salary || 'A convenir';
+            config.jobType = formValues.jobType || 'Full-time';
+            config.requirements = formValues.requirements || '';
+          }
         }
 
         payload = {

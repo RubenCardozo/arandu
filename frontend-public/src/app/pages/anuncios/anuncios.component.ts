@@ -754,5 +754,71 @@ export class AnunciosComponent implements OnInit, OnDestroy {
         return 'bg-brand-charcoal/5 text-brand-charcoal/80';
     }
   }
+
+  getLandingStyles(config: any): any {
+    if (!config) return {};
+    const palette = config.palette || 'crosby';
+    let bg = '#1e2321';
+    let text = '#fdfbf7';
+    let accent = '#8ba495';
+    let cardBg = 'rgba(255, 255, 255, 0.07)';
+    let cardBorder = 'rgba(255, 255, 255, 0.15)';
+
+    if (palette === 'emmeline') {
+      bg = '#8b3d2b';
+      text = '#fdfbf7';
+      accent = '#e8a342';
+      cardBg = 'rgba(255, 255, 255, 0.08)';
+      cardBorder = 'rgba(255, 255, 255, 0.15)';
+    } else if (palette === 'sage') {
+      bg = '#fdfbf7';
+      text = '#2d3a34';
+      accent = '#8ba495';
+      cardBg = 'rgba(45, 58, 52, 0.05)';
+      cardBorder = 'rgba(45, 58, 52, 0.12)';
+    } else if (palette === 'minimal') {
+      bg = '#ffffff';
+      text = '#000000';
+      accent = '#333333';
+      cardBg = 'rgba(0, 0, 0, 0.03)';
+      cardBorder = 'rgba(0, 0, 0, 0.1)';
+    }
+
+    const font = config.font || 'serif';
+    let fontFamily = 'Georgia, serif';
+    if (font === 'sans') {
+      fontFamily = 'var(--font-sans, "Outfit", sans-serif)';
+    } else if (font === 'monospace') {
+      fontFamily = 'monospace';
+    }
+
+    const styles: any = {
+      '--landing-bg': bg,
+      '--landing-text': text,
+      '--landing-accent': accent,
+      '--landing-card-bg': cardBg,
+      '--landing-card-border': cardBorder,
+      'font-family': fontFamily,
+      'background-color': 'var(--landing-bg)',
+      'color': 'var(--landing-text)',
+      'padding': '1.75rem',
+      'border-radius': '0.75rem',
+      'border': '1px solid var(--landing-card-border)',
+      'margin-bottom': '1.5rem',
+      'transition': 'all 0.3s ease'
+    };
+
+    if (config.heroImage) {
+      styles['background-image'] = `linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url(${config.heroImage})`;
+      styles['background-size'] = 'cover';
+      styles['background-position'] = 'center';
+      styles['color'] = '#fdfbf7';
+      styles['--landing-text'] = '#fdfbf7';
+      styles['--landing-card-bg'] = 'rgba(255, 255, 255, 0.1)';
+      styles['--landing-card-border'] = 'rgba(255, 255, 255, 0.2)';
+    }
+
+    return styles;
+  }
 }
 
