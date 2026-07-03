@@ -24,6 +24,8 @@ export class AnunciosNuevoComponent implements OnInit, OnDestroy {
   submitting = false;
   isProfileIncomplete = false;
   
+  isComercialModalOpen = false;
+  
   adForm!: FormGroup;
   selectedFile: File | null = null;
   imagePreviewUrl: string | null = null;
@@ -74,19 +76,19 @@ export class AnunciosNuevoComponent implements OnInit, OnDestroy {
       landingTemplate: ['servicios'],
       landingPalette: ['crosby'],
       landingFont: ['serif'],
-      landingHeroImage: [''],
+      landingHeroImage: ['https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&auto=format&fit=crop&q=80'],
       // Special Offers
-      landingOfertaTitulo: [''],
-      landingOfertaDesc: [''],
-      landingOfertaPrecio: [''],
+      landingOfertaTitulo: ['Balayage + Hidratación Orgánica'],
+      landingOfertaDesc: ['Tratamiento de nutrición profunda con productos bio-botánicos, corte y peinado.'],
+      landingOfertaPrecio: ['120 CHF'],
       // Specific template fields
-      landingHorario: [''],
-      landingCobertura: [''],
-      landingExperiencia: [''],
+      landingHorario: ['Martes a Sábado 09:00 - 19:00 (Cita previa)'],
+      landingCobertura: ['Ginebra Centro (Rive Gauche)'],
+      landingExperiencia: ['Estilistas formados en colorimetría de autor. Especialistas en cortes modernos, peinados premium y cuidado capilar sin tóxicos.'],
       // Médicos/Particulares
       landingConsulta: ['Presencial'],
-      landingSeguro: ['Sí'],
-      landingEspecialidad: [''],
+      landingSeguro: ['No'],
+      landingEspecialidad: ['Peluquería orgánica, manicura vegana, peinados de novia.'],
       // Restauración
       landingMenu: [''],
       landingServicios: [''],
@@ -152,7 +154,7 @@ export class AnunciosNuevoComponent implements OnInit, OnDestroy {
     this.keywordsModalVisible = false;
   }
 
-  private updateValidators(type: 'service' | 'job') {
+  private updateValidators(type: 'service' | 'job' | 'landing') {
     const companyControl = this.adForm.get('company');
     if (type === 'job') {
       companyControl?.setValidators([Validators.required]);
@@ -500,5 +502,90 @@ export class AnunciosNuevoComponent implements OnInit, OnDestroy {
       default:
         return 'bg-brand-charcoal/5 text-brand-charcoal/80';
     }
+  }
+
+  openComercialModal() {
+    this.isComercialModalOpen = true;
+  }
+
+  closeComercialModal() {
+    this.isComercialModalOpen = false;
+  }
+
+  getPreviewConfig(): any {
+    return {
+      palette: this.adForm.get('landingPalette')?.value || 'crosby',
+      font: this.adForm.get('landingFont')?.value || 'serif',
+      heroImage: this.adForm.get('landingHeroImage')?.value || '',
+      ofertaTitulo: this.adForm.get('landingOfertaTitulo')?.value || '',
+      ofertaDesc: this.adForm.get('landingOfertaDesc')?.value || '',
+      ofertaPrecio: this.adForm.get('landingOfertaPrecio')?.value || ''
+    };
+  }
+
+  getLandingStyles(config: any): any {
+    if (!config) return {};
+    const palette = config.palette || 'crosby';
+    let bg = '#1e2321';
+    let text = '#fdfbf7';
+    let accent = '#8ba495';
+    let cardBg = 'rgba(255, 255, 255, 0.07)';
+    let cardBorder = 'rgba(255, 255, 255, 0.15)';
+
+    if (palette === 'emmeline') {
+      bg = '#8b3d2b';
+      text = '#fdfbf7';
+      accent = '#e8a342';
+      cardBg = 'rgba(255, 255, 255, 0.08)';
+      cardBorder = 'rgba(255, 255, 255, 0.15)';
+    } else if (palette === 'sage') {
+      bg = '#fdfbf7';
+      text = '#2d3a34';
+      accent = '#8ba495';
+      cardBg = 'rgba(45, 58, 52, 0.05)';
+      cardBorder = 'rgba(45, 58, 52, 0.12)';
+    } else if (palette === 'minimal') {
+      bg = '#ffffff';
+      text = '#000000';
+      accent = '#333333';
+      cardBg = 'rgba(0, 0, 0, 0.03)';
+      cardBorder = 'rgba(0, 0, 0, 0.1)';
+    }
+
+    const font = config.font || 'serif';
+    let fontFamily = 'Georgia, serif';
+    if (font === 'sans') {
+      fontFamily = 'var(--font-sans, "Outfit", sans-serif)';
+    } else if (font === 'monospace') {
+      fontFamily = 'monospace';
+    }
+
+    const styles: any = {
+      '--landing-bg': bg,
+      '--landing-text': text,
+      '--landing-accent': accent,
+      '--landing-card-bg': cardBg,
+      '--landing-card-border': cardBorder,
+      'font-family': fontFamily,
+      'background-color': 'var(--landing-bg)',
+      'color': 'var(--landing-text)',
+      'padding': '1.75rem',
+      'border-radius': '0.75rem',
+      'border': '1px solid var(--landing-card-border)',
+      'margin-bottom': '1.5rem',
+      'transition': 'all 0.3s ease'
+    };
+
+    if (config.heroImage) {
+      styles['background-image'] = `linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url(${config.heroImage})`;
+      styles['background-size'] = 'cover';
+      styles['background-position'] = 'center';
+      styles['color'] = '#fdfbf7';
+      styles['--landing-text'] = '#fdfbf7';
+      styles['--landing-card-bg'] = 'rgba(255, 255, 255, 0.1)';
+      styles['--landing-card-border'] = 'rgba(255, 255, 255, 0.2)';
+    }
+
+    return styles;
   }
 }
