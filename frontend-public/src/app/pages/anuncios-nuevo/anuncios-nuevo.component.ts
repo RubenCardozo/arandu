@@ -52,7 +52,7 @@ export class AnunciosNuevoComponent implements OnInit, OnDestroy {
       type: ['service', [Validators.required]],
       title: ['', [Validators.required, Validators.minLength(3)]],
       description: ['', [Validators.required, Validators.minLength(10)]],
-      category: ['Electricidad'],
+      category: ['Servicios y Reparación'],
       keywords: ['', [Validators.required, (control: any) => {
         if (!control.value) return { minKeywords: true };
         const parts = control.value.split(',')
@@ -68,7 +68,22 @@ export class AnunciosNuevoComponent implements OnInit, OnDestroy {
       company: [''],
       requirements: [''],
       salary: ['A convenir'],
-      jobType: ['Full-time']
+      jobType: ['Full-time'],
+      // Landing page fields
+      landingTemplate: ['profesional'],
+      landingHorario: [''],
+      landingCobertura: [''],
+      landingExperiencia: [''],
+      landingTarifa: [''],
+      landingNiveles: [''],
+      landingMetodologia: [''],
+      landingHabilidades: [''],
+      landingDisponibilidad: [''],
+      landingBiografia: [''],
+      landingEstado: [''],
+      landingEntrega: [''],
+      landingDetalles: [''],
+      galleryUrlsRaw: ['']
     });
 
     // Listen to category type switch
@@ -262,6 +277,37 @@ export class AnunciosNuevoComponent implements OnInit, OnDestroy {
 
     try {
       if (formValues.type === 'service') {
+        const galleryUrls = formValues.galleryUrlsRaw
+          ? formValues.galleryUrlsRaw.split(',').map((url: string) => url.trim()).filter((url: string) => url.length > 0)
+          : [];
+
+        let config: any = {};
+        if (formValues.landingTemplate === 'profesional') {
+          config = {
+            horario: formValues.landingHorario || '',
+            cobertura: formValues.landingCobertura || '',
+            experiencia: formValues.landingExperiencia || ''
+          };
+        } else if (formValues.landingTemplate === 'cursos') {
+          config = {
+            tarifa: formValues.landingTarifa || '',
+            niveles: formValues.landingNiveles || '',
+            metodologia: formValues.landingMetodologia || ''
+          };
+        } else if (formValues.landingTemplate === 'empleo') {
+          config = {
+            habilidades: formValues.landingHabilidades || '',
+            disponibilidad: formValues.landingDisponibilidad || '',
+            biografia: formValues.landingBiografia || ''
+          };
+        } else if (formValues.landingTemplate === 'venta') {
+          config = {
+            estado: formValues.landingEstado || '',
+            entrega: formValues.landingEntrega || '',
+            detalles: formValues.landingDetalles || ''
+          };
+        }
+
         const servicePayload = {
           title: formValues.title,
           category: formValues.category,
@@ -270,7 +316,10 @@ export class AnunciosNuevoComponent implements OnInit, OnDestroy {
           phone: formValues.phone,
           email: formValues.email,
           website: formValues.website,
-          ownerId: this.user.id
+          ownerId: this.user.id,
+          galleryUrls: galleryUrls,
+          landingTemplate: formValues.landingTemplate,
+          landingConfig: config
         };
 
         await this.servicesService.create(servicePayload, this.selectedFile || undefined);

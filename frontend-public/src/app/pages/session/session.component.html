@@ -313,6 +313,152 @@
                   </div>
                 </div>
 
+                <!-- EXPRESS LANDING PAGES CONFIGURATOR (Services Only) -->
+                <div *ngIf="editType === 'service'" class="border-t border-brand-charcoal/15 pt-6 mt-6 space-y-6">
+                  <h3 class="font-serif italic font-bold text-lg text-brand-charcoal">Mi Landing Page Premium</h3>
+                  <p class="font-sans text-xs text-brand-charcoal/70 leading-relaxed">
+                    Personaliza tu página de presentación exclusiva en Arandu. Rellena los datos de tu plantilla favorita de forma guiada para que destaque ante tus clientes.
+                  </p>
+
+                  <!-- Template Style Selection -->
+                  <div class="flex flex-col gap-1">
+                    <label class="font-serif text-sm italic" for="editLandingTemplate">Selecciona tu Plantilla</label>
+                    <select 
+                      formControlName="landingTemplate"
+                      class="w-full bg-transparent border-0 border-b border-brand-charcoal py-2 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0 cursor-pointer"
+                      id="editLandingTemplate">
+                      <option value="profesional">Plantilla Profesional (Obreros, Reformas, Especialistas)</option>
+                      <option value="cursos">Plantilla de Clases & Cursos (Profesores, Academias)</option>
+                      <option value="empleo">Plantilla de Portafolio / Candidatura (Empleo, Hostelería)</option>
+                      <option value="venta">Plantilla de Producto (Ventas, Donaciones, Traspasos)</option>
+                    </select>
+                  </div>
+
+                  <!-- Conditional Template Fields -->
+                  
+                  <!-- profesional Template Fields -->
+                  <div *ngIf="editAdForm.get('landingTemplate')?.value === 'profesional'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1">
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingHorario">Horarios de Atención</label>
+                      <input 
+                        formControlName="landingHorario"
+                        class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+                        id="editLandingHorario"
+                        placeholder="Ej: Lunes a Viernes 08:00 - 18:00 (Urgencias 24h)">
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingCobertura">Zona de Cobertura</label>
+                      <input 
+                        formControlName="landingCobertura"
+                        class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+                        id="editLandingCobertura"
+                        placeholder="Ej: Todo el Cantón de Ginebra y Vaud">
+                    </div>
+                    <div class="flex flex-col gap-1 sm:col-span-2">
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingExperiencia">Experiencia y Especialidad</label>
+                      <textarea 
+                        formControlName="landingExperiencia"
+                        class="w-full bg-transparent border border-brand-charcoal/30 p-3 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0 min-h-[80px]" 
+                        id="editLandingExperiencia"
+                        placeholder="Cuéntale a tus clientes tu trayectoria, certificaciones y trabajos principales..."></textarea>
+                    </div>
+                  </div>
+
+                  <!-- cursos Template Fields -->
+                  <div *ngIf="editAdForm.get('landingTemplate')?.value === 'cursos'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1">
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingTarifa">Tarifas / Precios</label>
+                      <input 
+                        formControlName="landingTarifa"
+                        class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+                        id="editLandingTarifa"
+                        placeholder="Ej: 35 CHF/hora (Descuentos por packs)">
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingNiveles">Niveles / Edades</label>
+                      <input 
+                        formControlName="landingNiveles"
+                        class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+                        id="editLandingNiveles"
+                        placeholder="Ej: Desde principiantes hasta C1, niños y adultos">
+                    </div>
+                    <div class="flex flex-col gap-1 sm:col-span-2">
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingMetodologia">Metodología de Enseñanza</label>
+                      <textarea 
+                        formControlName="landingMetodologia"
+                        class="w-full bg-transparent border border-brand-charcoal/30 p-3 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0 min-h-[80px]" 
+                        id="editLandingMetodologia"
+                        placeholder="Describe tu método pedagógico, materiales didácticos y si son clases online o presenciales..."></textarea>
+                    </div>
+                  </div>
+
+                  <!-- empleo Template Fields -->
+                  <div *ngIf="editAdForm.get('landingTemplate')?.value === 'empleo'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1">
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingHabilidades">Habilidades Clave</label>
+                      <input 
+                        formControlName="landingHabilidades"
+                        class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+                        id="editLandingHabilidades"
+                        placeholder="Ej: Cocina francesa, Limpieza industrial, Atención al cliente">
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingDisponibilidad">Disponibilidad</label>
+                      <input 
+                        formControlName="landingDisponibilidad"
+                        class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+                        id="editLandingDisponibilidad"
+                        placeholder="Ej: Inmediata, tardes o fines de semana">
+                    </div>
+                    <div class="flex flex-col gap-1 sm:col-span-2">
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingBiografia">Presentación Profesional</label>
+                      <textarea 
+                        formControlName="landingBiografia"
+                        class="w-full bg-transparent border border-brand-charcoal/30 p-3 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0 min-h-[80px]" 
+                        id="editLandingBiografia"
+                        placeholder="Escribe una breve biografía sobre ti, tus metas y lo que puedes aportar a la empresa..."></textarea>
+                    </div>
+                  </div>
+
+                  <!-- venta Template Fields -->
+                  <div *ngIf="editAdForm.get('landingTemplate')?.value === 'venta'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1">
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingEstado">Estado del Producto</label>
+                      <input 
+                        formControlName="landingEstado"
+                        class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+                        id="editLandingEstado"
+                        placeholder="Ej: Nuevo en caja, Excelente estado, Usado con pocos detalles">
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingEntrega">Método de Entrega</label>
+                      <input 
+                        formControlName="landingEntrega"
+                        class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+                        id="editLandingEntrega"
+                        placeholder="Ej: Retiro en mano en Plainpalais o Envío postal">
+                    </div>
+                    <div class="flex flex-col gap-1 sm:col-span-2">
+                      <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="editLandingDetalles">Detalles Adicionales del Producto</label>
+                      <textarea 
+                        formControlName="editLandingDetalles"
+                        class="w-full bg-transparent border border-brand-charcoal/30 p-3 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0 min-h-[80px]" 
+                        id="editLandingDetalles"
+                        placeholder="Especifica dimensiones, marca, color o cualquier detalle relevante..."></textarea>
+                    </div>
+                  </div>
+
+                  <!-- Gallery Images URLs (up to 3) -->
+                  <div class="flex flex-col gap-1">
+                    <label class="font-serif text-sm italic" for="editGalleryUrlsRaw">Enlaces de Imágenes para Galería (Separados por comas - Máximo 3)</label>
+                    <input 
+                      formControlName="galleryUrlsRaw"
+                      class="w-full bg-transparent border-0 border-b border-brand-charcoal py-2 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+                      id="editGalleryUrlsRaw"
+                      placeholder="http://imagen1.jpg, http://imagen2.jpg">
+                  </div>
+                </div>
+
                 <!-- Action Buttons -->
                 <div class="flex items-center gap-4 pt-4">
                   <button type="submit" class="px-6 py-3 bg-brand-sage text-brand-paper font-mono text-[10px] font-bold uppercase tracking-widest hover:bg-brand-charcoal transition-colors cursor-pointer">

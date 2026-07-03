@@ -69,7 +69,7 @@ export class SessionComponent implements OnInit, OnDestroy {
     this.editAdForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(3)]],
       description: ['', [Validators.required, Validators.minLength(10)]],
-      category: ['Electricidad'],
+      category: ['Servicios y Reparación'],
       keywords: ['', [Validators.required, (control: any) => {
         if (!control.value) return { minKeywords: true };
         const parts = control.value.split(',')
@@ -85,7 +85,22 @@ export class SessionComponent implements OnInit, OnDestroy {
       company: [''],
       requirements: [''],
       salary: [''],
-      jobType: ['']
+      jobType: [''],
+      // Landing page fields
+      landingTemplate: ['profesional'],
+      landingHorario: [''],
+      landingCobertura: [''],
+      landingExperiencia: [''],
+      landingTarifa: [''],
+      landingNiveles: [''],
+      landingMetodologia: [''],
+      landingHabilidades: [''],
+      landingDisponibilidad: [''],
+      landingBiografia: [''],
+      landingEstado: [''],
+      landingEntrega: [''],
+      landingDetalles: [''],
+      galleryUrlsRaw: ['']
     });
 
     this.authSubscription = this.authService.currentUser$.subscribe(currentUser => {
@@ -606,6 +621,7 @@ export class SessionComponent implements OnInit, OnDestroy {
       if (type === 'service') {
         this.editImagePreviewUrl = data.image_url || '';
         this.editSelectedFile = null;
+        const config = data.landing_config || {};
         this.editAdForm.patchValue({
           title: data.title,
           category: data.category,
@@ -618,7 +634,21 @@ export class SessionComponent implements OnInit, OnDestroy {
           company: '',
           requirements: '',
           salary: '',
-          jobType: ''
+          jobType: '',
+          landingTemplate: data.landing_template || 'profesional',
+          landingHorario: config.horario || '',
+          landingCobertura: config.cobertura || '',
+          landingExperiencia: config.experiencia || '',
+          landingTarifa: config.tarifa || '',
+          landingNiveles: config.niveles || '',
+          landingMetodologia: config.metodologia || '',
+          landingHabilidades: config.habilidades || '',
+          landingDisponibilidad: config.disponibilidad || '',
+          landingBiografia: config.biografia || '',
+          landingEstado: config.estado || '',
+          landingEntrega: config.entrega || '',
+          landingDetalles: config.detalles || '',
+          galleryUrlsRaw: (data.gallery_urls || []).join(', ')
         });
       } else {
         this.editImagePreviewUrl = null;
@@ -712,6 +742,37 @@ export class SessionComponent implements OnInit, OnDestroy {
           imageUrl = '';
         }
 
+        const galleryUrls = formValues.galleryUrlsRaw
+          ? formValues.galleryUrlsRaw.split(',').map((url: string) => url.trim()).filter((url: string) => url.length > 0)
+          : [];
+
+        let config: any = {};
+        if (formValues.landingTemplate === 'profesional') {
+          config = {
+            horario: formValues.landingHorario || '',
+            cobertura: formValues.landingCobertura || '',
+            experiencia: formValues.landingExperiencia || ''
+          };
+        } else if (formValues.landingTemplate === 'cursos') {
+          config = {
+            tarifa: formValues.landingTarifa || '',
+            niveles: formValues.landingNiveles || '',
+            metodologia: formValues.landingMetodologia || ''
+          };
+        } else if (formValues.landingTemplate === 'empleo') {
+          config = {
+            habilidades: formValues.landingHabilidades || '',
+            disponibilidad: formValues.landingDisponibilidad || '',
+            biografia: formValues.landingBiografia || ''
+          };
+        } else if (formValues.landingTemplate === 'venta') {
+          config = {
+            estado: formValues.landingEstado || '',
+            entrega: formValues.landingEntrega || '',
+            detalles: formValues.landingDetalles || ''
+          };
+        }
+
         payload = {
           title: formValues.title,
           category: formValues.category,
@@ -721,7 +782,10 @@ export class SessionComponent implements OnInit, OnDestroy {
           email: formValues.email,
           website: formValues.website,
           image_url: imageUrl,
-          created_at: updatedDate
+          created_at: updatedDate,
+          gallery_urls: galleryUrls,
+          landing_template: formValues.landingTemplate,
+          landing_config: config
         };
       } else {
         payload = {

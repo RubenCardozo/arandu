@@ -262,6 +262,152 @@
       </div>
     </div>
 
+    <!-- EXPRESS LANDING PAGES CONFIGURATOR (Services Only) -->
+    <div *ngIf="type === 'service'" class="border-t border-brand-charcoal/15 pt-6 mt-6 space-y-6">
+      <h3 class="font-serif italic font-bold text-lg text-brand-charcoal">Mi Landing Page Premium</h3>
+      <p class="font-sans text-xs text-brand-charcoal/70 leading-relaxed">
+        Personaliza tu página de presentación exclusiva en Arandu. Rellena los datos de tu plantilla favorita de forma guiada para que destaque ante tus clientes.
+      </p>
+
+      <!-- Template Style Selection -->
+      <div class="flex flex-col gap-1">
+        <label class="font-serif text-sm italic" for="landingTemplate">Selecciona tu Plantilla</label>
+        <select 
+          formControlName="landingTemplate"
+          class="w-full bg-transparent border-0 border-b border-brand-charcoal py-2 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0 cursor-pointer"
+          id="landingTemplate">
+          <option value="profesional">Plantilla Profesional (Obreros, Reformas, Especialistas)</option>
+          <option value="cursos">Plantilla de Clases & Cursos (Profesores, Academias)</option>
+          <option value="empleo">Plantilla de Portafolio / Candidatura (Empleo, Hostelería)</option>
+          <option value="venta">Plantilla de Producto (Ventas, Donaciones, Traspasos)</option>
+        </select>
+      </div>
+
+      <!-- Conditional Template Fields -->
+      
+      <!-- profesional Template Fields -->
+      <div *ngIf="adForm.get('landingTemplate')?.value === 'profesional'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="flex flex-col gap-1">
+          <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="landingHorario">Horarios de Atención</label>
+          <input 
+            formControlName="landingHorario"
+            class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+            id="landingHorario"
+            placeholder="Ej: Lunes a Viernes 08:00 - 18:00 (Urgencias 24h)">
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="landingCobertura">Zona de Cobertura</label>
+          <input 
+            formControlName="landingCobertura"
+            class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+            id="landingCobertura"
+            placeholder="Ej: Todo el Cantón de Ginebra y Vaud">
+        </div>
+        <div class="flex flex-col gap-1 sm:col-span-2">
+          <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="landingExperiencia">Experiencia y Especialidad</label>
+          <textarea 
+            formControlName="landingExperiencia"
+            class="w-full bg-transparent border border-brand-charcoal/30 p-3 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0 min-h-[80px]" 
+            id="landingExperiencia"
+            placeholder="Cuéntale a tus clientes tu trayectoria, certificaciones y trabajos principales..."></textarea>
+        </div>
+      </div>
+
+      <!-- cursos Template Fields -->
+      <div *ngIf="adForm.get('landingTemplate')?.value === 'cursos'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="flex flex-col gap-1">
+          <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="landingTarifa">Tarifas / Precios</label>
+          <input 
+            formControlName="landingTarifa"
+            class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+            id="landingTarifa"
+            placeholder="Ej: 35 CHF/hora (Descuentos por packs)">
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="landingNiveles">Niveles / Edades</label>
+          <input 
+            formControlName="landingNiveles"
+            class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+            id="landingNiveles"
+            placeholder="Ej: Desde principiantes hasta C1, niños y adultos">
+        </div>
+        <div class="flex flex-col gap-1 sm:col-span-2">
+          <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="landingMetodologia">Metodología de Enseñanza</label>
+          <textarea 
+            formControlName="landingMetodologia"
+            class="w-full bg-transparent border border-brand-charcoal/30 p-3 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0 min-h-[80px]" 
+            id="landingMetodologia"
+            placeholder="Describe tu método pedagógico, materiales didácticos y si son clases online o presenciales..."></textarea>
+        </div>
+      </div>
+
+      <!-- empleo Template Fields -->
+      <div *ngIf="adForm.get('landingTemplate')?.value === 'empleo'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="flex flex-col gap-1">
+          <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="landingHabilidades">Habilidades Clave</label>
+          <input 
+            formControlName="landingHabilidades"
+            class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+            id="landingHabilidades"
+            placeholder="Ej: Cocina francesa, Limpieza industrial, Atención al cliente">
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="landingDisponibilidad">Disponibilidad</label>
+          <input 
+            formControlName="landingDisponibilidad"
+            class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+            id="landingDisponibilidad"
+            placeholder="Ej: Inmediata, tardes o fines de semana">
+        </div>
+        <div class="flex flex-col gap-1 sm:col-span-2">
+          <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="landingBiografia">Presentación Profesional</label>
+          <textarea 
+            formControlName="landingBiografia"
+            class="w-full bg-transparent border border-brand-charcoal/30 p-3 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0 min-h-[80px]" 
+            id="landingBiografia"
+            placeholder="Escribe una breve biografía sobre ti, tus metas y lo que puedes aportar a la empresa..."></textarea>
+        </div>
+      </div>
+
+      <!-- venta Template Fields -->
+      <div *ngIf="adForm.get('landingTemplate')?.value === 'venta'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="flex flex-col gap-1">
+          <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="landingEstado">Estado del Producto</label>
+          <input 
+            formControlName="landingEstado"
+            class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+            id="landingEstado"
+            placeholder="Ej: Nuevo en caja, Excelente estado, Usado con pocos detalles">
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="landingEntrega">Método de Entrega</label>
+          <input 
+            formControlName="landingEntrega"
+            class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+            id="landingEntrega"
+            placeholder="Ej: Retiro en mano en Plainpalais o Envío postal">
+        </div>
+        <div class="flex flex-col gap-1 sm:col-span-2">
+          <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase" for="landingDetalles">Detalles Adicionales del Producto</label>
+          <textarea 
+            formControlName="landingDetalles"
+            class="w-full bg-transparent border border-brand-charcoal/30 p-3 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0 min-h-[80px]" 
+            id="landingDetalles"
+            placeholder="Especifica dimensiones, marca, color o cualquier detalle relevante..."></textarea>
+        </div>
+      </div>
+
+      <!-- Gallery Images URLs (up to 3) -->
+      <div class="flex flex-col gap-1">
+        <label class="font-serif text-sm italic" for="galleryUrlsRaw">Enlaces de Imágenes para Galería (Separados por comas - Máximo 3)</label>
+        <input 
+          formControlName="galleryUrlsRaw"
+          class="w-full bg-transparent border-0 border-b border-brand-charcoal py-2 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0" 
+          id="galleryUrlsRaw"
+          placeholder="http://imagen1.jpg, http://imagen2.jpg">
+      </div>
+    </div>
+
     <!-- Submit & Preview Buttons -->
     <div class="pt-6 border-t border-brand-charcoal/10 flex flex-wrap items-center gap-4">
       <button 

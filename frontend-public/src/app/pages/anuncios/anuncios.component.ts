@@ -37,6 +37,9 @@ interface Anuncio {
   messageSubject?: string;
   messageText?: string;
   commentSentiment?: 'favor' | 'contra';
+  galleryUrls?: string[];
+  landingTemplate?: string;
+  landingConfig?: any;
 }
 
 @Component({
@@ -271,7 +274,10 @@ export class AnunciosComponent implements OnInit, OnDestroy {
             createdAt: item.createdAt,
             imageUrl: item.imageUrl || this.getDefaultAdImage(category),
             entityType: 'service',
-            clicks: item.clicks || 0
+            clicks: item.clicks || 0,
+            galleryUrls: item.gallery_urls || [],
+            landingTemplate: item.landing_template || 'profesional',
+            landingConfig: item.landing_config || {}
           });
         });
       }

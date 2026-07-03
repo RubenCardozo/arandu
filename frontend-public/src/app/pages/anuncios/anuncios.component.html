@@ -249,6 +249,95 @@
         </div>
       </div>
 
+      <!-- EXPRESS LANDING PAGES TEMPLATES (Optional for Services and Jobs with landingTemplate) -->
+      <div *ngIf="selectedAd.landingTemplate && selectedAd.landingConfig" class="mb-8 border-t border-brand-charcoal/10 pt-6">
+        
+        <!-- Gallery slider (Optional) -->
+        <div *ngIf="selectedAd.galleryUrls && selectedAd.galleryUrls.length > 0" class="mb-6">
+          <h4 class="font-mono text-[10px] uppercase font-bold text-brand-charcoal/50 tracking-wider mb-3">Galería de Fotos</h4>
+          <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
+            <div *ngFor="let imgUrl of selectedAd.galleryUrls" class="h-28 w-40 flex-shrink-0 border border-brand-charcoal overflow-hidden rounded-lg bg-brand-charcoal/5">
+              <img [src]="imgUrl" class="w-full h-full object-cover">
+            </div>
+          </div>
+        </div>
+
+        <!-- Custom configurations depending on template style -->
+        
+        <!-- Template Style: profesional -->
+        <div *ngIf="selectedAd.landingTemplate === 'profesional'" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="p-4 bg-brand-charcoal/5 border border-brand-charcoal/10 rounded-lg">
+              <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Horarios de Atención</span>
+              <span class="text-xs font-sans text-brand-charcoal/80 font-semibold">{{ selectedAd.landingConfig.horario || 'Lunes a Viernes 08:00 - 18:00' }}</span>
+            </div>
+            <div class="p-4 bg-brand-charcoal/5 border border-brand-charcoal/10 rounded-lg">
+              <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Zona de Cobertura / Ubicación</span>
+              <span class="text-xs font-sans text-brand-charcoal/80 font-semibold">{{ selectedAd.landingConfig.cobertura || 'Canton Ginebra y alrededores' }}</span>
+            </div>
+          </div>
+          <div *ngIf="selectedAd.landingConfig.experiencia" class="p-4 bg-brand-charcoal/5 border border-brand-charcoal/10 rounded-lg">
+            <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Experiencia y Especialidad</span>
+            <p class="text-xs font-sans text-brand-charcoal/80 mt-1 whitespace-pre-line leading-relaxed">{{ selectedAd.landingConfig.experiencia }}</p>
+          </div>
+        </div>
+
+        <!-- Template Style: cursos -->
+        <div *ngIf="selectedAd.landingTemplate === 'cursos'" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="p-4 bg-brand-charcoal/5 border border-brand-charcoal/10 rounded-lg">
+              <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Tarifas / Precios</span>
+              <span class="text-xs font-sans text-brand-charcoal/80 font-semibold">{{ selectedAd.landingConfig.tarifa || 'Consultar tarifas' }}</span>
+            </div>
+            <div class="p-4 bg-brand-charcoal/5 border border-brand-charcoal/10 rounded-lg">
+              <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Niveles / Edades</span>
+              <span class="text-xs font-sans text-brand-charcoal/80 font-semibold">{{ selectedAd.landingConfig.niveles || 'Todos los niveles' }}</span>
+            </div>
+          </div>
+          <div *ngIf="selectedAd.landingConfig.metodologia" class="p-4 bg-brand-charcoal/5 border border-brand-charcoal/10 rounded-lg">
+            <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Metodología de Enseñanza</span>
+            <p class="text-xs font-sans text-brand-charcoal/80 mt-1 whitespace-pre-line leading-relaxed">{{ selectedAd.landingConfig.metodologia }}</p>
+          </div>
+        </div>
+
+        <!-- Template Style: empleo -->
+        <div *ngIf="selectedAd.landingTemplate === 'empleo'" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="p-4 bg-brand-charcoal/5 border border-brand-charcoal/10 rounded-lg">
+              <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Habilidades Clave</span>
+              <span class="text-xs font-sans text-brand-charcoal/80 font-semibold">{{ selectedAd.landingConfig.habilidades || 'Habilidades profesionales' }}</span>
+            </div>
+            <div class="p-4 bg-brand-charcoal/5 border border-brand-charcoal/10 rounded-lg">
+              <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Disponibilidad</span>
+              <span class="text-xs font-sans text-brand-charcoal/80 font-semibold">{{ selectedAd.landingConfig.disponibilidad || 'Inmediata' }}</span>
+            </div>
+          </div>
+          <div *ngIf="selectedAd.landingConfig.biografia" class="p-4 bg-brand-charcoal/5 border border-brand-charcoal/10 rounded-lg">
+            <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Biografía / Presentación</span>
+            <p class="text-xs font-sans text-brand-charcoal/80 mt-1 whitespace-pre-line leading-relaxed">{{ selectedAd.landingConfig.biografia }}</p>
+          </div>
+        </div>
+
+        <!-- Template Style: venta -->
+        <div *ngIf="selectedAd.landingTemplate === 'venta'" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="p-4 bg-brand-charcoal/5 border border-brand-charcoal/10 rounded-lg">
+              <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Estado del Producto</span>
+              <span class="text-xs font-sans text-brand-charcoal/80 font-semibold">{{ selectedAd.landingConfig.estado || 'Como nuevo' }}</span>
+            </div>
+            <div class="p-4 bg-brand-charcoal/5 border border-brand-charcoal/10 rounded-lg">
+              <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Método de Entrega</span>
+              <span class="text-xs font-sans text-brand-charcoal/80 font-semibold">{{ selectedAd.landingConfig.entrega || 'A recoger en Ginebra' }}</span>
+            </div>
+          </div>
+          <div *ngIf="selectedAd.landingConfig.detalles" class="p-4 bg-brand-charcoal/5 border border-brand-charcoal/10 rounded-lg">
+            <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase block font-bold">Detalles Adicionales</span>
+            <p class="text-xs font-sans text-brand-charcoal/80 mt-1 whitespace-pre-line leading-relaxed">{{ selectedAd.landingConfig.detalles }}</p>
+          </div>
+        </div>
+
+      </div>
+
       <!-- Contact Details -->
       <div class="mb-8 p-5 border border-brand-charcoal bg-brand-paper relative">
         <div class="absolute top-0 left-0 w-1 h-full bg-brand-red"></div>

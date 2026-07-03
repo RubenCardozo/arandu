@@ -15,6 +15,9 @@ export interface ServiceItemRow {
   clicks?: number;
   owner_id?: string;
   created_at?: string;
+  gallery_urls?: string[];
+  landing_template?: string;
+  landing_config?: any;
 }
 
 /**
@@ -34,4 +37,7 @@ export interface ServiceItemViewModel {
   clicks: number;
   ownerId: string;
   createdAt: string;
+  galleryUrls?: string[];
+  landingTemplate?: string;
+  landingConfig?: any;
 }

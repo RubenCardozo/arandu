@@ -33,7 +33,10 @@ export class ServicesCatalogService {
         email: service.email,
         website: service.website,
         image_url: imageUrl,
-        owner_id: service.ownerId
+        owner_id: service.ownerId,
+        gallery_urls: service.galleryUrls || [],
+        landing_template: service.landingTemplate || 'profesional',
+        landing_config: service.landingConfig || {}
       }]);
 
     if (error) throw error;
@@ -122,7 +125,10 @@ export class ServicesCatalogService {
         ? new Date(row.created_at)
             .toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })
             .toUpperCase()
-        : ''
+        : '',
+      galleryUrls: row.gallery_urls ?? [],
+      landingTemplate: row.landing_template ?? 'profesional',
+      landingConfig: row.landing_config ?? {}
     };
   }
 }
