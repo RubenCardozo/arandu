@@ -390,14 +390,7 @@
         </div>
         <div *ngIf="previewAd.contactEmail">
           <span class="font-mono text-[10px] text-brand-charcoal/50 uppercase block">Correo de Contacto</span>
-          <span class="underline text-brand-sage">{{ previewAd.contactEmail }}</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL DE CONFIGURACIÓN Y PREVISUALIZACIÓN DEL SITIO COMERCIAL -->
+          <span class="underline text-brand-sage">{{ previewAd.contactEmail }}</span><!-- MODAL DE CONFIGURACIÓN Y PREVISUALIZACIÓN DEL SITIO COMERCIAL -->
 <div *ngIf="isComercialModalOpen" class="fixed inset-0 bg-brand-charcoal/80 z-[100] flex items-center justify-center p-4">
   <div class="bg-brand-paper w-full max-w-7xl h-[90vh] flex flex-col rounded-lg overflow-hidden shadow-2xl border-2 border-brand-charcoal">
     <!-- Modal Header -->
@@ -419,7 +412,7 @@
         
         <!-- Minimal Layout Cards (5 Metiers) - 2D Monochrome -->
         <div class="flex flex-col gap-2">
-          <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase font-bold">Estilo del Sitio (Metier)</label>
+          <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase font-bold">Estilo de Negocio</label>
           <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
             <!-- Servicios -->
             <div 
@@ -430,9 +423,8 @@
               [class.bg-transparent]="adForm.get('landingTemplate')?.value !== 'servicios'"
               [class.text-brand-charcoal]="adForm.get('landingTemplate')?.value !== 'servicios'"
               [class.border-brand-charcoal/20]="adForm.get('landingTemplate')?.value !== 'servicios'"
-              class="border p-2.5 rounded cursor-pointer text-center hover:border-brand-charcoal transition-all">
-              <span class="text-sm block">🔧</span>
-              <span class="font-mono text-[9px] uppercase tracking-wider block mt-1">Servicios</span>
+              class="border p-2 rounded cursor-pointer text-center hover:border-brand-charcoal transition-all">
+              <span class="text-xs font-mono font-bold block">SERVICIOS</span>
             </div>
             <!-- Venta -->
             <div 
@@ -443,9 +435,8 @@
               [class.bg-transparent]="adForm.get('landingTemplate')?.value !== 'venta'"
               [class.text-brand-charcoal]="adForm.get('landingTemplate')?.value !== 'venta'"
               [class.border-brand-charcoal/20]="adForm.get('landingTemplate')?.value !== 'venta'"
-              class="border p-2.5 rounded cursor-pointer text-center hover:border-brand-charcoal transition-all">
-              <span class="text-sm block">🛍️</span>
-              <span class="font-mono text-[9px] uppercase tracking-wider block mt-1">Ventas</span>
+              class="border p-2 rounded cursor-pointer text-center hover:border-brand-charcoal transition-all">
+              <span class="text-xs font-mono font-bold block">VENTAS</span>
             </div>
             <!-- Empleo -->
             <div 
@@ -456,9 +447,8 @@
               [class.bg-transparent]="adForm.get('landingTemplate')?.value !== 'empleo'"
               [class.text-brand-charcoal]="adForm.get('landingTemplate')?.value !== 'empleo'"
               [class.border-brand-charcoal/20]="adForm.get('landingTemplate')?.value !== 'empleo'"
-              class="border p-2.5 rounded cursor-pointer text-center hover:border-brand-charcoal transition-all">
-              <span class="text-sm block">💼</span>
-              <span class="font-mono text-[9px] uppercase tracking-wider block mt-1">Empleo</span>
+              class="border p-2 rounded cursor-pointer text-center hover:border-brand-charcoal transition-all">
+              <span class="text-xs font-mono font-bold block">EMPLEO</span>
             </div>
             <!-- Restauración -->
             <div 
@@ -469,9 +459,8 @@
               [class.bg-transparent]="adForm.get('landingTemplate')?.value !== 'restauracion'"
               [class.text-brand-charcoal]="adForm.get('landingTemplate')?.value !== 'restauracion'"
               [class.border-brand-charcoal/20]="adForm.get('landingTemplate')?.value !== 'restauracion'"
-              class="border p-2.5 rounded cursor-pointer text-center hover:border-brand-charcoal transition-all">
-              <span class="text-sm block">🍽️</span>
-              <span class="font-mono text-[9px] uppercase tracking-wider block mt-1">Restauración</span>
+              class="border p-2 rounded cursor-pointer text-center hover:border-brand-charcoal transition-all">
+              <span class="text-xs font-mono font-bold block">COMIDA</span>
             </div>
             <!-- Particulares -->
             <div 
@@ -482,9 +471,8 @@
               [class.bg-transparent]="adForm.get('landingTemplate')?.value !== 'particulares'"
               [class.text-brand-charcoal]="adForm.get('landingTemplate')?.value !== 'particulares'"
               [class.border-brand-charcoal/20]="adForm.get('landingTemplate')?.value !== 'particulares'"
-              class="border p-2.5 rounded cursor-pointer text-center hover:border-brand-charcoal transition-all">
-              <span class="text-sm block">🧘</span>
-              <span class="font-mono text-[9px] uppercase tracking-wider block mt-1">Particulares</span>
+              class="border p-2 rounded cursor-pointer text-center hover:border-brand-charcoal transition-all">
+              <span class="text-xs font-mono font-bold block">SALUD</span>
             </div>
           </div>
         </div>
@@ -497,42 +485,51 @@
               <div (click)="adForm.patchValue({ landingPalette: 'crosby' })"
                    [class.ring-2]="adForm.get('landingPalette')?.value === 'crosby'"
                    [class.ring-brand-charcoal]="adForm.get('landingPalette')?.value === 'crosby'"
-                   class="p-2 border border-brand-charcoal/30 bg-brand-paper cursor-pointer rounded flex items-center gap-1.5 justify-between">
+                   class="p-2 border border-brand-charcoal/30 bg-brand-paper cursor-pointer rounded flex items-center justify-between">
                 <span class="text-[10px] font-mono">Crosby Dark</span>
-                <div class="flex gap-0.5">
-                  <span class="h-3 w-2.5 bg-[#1e2321] block"></span>
-                  <span class="h-3 w-2.5 bg-[#fdfbf7] block"></span>
-                </div>
+                <span class="h-3 w-3 bg-[#1e2321] block"></span>
               </div>
               <div (click)="adForm.patchValue({ landingPalette: 'emmeline' })"
                    [class.ring-2]="adForm.get('landingPalette')?.value === 'emmeline'"
                    [class.ring-brand-charcoal]="adForm.get('landingPalette')?.value === 'emmeline'"
-                   class="p-2 border border-brand-charcoal/30 bg-brand-paper cursor-pointer rounded flex items-center gap-1.5 justify-between">
+                   class="p-2 border border-brand-charcoal/30 bg-brand-paper cursor-pointer rounded flex items-center justify-between">
                 <span class="text-[10px] font-mono">Emmeline Terra</span>
-                <div class="flex gap-0.5">
-                  <span class="h-3 w-2.5 bg-[#8b3d2b] block"></span>
-                  <span class="h-3 w-2.5 bg-[#fdfbf7] block"></span>
-                </div>
+                <span class="h-3 w-3 bg-[#8b3d2b] block"></span>
               </div>
               <div (click)="adForm.patchValue({ landingPalette: 'sage' })"
                    [class.ring-2]="adForm.get('landingPalette')?.value === 'sage'"
                    [class.ring-brand-charcoal]="adForm.get('landingPalette')?.value === 'sage'"
-                   class="p-2 border border-brand-charcoal/30 bg-brand-paper cursor-pointer rounded flex items-center gap-1.5 justify-between">
+                   class="p-2 border border-brand-charcoal/30 bg-brand-paper cursor-pointer rounded flex items-center justify-between">
                 <span class="text-[10px] font-mono">Sage Soft</span>
-                <div class="flex gap-0.5">
-                  <span class="h-3 w-2.5 bg-[#8ba495] block"></span>
-                  <span class="h-3 w-2.5 bg-[#fdfbf7] block"></span>
-                </div>
+                <span class="h-3 w-3 bg-[#8ba495] block"></span>
               </div>
               <div (click)="adForm.patchValue({ landingPalette: 'minimal' })"
                    [class.ring-2]="adForm.get('landingPalette')?.value === 'minimal'"
                    [class.ring-brand-charcoal]="adForm.get('landingPalette')?.value === 'minimal'"
-                   class="p-2 border border-brand-charcoal/30 bg-brand-paper cursor-pointer rounded flex items-center gap-1.5 justify-between">
+                   class="p-2 border border-brand-charcoal/30 bg-brand-paper cursor-pointer rounded flex items-center justify-between">
                 <span class="text-[10px] font-mono">Minimal Light</span>
-                <div class="flex gap-0.5">
-                  <span class="h-3 w-2.5 bg-white block border"></span>
-                  <span class="h-3 w-2.5 bg-black block"></span>
-                </div>
+                <span class="h-3 w-3 bg-white block border"></span>
+              </div>
+              <div (click)="adForm.patchValue({ landingPalette: 'mustard' })"
+                   [class.ring-2]="adForm.get('landingPalette')?.value === 'mustard'"
+                   [class.ring-brand-charcoal]="adForm.get('landingPalette')?.value === 'mustard'"
+                   class="p-2 border border-brand-charcoal/30 bg-brand-paper cursor-pointer rounded flex items-center justify-between">
+                <span class="text-[10px] font-mono">Honey Mustard</span>
+                <span class="h-3 w-3 bg-[#d4a373] block"></span>
+              </div>
+              <div (click)="adForm.patchValue({ landingPalette: 'clay' })"
+                   [class.ring-2]="adForm.get('landingPalette')?.value === 'clay'"
+                   [class.ring-brand-charcoal]="adForm.get('landingPalette')?.value === 'clay'"
+                   class="p-2 border border-brand-charcoal/30 bg-brand-paper cursor-pointer rounded flex items-center justify-between">
+                <span class="text-[10px] font-mono">Warm Clay</span>
+                <span class="h-3 w-3 bg-[#cd853f] block"></span>
+              </div>
+              <div (click)="adForm.patchValue({ landingPalette: 'ocean' })"
+                   [class.ring-2]="adForm.get('landingPalette')?.value === 'ocean'"
+                   [class.ring-brand-charcoal]="adForm.get('landingPalette')?.value === 'ocean'"
+                   class="p-2 border border-brand-charcoal/30 bg-brand-paper cursor-pointer rounded flex items-center justify-between col-span-2">
+                <span class="text-[10px] font-mono">Ocean Breeze</span>
+                <span class="h-3 w-3 bg-[#1d3557] block"></span>
               </div>
             </div>
           </div>
@@ -540,36 +537,67 @@
           <!-- Fonts selection -->
           <div class="flex flex-col gap-2">
             <span class="font-sans text-[10px] text-brand-charcoal/50 uppercase font-bold">Paquete de Fuentes</span>
-            <div class="grid grid-cols-3 gap-1.5">
+            <div class="grid grid-cols-2 gap-1.5">
               <div (click)="adForm.patchValue({ landingFont: 'serif' })"
                    [class.ring-2]="adForm.get('landingFont')?.value === 'serif'"
                    [class.ring-brand-charcoal]="adForm.get('landingFont')?.value === 'serif'"
                    class="p-2 border border-brand-charcoal/30 bg-brand-paper text-center cursor-pointer rounded">
                 <span class="font-serif font-bold text-xs block">Abc</span>
-                <span class="text-[8px] font-mono">Serif</span>
+                <span class="text-[8px] font-mono">Editorial Serif</span>
               </div>
               <div (click)="adForm.patchValue({ landingFont: 'sans' })"
                    [class.ring-2]="adForm.get('landingFont')?.value === 'sans'"
                    [class.ring-brand-charcoal]="adForm.get('landingFont')?.value === 'sans'"
                    class="p-2 border border-brand-charcoal/30 bg-brand-paper text-center cursor-pointer rounded">
                 <span class="font-sans font-bold text-xs block">Abc</span>
-                <span class="text-[8px] font-mono">Sans</span>
+                <span class="text-[8px] font-mono">Modern Sans</span>
               </div>
               <div (click)="adForm.patchValue({ landingFont: 'monospace' })"
                    [class.ring-2]="adForm.get('landingFont')?.value === 'monospace'"
                    [class.ring-brand-charcoal]="adForm.get('landingFont')?.value === 'monospace'"
                    class="p-2 border border-brand-charcoal/30 bg-brand-paper text-center cursor-pointer rounded">
                 <span class="font-mono font-bold text-xs block">Abc</span>
-                <span class="text-[8px] font-mono">Mono</span>
+                <span class="text-[8px] font-mono">Retro Mono</span>
+              </div>
+              <div (click)="adForm.patchValue({ landingFont: 'elegant' })"
+                   [class.ring-2]="adForm.get('landingFont')?.value === 'elegant'"
+                   [class.ring-brand-charcoal]="adForm.get('landingFont')?.value === 'elegant'"
+                   class="p-2 border border-brand-charcoal/30 bg-brand-paper text-center cursor-pointer rounded">
+                <span class="font-serif italic font-bold text-xs block">Abc</span>
+                <span class="text-[8px] font-mono">Display Elegante</span>
+              </div>
+              <div (click)="adForm.patchValue({ landingFont: 'geometric' })"
+                   [class.ring-2]="adForm.get('landingFont')?.value === 'geometric'"
+                   [class.ring-brand-charcoal]="adForm.get('landingFont')?.value === 'geometric'"
+                   class="p-2 border border-brand-charcoal/30 bg-brand-paper text-center cursor-pointer rounded col-span-2">
+                <span class="font-sans tracking-tight font-bold text-xs block">Abc</span>
+                <span class="text-[8px] font-mono">Geometric Sans</span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Title & Hero Image -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Cover Image File Upload -->
+        <div class="flex flex-col gap-2">
+          <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase font-bold">Foto de Portada del Sitio</label>
+          <div class="flex items-center gap-3">
+            <input type="file" (change)="onLandingHeroSelected($event)" accept="image/*" class="hidden" #heroFileInput>
+            <button type="button" (click)="heroFileInput.click()" class="px-4 py-2 border border-brand-charcoal font-mono text-[10px] font-bold uppercase hover:bg-brand-charcoal hover:text-brand-paper transition-all cursor-pointer bg-brand-paper">
+              Subir Foto de Portada
+            </button>
+            <button type="button" (click)="adForm.patchValue({ landingHeroImage: '' })" class="text-xs font-mono text-brand-red underline cursor-pointer border-0 bg-transparent">
+              Usar Imagen por Defecto
+            </button>
+          </div>
+          <span class="text-[9px] font-sans text-brand-charcoal/60 leading-relaxed">
+            Se comprimirá automáticamente en el navegador a buena calidad y peso ultra-liviano antes de subir.
+          </span>
+        </div>
+
+        <!-- Editable User Contact info -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-brand-charcoal/10 pt-4">
           <div class="flex flex-col gap-1">
-            <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase font-bold" for="adTitleLanding">Título del Negocio / Sitio</label>
+            <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase font-bold" for="adTitleLanding">Nombre de Negocio / Título</label>
             <input 
               formControlName="title"
               class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage" 
@@ -577,12 +605,16 @@
               placeholder="Ej: Salon Emmeline - Estilistas">
           </div>
           <div class="flex flex-col gap-1">
-            <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase font-bold" for="heroImageLanding">Imagen de Portada (URL)</label>
-            <input 
-              formControlName="landingHeroImage"
-              class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage" 
-              id="heroImageLanding"
-              placeholder="Enlace a imagen de portada">
+            <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase font-bold" for="contactNameL">Nombre del Contacto</label>
+            <input formControlName="contactName" class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 font-sans text-sm focus:outline-none" id="contactNameL">
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase font-bold" for="contactPhoneL">Teléfono de Contacto</label>
+            <input formControlName="phone" class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 font-sans text-sm focus:outline-none" id="contactPhoneL">
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="font-sans text-[10px] text-brand-charcoal/50 uppercase font-bold" for="contactEmailL">Email de Contacto</label>
+            <input formControlName="email" class="w-full bg-transparent border-0 border-b border-brand-charcoal py-1 font-sans text-sm focus:outline-none" id="contactEmailL">
           </div>
         </div>
 
@@ -719,135 +751,148 @@
         </div>
       </div>
 
-      <!-- RIGHT SIDE: LIVE PORTFOLIO PREVIEW -->
-      <div class="w-full md:w-1/2 p-6 overflow-y-auto bg-brand-charcoal/10 flex flex-col justify-start">
-        <span class="font-mono text-[9px] uppercase tracking-widest text-brand-charcoal/50 mb-3 block">Previsualización del Sitio Comercial (Tiempo Real)</span>
-        
-        <div [style]="getLandingStyles(getPreviewConfig())" class="shadow-lg p-6 rounded-lg transition-all space-y-6">
+      <!-- RIGHT SIDE: LIVE PORTFOLIO PREVIEW (NO SCROLL VIEWPORT) -->
+      <div class="w-full md:w-1/2 p-6 bg-brand-charcoal/10 flex flex-col justify-between overflow-hidden h-full">
+        <div class="flex flex-col overflow-hidden h-full">
+          <span class="font-mono text-[9px] uppercase tracking-widest text-brand-charcoal/50 mb-2 block">Previsualización del Sitio Comercial (Tiempo Real)</span>
           
-          <!-- Modern Header / Title with Arched Profile Picture placeholder (Salon Emmeline inspiration) -->
-          <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-6 border-b" style="border-color: var(--landing-card-border);">
-            <div class="space-y-2 text-left">
-              <span class="font-mono text-[8px] uppercase tracking-widest px-2 py-0.5 rounded" style="background-color: var(--landing-card-bg); color: var(--landing-accent);">Sitio Comercial Activo</span>
-              <h1 class="font-serif italic font-bold text-3xl tracking-wide leading-tight">
-                {{ adForm.get('title')?.value || 'Salon Emmeline - Peluquería' }}
-              </h1>
-              <p class="text-[10px] opacity-80 font-mono">
-                👤 {{ adForm.get('contactName')?.value || 'Suscriptor Arandu' }} | 📞 {{ adForm.get('phone')?.value }}
-              </p>
-            </div>
+          <div [style]="getLandingStyles(getPreviewConfig())" class="shadow-lg p-5 rounded-lg flex flex-col justify-between h-full overflow-hidden relative">
             
-            <!-- Elegant arch image wrapper -->
-            <div class="w-28 h-36 rounded-t-full overflow-hidden border bg-brand-charcoal/25 flex-shrink-0" style="border-color: var(--landing-card-border);">
-              <img [src]="adForm.get('landingHeroImage')?.value || 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&auto=format&fit=crop&q=80'" class="w-full h-full object-cover">
-            </div>
-          </div>
-
-          <!-- Special Offer Banner -->
-          <div *ngIf="adForm.get('landingOfertaTitulo')?.value" 
-               style="background-color: var(--landing-card-bg); border: 1px dashed var(--landing-accent);" 
-               class="p-4 rounded border">
-            <div class="flex items-start justify-between gap-3">
-              <div>
-                <h4 class="font-bold text-sm" style="color: var(--landing-accent);">🎁 {{ adForm.get('landingOfertaTitulo')?.value }}</h4>
-                <p class="text-[11px] mt-1 opacity-90 leading-relaxed">{{ adForm.get('landingOfertaDesc')?.value }}</p>
+            <!-- Modern Header Layout with Arched Picture Frame -->
+            <div class="flex flex-row items-center justify-between gap-4 pb-4 border-b border-white/10" style="border-color: var(--landing-card-border);">
+              <div class="space-y-1 text-left flex-1 min-w-0">
+                <span class="font-mono text-[8px] uppercase tracking-widest px-2 py-0.5 rounded" style="background-color: var(--landing-card-bg); color: var(--landing-accent);">Sitio Comercial</span>
+                <h1 class="font-serif italic font-bold text-xl md:text-2xl tracking-wide leading-tight truncate">
+                  {{ adForm.get('title')?.value || 'Salon Emmeline - Peluquería' }}
+                </h1>
+                <p class="text-[9px] opacity-75 truncate">
+                  👤 {{ adForm.get('contactName')?.value }} | 📞 {{ adForm.get('phone')?.value }}
+                </p>
               </div>
-              <div *ngIf="adForm.get('landingOfertaPrecio')?.value" class="text-right flex-shrink-0">
-                <span class="text-sm font-mono font-bold block" style="color: var(--landing-accent);">{{ adForm.get('landingOfertaPrecio')?.value }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Live Metier Details -->
-          <div class="space-y-4">
-            <!-- Servicios -->
-            <div *ngIf="adForm.get('landingTemplate')?.value === 'servicios'" class="space-y-4">
-              <div class="grid grid-cols-2 gap-4">
-                <div class="p-3 rounded" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
-                  <span class="font-mono text-[9px] uppercase block font-bold opacity-60">Horario de Atención</span>
-                  <span class="text-xs mt-1 block font-semibold">{{ adForm.get('landingHorario')?.value || 'No especificado' }}</span>
-                </div>
-                <div class="p-3 rounded" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
-                  <span class="font-mono text-[9px] uppercase block font-bold opacity-60">Localidad</span>
-                  <span class="text-xs mt-1 block font-semibold">{{ adForm.get('landingCobertura')?.value || 'No especificada' }}</span>
-                </div>
-              </div>
-              <div class="p-3 rounded" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
-                <span class="font-mono text-[9px] uppercase block font-bold opacity-60">Servicios & Estilo</span>
-                <p class="text-xs mt-1.5 whitespace-pre-line leading-relaxed">{{ adForm.get('landingExperiencia')?.value || 'Completa la descripción en los campos de la izquierda...' }}</p>
+              
+              <!-- Elegant arched frame mockup -->
+              <div class="w-20 h-24 rounded-t-full overflow-hidden border bg-black/10 flex-shrink-0" style="border-color: var(--landing-card-border);">
+                <img [src]="getPreviewConfig().heroImage" class="w-full h-full object-cover">
               </div>
             </div>
 
-            <!-- Particulares -->
-            <div *ngIf="adForm.get('landingTemplate')?.value === 'particulares'" class="space-y-4">
-              <div class="grid grid-cols-2 gap-4">
-                <div class="p-3 rounded" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
-                  <span class="font-mono text-[9px] uppercase block font-bold opacity-60">Citas</span>
-                  <span class="text-xs mt-1 block font-semibold">{{ adForm.get('landingConsulta')?.value }}</span>
-                </div>
-                <div class="p-3 rounded" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
-                  <span class="font-mono text-[9px] uppercase block font-bold opacity-60">Mutualidad / Seguro</span>
-                  <span class="text-xs mt-1 block font-semibold">Cubre seguro: {{ adForm.get('landingSeguro')?.value }}</span>
-                </div>
-              </div>
-              <div class="p-3 rounded" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
-                <span class="font-mono text-[9px] uppercase block font-bold opacity-60">Especialidades</span>
-                <p class="text-xs mt-1.5 whitespace-pre-line leading-relaxed">{{ adForm.get('landingEspecialidad')?.value || 'Completa la especialidad en la izquierda...' }}</p>
-              </div>
+            <!-- TAB-BASED MENU (2 to 4 Menus max, no scroll viewport) -->
+            <div class="flex justify-start gap-1 py-3 border-b border-white/10" style="border-color: var(--landing-card-border);">
+              <button type="button" (click)="selectPreviewTab('presentacion')"
+                      [style.background-color]="activePreviewTab === 'presentacion' ? 'var(--landing-accent)' : 'transparent'"
+                      [style.color]="activePreviewTab === 'presentacion' ? '#fff' : 'var(--landing-text)'"
+                      class="px-3 py-1 font-mono text-[9px] uppercase tracking-wider font-bold transition-all border-0 rounded cursor-pointer">
+                Presentación
+              </button>
+              <button type="button" (click)="selectPreviewTab('servicios')"
+                      [style.background-color]="activePreviewTab === 'servicios' ? 'var(--landing-accent)' : 'transparent'"
+                      [style.color]="activePreviewTab === 'servicios' ? '#fff' : 'var(--landing-text)'"
+                      class="px-3 py-1 font-mono text-[9px] uppercase tracking-wider font-bold transition-all border-0 rounded cursor-pointer">
+                Servicios
+              </button>
+              <button type="button" (click)="selectPreviewTab('contacto')"
+                      [style.background-color]="activePreviewTab === 'contacto' ? 'var(--landing-accent)' : 'transparent'"
+                      [style.color]="activePreviewTab === 'contacto' ? '#fff' : 'var(--landing-text)'"
+                      class="px-3 py-1 font-mono text-[9px] uppercase tracking-wider font-bold transition-all border-0 rounded cursor-pointer">
+                Contacto
+              </button>
+              <button *ngIf="adForm.get('landingOfertaTitulo')?.value" type="button" (click)="selectPreviewTab('promocion')"
+                      [style.background-color]="activePreviewTab === 'promocion' ? 'var(--landing-accent)' : 'transparent'"
+                      [style.color]="activePreviewTab === 'promocion' ? '#fff' : 'var(--landing-text)'"
+                      class="px-3 py-1 font-mono text-[9px] uppercase tracking-wider font-bold transition-all border-0 rounded cursor-pointer flex items-center gap-0.5">
+                🎁 Promoción
+              </button>
             </div>
 
-            <!-- Restauración -->
-            <div *ngIf="adForm.get('landingTemplate')?.value === 'restauracion'" class="space-y-4">
-              <div class="grid grid-cols-2 gap-4">
-                <div class="p-3 rounded" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
-                  <span class="font-mono text-[9px] uppercase block font-bold opacity-60">Especialidad</span>
-                  <span class="text-xs mt-1 block font-semibold">{{ adForm.get('landingMenu')?.value || 'No especificada' }}</span>
-                </div>
-                <div class="p-3 rounded" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
-                  <span class="font-mono text-[9px] uppercase block font-bold opacity-60">Local</span>
-                  <span class="text-xs mt-1 block font-semibold">{{ adForm.get('landingServicios')?.value || 'No especificado' }}</span>
+            <!-- DYNAMIC VIEWPORT BODY (Tab contents) -->
+            <div class="flex-1 py-4 overflow-y-auto min-h-0 text-left">
+              
+              <!-- Tab 1: Presentación -->
+              <div *ngIf="activePreviewTab === 'presentacion'" class="space-y-2">
+                <span class="font-mono text-[8px] uppercase block font-bold opacity-60">Sobre Nosotros / Presentación</span>
+                <p class="text-xs leading-relaxed font-sans whitespace-pre-line">
+                  {{ adForm.get('landingExperiencia')?.value || adForm.get('landingPresentacion')?.value || adForm.get('landingSobreNosotros')?.value || 'Este espacio contiene la descripción o historia de tu negocio. Escríbela en los campos específicos de la izquierda...' }}
+                </p>
+              </div>
+
+              <!-- Tab 2: Servicios -->
+              <div *ngIf="activePreviewTab === 'servicios'" class="space-y-3">
+                <span class="font-mono text-[8px] uppercase block font-bold opacity-60">Detalles y Especificaciones</span>
+                
+                <!-- Template spec boxes -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                  <!-- Horarios / Local / Productos depending on style -->
+                  <div *ngIf="adForm.get('landingHorario')?.value" class="p-2.5 rounded" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
+                    <strong class="font-mono text-[8px] uppercase block opacity-60">Horario</strong>
+                    <span>{{ adForm.get('landingHorario')?.value }}</span>
+                  </div>
+                  <div *ngIf="adForm.get('landingCobertura')?.value" class="p-2.5 rounded" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
+                    <strong class="font-mono text-[8px] uppercase block opacity-60">Área de Cobertura</strong>
+                    <span>{{ adForm.get('landingCobertura')?.value }}</span>
+                  </div>
+                  <!-- Restaurant specific specs -->
+                  <div *ngIf="adForm.get('landingTemplate')?.value === 'restauracion'" class="p-2.5 rounded sm:col-span-2" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
+                    <strong class="font-mono text-[8px] uppercase block opacity-60">Platos & Ambiente</strong>
+                    <span>{{ adForm.get('landingMenu')?.value || 'Carta Variada' }} | {{ adForm.get('landingServicios')?.value || 'Terraza' }}</span>
+                  </div>
+                  <!-- Venta specific specs -->
+                  <div *ngIf="adForm.get('landingTemplate')?.value === 'venta'" class="p-2.5 rounded sm:col-span-2" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
+                    <strong class="font-mono text-[8px] uppercase block opacity-60">Productos & Pagos</strong>
+                    <span>{{ adForm.get('landingProductos')?.value || 'Venta minorista' }} | Acepta: {{ adForm.get('landingPago')?.value }}</span>
+                  </div>
+                  <!-- Particulares specific specs -->
+                  <div *ngIf="adForm.get('landingTemplate')?.value === 'particulares'" class="p-2.5 rounded sm:col-span-2" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
+                    <strong class="font-mono text-[8px] uppercase block opacity-60">Modalidad & Seguro</strong>
+                    <span>Consulta: {{ adForm.get('landingConsulta')?.value }} | Seguro Mutual: {{ adForm.get('landingSeguro')?.value }}</span>
+                  </div>
+                  <!-- Empleo specific specs -->
+                  <div *ngIf="adForm.get('landingTemplate')?.value === 'empleo'" class="p-2.5 rounded sm:col-span-2" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
+                    <strong class="font-mono text-[8px] uppercase block opacity-60">Empleo Detalle</strong>
+                    <span>Sueldo: {{ adForm.get('salary')?.value }} | Jornada: {{ adForm.get('jobType')?.value }}</span>
+                  </div>
                 </div>
               </div>
-              <div class="p-3 rounded" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
-                <span class="font-mono text-[9px] uppercase block font-bold opacity-60">Presentación y Cocina</span>
-                <p class="text-xs mt-1.5 whitespace-pre-line leading-relaxed">{{ adForm.get('landingPresentacion')?.value || 'Completa la presentación en la izquierda...' }}</p>
+
+              <!-- Tab 3: Contacto -->
+              <div *ngIf="activePreviewTab === 'contacto'" class="space-y-4">
+                <span class="font-mono text-[8px] uppercase block font-bold opacity-60">Datos de Contacto</span>
+                
+                <div class="space-y-2 p-3 rounded" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
+                  <div class="text-xs">
+                    <span class="opacity-60 block text-[9px] uppercase font-mono">Nombre de Contacto</span>
+                    <strong class="text-sm">{{ adForm.get('contactName')?.value }}</strong>
+                  </div>
+                  <div class="text-xs pt-1 border-t border-white/5" style="border-color: var(--landing-card-border);">
+                    <span class="opacity-60 block text-[9px] uppercase font-mono">Teléfono Móvil</span>
+                    <strong class="text-base text-brand-red font-mono">{{ adForm.get('phone')?.value }}</strong>
+                  </div>
+                  <div class="text-xs pt-1 border-t border-white/5" style="border-color: var(--landing-card-border);">
+                    <span class="opacity-60 block text-[9px] uppercase font-mono">Email Directo</span>
+                    <span class="underline">{{ adForm.get('email')?.value }}</span>
+                  </div>
+                </div>
               </div>
+
+              <!-- Tab 4: Promoción / Oferta -->
+              <div *ngIf="activePreviewTab === 'promocion'" class="space-y-3">
+                <span class="font-mono text-[8px] uppercase block font-bold opacity-60">Oferta Destacada</span>
+                
+                <div class="p-4 rounded border text-left" style="background-color: var(--landing-card-bg); border-color: var(--landing-accent);">
+                  <h3 class="font-serif italic font-bold text-base" style="color: var(--landing-accent);">🎁 {{ adForm.get('landingOfertaTitulo')?.value }}</h3>
+                  <p class="text-xs font-sans mt-2 opacity-90 leading-relaxed">{{ adForm.get('landingOfertaDesc')?.value }}</p>
+                  <div *ngIf="adForm.get('landingOfertaPrecio')?.value" class="mt-3 pt-3 border-t border-dashed" style="border-color: var(--landing-card-border);">
+                    <span class="text-xs opacity-65">Precio especial: </span>
+                    <strong class="font-mono text-sm" style="color: var(--landing-accent);">{{ adForm.get('landingOfertaPrecio')?.value }}</strong>
+                  </div>
+                </div>
+              </div>
+
             </div>
 
-            <!-- Venta -->
-            <div *ngIf="adForm.get('landingTemplate')?.value === 'venta'" class="space-y-4">
-              <div class="grid grid-cols-2 gap-4">
-                <div class="p-3 rounded" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
-                  <span class="font-mono text-[9px] uppercase block font-bold opacity-60">Líneas de Productos</span>
-                  <span class="text-xs mt-1 block font-semibold">{{ adForm.get('landingProductos')?.value || 'No especificado' }}</span>
-                </div>
-                <div class="p-3 rounded" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
-                  <span class="font-mono text-[9px] uppercase block font-bold opacity-60">Formas de Pago</span>
-                  <span class="text-xs mt-1 block font-semibold">{{ adForm.get('landingPago')?.value || 'No especificado' }}</span>
-                </div>
-              </div>
-              <div class="p-3 rounded" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
-                <span class="font-mono text-[9px] uppercase block font-bold opacity-60">Nuestra Tienda</span>
-                <p class="text-xs mt-1.5 whitespace-pre-line leading-relaxed">{{ adForm.get('landingSobreNosotros')?.value || 'Completa la descripción en la izquierda...' }}</p>
-              </div>
-            </div>
-
-            <!-- Empleo -->
-            <div *ngIf="adForm.get('landingTemplate')?.value === 'empleo'" class="space-y-4">
-              <div class="grid grid-cols-2 gap-4">
-                <div class="p-3 rounded" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
-                  <span class="font-mono text-[9px] uppercase block font-bold opacity-60">Rango Salarial</span>
-                  <span class="text-xs mt-1 block font-semibold">{{ adForm.get('salary')?.value || 'A convenir' }}</span>
-                </div>
-                <div class="p-3 rounded" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
-                  <span class="font-mono text-[9px] uppercase block font-bold opacity-60">Jornada</span>
-                  <span class="text-xs mt-1 block font-semibold">{{ adForm.get('jobType')?.value }}</span>
-                </div>
-              </div>
-              <div class="p-3 rounded" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
-                <span class="font-mono text-[9px] uppercase block font-bold opacity-60">Requisitos</span>
-                <p class="text-xs mt-1.5 whitespace-pre-line leading-relaxed">{{ adForm.get('requirements')?.value || 'Completa los requisitos en la izquierda...' }}</p>
-              </div>
+            <!-- Footer / Valuation mockup (Stars & comments indicator) -->
+            <div class="pt-3 border-t border-white/10 flex items-center justify-between text-[9px] opacity-75 font-mono" style="border-color: var(--landing-card-border);">
+              <span>⭐ 5.0 (Valoración Media)</span>
+              <span>💬 0 Comentarios del Sitio</span>
             </div>
 
           </div>
@@ -855,6 +900,7 @@
       </div>
     </div>
   </div>
+</div>
 
 <!-- HELP KEYWORDS MODAL -->
 <div *ngIf="keywordsModalVisible" class="fixed inset-0 z-50 flex items-center justify-center p-4">

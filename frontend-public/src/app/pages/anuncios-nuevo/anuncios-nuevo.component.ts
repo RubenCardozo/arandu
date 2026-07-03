@@ -504,6 +504,8 @@ export class AnunciosNuevoComponent implements OnInit, OnDestroy {
     }
   }
 
+  activePreviewTab = 'presentacion';
+
   openComercialModal() {
     this.isComercialModalOpen = true;
   }
@@ -512,11 +514,93 @@ export class AnunciosNuevoComponent implements OnInit, OnDestroy {
     this.isComercialModalOpen = false;
   }
 
+  selectPreviewTab(tab: string) {
+    this.activePreviewTab = tab;
+  }
+
+  getDefaultImage(template: string): string {
+    switch (template) {
+      case 'restauracion':
+        return 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&auto=format&fit=crop&q=80';
+      case 'venta':
+        return 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&auto=format&fit=crop&q=80';
+      case 'empleo':
+        return 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&auto=format&fit=crop&q=80';
+      case 'particulares':
+        return 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=800&auto=format&fit=crop&q=80';
+      case 'servicios':
+      default:
+        return 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&auto=format&fit=crop&q=80';
+    }
+  }
+
+  async onLandingHeroSelected(event: any) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      this.errorMessage = 'Por favor, selecciona un archivo de imagen válido.';
+      return;
+    }
+
+    this.loading = true;
+    try {
+      const compressed = await this.compressImageToDataUrl(file);
+      this.adForm.patchValue({ landingHeroImage: compressed });
+    } catch (err) {
+      console.error('Error compressing landing cover:', err);
+      this.errorMessage = 'No se pudo procesar la imagen de portada.';
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  private compressImageToDataUrl(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event: any) => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const maxDimension = 800; // optimized size
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > maxDimension) {
+              height = Math.round((height * maxDimension) / width);
+              width = maxDimension;
+            }
+          } else {
+            if (height > maxDimension) {
+              width = Math.round((width * maxDimension) / height);
+              height = maxDimension;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          // high compression, very light file
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+          resolve(dataUrl);
+        };
+        img.onerror = (err) => reject(err);
+      };
+      reader.onerror = (err) => reject(err);
+    });
+  }
+
   getPreviewConfig(): any {
+    const template = this.adForm.get('landingTemplate')?.value || 'servicios';
     return {
       palette: this.adForm.get('landingPalette')?.value || 'crosby',
       font: this.adForm.get('landingFont')?.value || 'serif',
-      heroImage: this.adForm.get('landingHeroImage')?.value || '',
+      heroImage: this.adForm.get('landingHeroImage')?.value || this.getDefaultImage(template),
       ofertaTitulo: this.adForm.get('landingOfertaTitulo')?.value || '',
       ofertaDesc: this.adForm.get('landingOfertaDesc')?.value || '',
       ofertaPrecio: this.adForm.get('landingOfertaPrecio')?.value || ''
@@ -526,6 +610,8 @@ export class AnunciosNuevoComponent implements OnInit, OnDestroy {
   getLandingStyles(config: any): any {
     if (!config) return {};
     const palette = config.palette || 'crosby';
+    
+    // Default Crosby
     let bg = '#1e2321';
     let text = '#fdfbf7';
     let accent = '#8ba495';
@@ -550,6 +636,24 @@ export class AnunciosNuevoComponent implements OnInit, OnDestroy {
       accent = '#333333';
       cardBg = 'rgba(0, 0, 0, 0.03)';
       cardBorder = 'rgba(0, 0, 0, 0.1)';
+    } else if (palette === 'mustard') {
+      bg = '#f7f4eb';
+      text = '#4a3e21';
+      accent = '#d4a373';
+      cardBg = 'rgba(74, 62, 33, 0.05)';
+      cardBorder = 'rgba(74, 62, 33, 0.12)';
+    } else if (palette === 'clay') {
+      bg = '#faf0e6';
+      text = '#5c4033';
+      accent = '#cd853f';
+      cardBg = 'rgba(92, 64, 51, 0.06)';
+      cardBorder = 'rgba(92, 64, 51, 0.12)';
+    } else if (palette === 'ocean') {
+      bg = '#1d3557';
+      text = '#f1faee';
+      accent = '#a8dadc';
+      cardBg = 'rgba(241, 250, 238, 0.08)';
+      cardBorder = 'rgba(241, 250, 238, 0.15)';
     }
 
     const font = config.font || 'serif';
@@ -558,6 +662,10 @@ export class AnunciosNuevoComponent implements OnInit, OnDestroy {
       fontFamily = 'var(--font-sans, "Outfit", sans-serif)';
     } else if (font === 'monospace') {
       fontFamily = 'monospace';
+    } else if (font === 'elegant') {
+      fontFamily = '"Didot", "Bodoni MT", serif';
+    } else if (font === 'geometric') {
+      fontFamily = '"Futura", "Trebuchet MS", sans-serif';
     }
 
     const styles: any = {

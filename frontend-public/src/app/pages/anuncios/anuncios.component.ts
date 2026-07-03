@@ -37,6 +37,8 @@ interface Anuncio {
   messageSubject?: string;
   messageText?: string;
   commentSentiment?: 'favor' | 'contra';
+  contactName?: string;
+  website?: string;
   galleryUrls?: string[];
   landingTemplate?: string;
   landingConfig?: any;
@@ -64,6 +66,7 @@ export class AnunciosComponent implements OnInit, OnDestroy {
   showModal = false;
   isLoggedIn = false;
   isProfileComplete = false;
+  activeDetailTab = 'presentacion';
   private authSubscription!: Subscription;
 
   // Session-based likes tracker
@@ -276,8 +279,10 @@ export class AnunciosComponent implements OnInit, OnDestroy {
             entityType: 'service',
             clicks: item.clicks || 0,
             galleryUrls: item.gallery_urls || [],
-            landingTemplate: item.landing_template || 'profesional',
-            landingConfig: item.landing_config || {}
+            landingTemplate: item.landing_template || 'servicios',
+            landingConfig: item.landing_config || {},
+            contactName: item.contact_name || item.contactName || '',
+            website: item.website || ''
           });
         });
       }
@@ -664,6 +669,7 @@ export class AnunciosComponent implements OnInit, OnDestroy {
       cleanDescription = cleanLines.join('\n').trim();
     }
 
+    this.activeDetailTab = 'presentacion';
     this.selectedAd = {
       ...ad,
       cleanDescription,
@@ -755,9 +761,15 @@ export class AnunciosComponent implements OnInit, OnDestroy {
     }
   }
 
+  selectDetailTab(tab: string) {
+    this.activeDetailTab = tab;
+  }
+
   getLandingStyles(config: any): any {
     if (!config) return {};
     const palette = config.palette || 'crosby';
+    
+    // Crosby Dark (Default)
     let bg = '#1e2321';
     let text = '#fdfbf7';
     let accent = '#8ba495';
@@ -782,6 +794,24 @@ export class AnunciosComponent implements OnInit, OnDestroy {
       accent = '#333333';
       cardBg = 'rgba(0, 0, 0, 0.03)';
       cardBorder = 'rgba(0, 0, 0, 0.1)';
+    } else if (palette === 'mustard') {
+      bg = '#f7f4eb';
+      text = '#4a3e21';
+      accent = '#d4a373';
+      cardBg = 'rgba(74, 62, 33, 0.05)';
+      cardBorder = 'rgba(74, 62, 33, 0.12)';
+    } else if (palette === 'clay') {
+      bg = '#faf0e6';
+      text = '#5c4033';
+      accent = '#cd853f';
+      cardBg = 'rgba(92, 64, 51, 0.06)';
+      cardBorder = 'rgba(92, 64, 51, 0.12)';
+    } else if (palette === 'ocean') {
+      bg = '#1d3557';
+      text = '#f1faee';
+      accent = '#a8dadc';
+      cardBg = 'rgba(241, 250, 238, 0.08)';
+      cardBorder = 'rgba(241, 250, 238, 0.15)';
     }
 
     const font = config.font || 'serif';
@@ -790,6 +820,10 @@ export class AnunciosComponent implements OnInit, OnDestroy {
       fontFamily = 'var(--font-sans, "Outfit", sans-serif)';
     } else if (font === 'monospace') {
       fontFamily = 'monospace';
+    } else if (font === 'elegant') {
+      fontFamily = '"Didot", "Bodoni MT", serif';
+    } else if (font === 'geometric') {
+      fontFamily = '"Futura", "Trebuchet MS", sans-serif';
     }
 
     const styles: any = {
