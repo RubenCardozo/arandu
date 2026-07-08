@@ -1,8 +1,16 @@
 <main class="min-h-screen bg-brand-paper py-12 px-6 md:px-8 max-w-[1280px] mx-auto">
+  <div *ngIf="activeFilter === 'PORTFOLIOS'" class="mb-4">
+    <button (click)="setFilter('TODO')" class="text-brand-charcoal/60 hover:text-brand-sage font-mono text-[10px] uppercase tracking-wider flex items-center gap-1 cursor-pointer border-0 bg-transparent p-0">
+      ← Volver a Búsqueda Global
+    </button>
+  </div>
+
   <header class="mb-12 border-b-2 border-brand-charcoal pb-8">
-    <h1 class="font-serif text-4xl md:text-5xl font-bold text-brand-charcoal uppercase tracking-tight mb-4 leading-none">Búsqueda Global</h1>
+    <h1 class="font-serif text-4xl md:text-5xl font-bold text-brand-charcoal uppercase tracking-tight mb-4 leading-none">
+      {{ activeFilter === 'PORTFOLIOS' ? 'Portfolio' : 'Búsqueda Global' }}
+    </h1>
     <p class="font-sans text-brand-charcoal/70 text-lg md:text-xl max-w-2xl leading-relaxed">
-      Encuentra artículos, noticias y anuncios en un solo lugar.
+      {{ activeFilter === 'PORTFOLIOS' ? 'Explora los comercios, servicios y profesionales de nuestra comunidad.' : 'Encuentra artículos, noticias y anuncios en un solo lugar.' }}
     </p>
   </header>
 
@@ -17,14 +25,15 @@
     </div>
 
     <!-- Filtro Tipo -->
-    <div class="flex border border-brand-charcoal rounded-xl overflow-hidden w-fit shadow-xs bg-brand-paper">
+    <div *ngIf="activeFilter !== 'PORTFOLIOS'" class="flex border border-brand-charcoal rounded-xl overflow-hidden w-fit shadow-xs bg-brand-paper">
       <button (click)="setFilter('TODO')" [class.bg-brand-charcoal]="activeFilter === 'TODO'" [class.text-brand-paper]="activeFilter === 'TODO'" class="px-5 py-2 font-mono text-[10px] font-bold uppercase tracking-widest hover:bg-brand-charcoal/10 transition-colors cursor-pointer">TODO</button>
       <button (click)="setFilter('ARTÍCULOS')" [class.bg-brand-charcoal]="activeFilter === 'ARTÍCULOS'" [class.text-brand-paper]="activeFilter === 'ARTÍCULOS'" class="px-5 py-2 font-mono text-[10px] font-bold uppercase tracking-widest hover:bg-brand-charcoal/10 transition-colors border-l border-r border-brand-charcoal cursor-pointer">ARTÍCULOS</button>
       <button (click)="setFilter('ANUNCIOS')" [class.bg-brand-charcoal]="activeFilter === 'ANUNCIOS'" [class.text-brand-paper]="activeFilter === 'ANUNCIOS'" class="px-5 py-2 font-mono text-[10px] font-bold uppercase tracking-widest hover:bg-brand-charcoal/10 transition-colors cursor-pointer">ANUNCIOS</button>
+      <button (click)="setFilter('PORTFOLIOS')" class="px-5 py-2 font-mono text-[10px] font-bold uppercase tracking-widest hover:bg-brand-charcoal/10 transition-colors border-l border-brand-charcoal cursor-pointer">PORTFOLIOS</button>
     </div>
 
-    <!-- Filtro Categorías SEO -->
-    <div>
+    <!-- Filtro Categorías SEO (Trends / Oficios) -->
+    <div *ngIf="activeFilter !== 'PORTFOLIOS'">
       <span class="font-mono text-[10px] uppercase text-brand-charcoal/50 tracking-widest block mb-3">FILTRAR POR TENDENCIAS:</span>
       <div class="flex flex-wrap gap-2">
         <button *ngFor="let cat of topCategories" 
@@ -34,6 +43,28 @@
                 [class.border-brand-sage]="activeCategory === cat"
                 class="border border-brand-charcoal/30 text-brand-charcoal px-3.5 py-1 font-mono text-[10px] font-bold uppercase hover:border-brand-charcoal transition-colors rounded-full cursor-pointer">
           #{{ cat }}
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="activeFilter === 'PORTFOLIOS'">
+      <span class="font-mono text-[10px] uppercase text-brand-charcoal/50 tracking-widest block mb-3">FILTRAR POR OFICIO / NEGOCIO:</span>
+      <div class="flex flex-wrap gap-2">
+        <!-- TODOS BUTTON -->
+        <button (click)="setTemplateFilter(null)"
+                [class.bg-brand-sage]="activeTemplate === null"
+                [class.text-brand-paper]="activeTemplate === null"
+                [class.border-brand-sage]="activeTemplate === null"
+                class="border border-brand-charcoal/30 text-brand-charcoal px-3.5 py-1 font-mono text-[10px] font-bold uppercase hover:border-brand-charcoal transition-colors rounded-full cursor-pointer">
+          TODO
+        </button>
+        <button *ngFor="let oficio of oficios" 
+                (click)="setTemplateFilter(oficio.key)"
+                [class.bg-brand-sage]="activeTemplate === oficio.key"
+                [class.text-brand-paper]="activeTemplate === oficio.key"
+                [class.border-brand-sage]="activeTemplate === oficio.key"
+                class="border border-brand-charcoal/30 text-brand-charcoal px-3.5 py-1 font-mono text-[10px] font-bold uppercase hover:border-brand-charcoal transition-colors rounded-full cursor-pointer">
+          {{ oficio.label }}
         </button>
       </div>
     </div>
@@ -54,7 +85,7 @@
 
   <!-- Results Grid -->
   <div *ngIf="!loading && paginatedItems.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-    <a *ngFor="let item of paginatedItems" [routerLink]="[item.link]" class="border border-brand-charcoal flex flex-col group overflow-hidden bg-brand-paper cursor-pointer hover:border-brand-sage transition-all duration-200 shadow-sm hover:shadow-md rounded-xl h-full">
+    <div *ngFor="let item of paginatedItems" (click)="onItemClick(item)" class="border border-brand-charcoal flex flex-col group overflow-hidden bg-brand-paper cursor-pointer hover:border-brand-sage transition-all duration-200 shadow-sm hover:shadow-md rounded-xl h-full">
       
       <!-- Image Header (User photo or category 2D fallback) -->
       <div class="h-36 w-full overflow-hidden border-b border-brand-charcoal bg-brand-charcoal/5 flex flex-col items-center justify-center relative">
@@ -100,8 +131,8 @@
         <div>
           <div class="flex justify-between items-center mb-2">
             <span class="font-mono text-[9px] px-2 py-0.5 rounded font-bold uppercase border"
-                  [ngClass]="item.type === 'articulo' ? 'bg-brand-sage/20 text-brand-charcoal border-brand-charcoal' : 'bg-brand-charcoal text-brand-paper border-brand-charcoal'">
-              {{ item.type }}
+                  [ngClass]="item.type === 'articulo' ? 'bg-brand-sage/20 text-brand-charcoal border-brand-charcoal' : (item.type === 'portfolio' ? 'bg-brand-sage text-brand-paper border-brand-sage' : 'bg-brand-charcoal text-brand-paper border-brand-charcoal')">
+              {{ item.type === 'portfolio' ? 'Sitio' : item.type }}
             </span>
             <span class="font-mono text-[9px] text-brand-charcoal/50">{{ item.date | date:'dd MMM yyyy' }}</span>
           </div>
@@ -119,7 +150,7 @@
           <span class="font-mono text-[9px] text-brand-sage uppercase font-bold group-hover:underline">Ver más →</span>
         </div>
       </div>
-    </a>
+    </div>
   </div>
 
   <!-- Pagination -->
@@ -141,3 +172,103 @@
     </button>
   </div>
 </main>
+
+<!-- FULLSCREEN CLIENT PREVIEW MODAL FOR VISITOR -->
+<div *ngIf="selectedPortfolio" class="fixed inset-0 z-[90] flex items-center justify-center p-4">
+  <!-- Backdrop -->
+  <div (click)="closePortfolio()" class="fixed inset-0 bg-brand-charcoal/80 backdrop-blur-sm"></div>
+
+  <!-- Modal Content Box (Simulates mobile card container centered on computer screen) -->
+  <div class="bg-transparent w-full max-w-lg flex flex-col rounded-2xl overflow-hidden relative z-10 animate-fade-in">
+    <!-- Float Close button -->
+    <button (click)="closePortfolio()" class="absolute top-8 right-8 z-50 font-mono text-xl text-white hover:text-brand-sage bg-black/40 backdrop-blur-sm w-9 h-9 rounded-full flex items-center justify-center border border-white/10 cursor-pointer focus:outline-none" aria-label="Cerrar vista de cliente">
+      ✕
+    </button>
+
+    <!-- Simulated mobile viewport card -->
+    <div [style]="getLandingStyles(selectedPortfolio.landingConfig)" class="w-full border border-brand-charcoal rounded-2xl shadow-2xl overflow-hidden flex flex-col min-h-[480px] justify-between relative p-6 select-none">
+      
+      <!-- Cover Banner -->
+      <div class="absolute inset-0 z-0 pointer-events-none opacity-15 overflow-hidden">
+        <img [src]="selectedPortfolio.imageUrl" class="w-full h-full object-cover">
+      </div>
+
+      <div class="relative z-10 flex flex-col h-full justify-between flex-1">
+        <!-- Top header metadata -->
+        <div class="flex justify-between items-center pb-2 border-b border-white/10" style="border-color: var(--landing-card-border);">
+          <div class="flex items-center gap-1.5">
+            <span class="font-mono text-[9px] uppercase tracking-wider font-bold" style="color: var(--landing-accent);">{{ selectedPortfolio.landingTemplate }}</span>
+          </div>
+          <div class="flex items-center gap-1 opacity-85" style="color: var(--landing-text);">
+            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+              <path d="M12 2L2 22h4.5l2.5-5.5h6l2.5 5.5H22L12 2zm1 11.5h-2L12 9l1 4.5z"/>
+            </svg>
+            <span class="font-serif text-[11px] font-bold lowercase tracking-tight">arandu</span>
+          </div>
+        </div>
+
+        <!-- Main Business Info (Static upper section) -->
+        <div class="py-4 text-center">
+          <h1 class="italic font-bold text-2xl tracking-tight leading-tight">
+            {{ selectedPortfolio.title }}
+          </h1>
+          <p class="text-[10px] opacity-75 font-mono mt-1.5">
+            Contacto: {{ selectedPortfolio.contactName }} • Móvil: {{ selectedPortfolio.contactPhone }}<span *ngIf="selectedPortfolio.landingConfig?.phoneFijo"> • Fijo: {{ selectedPortfolio.landingConfig.phoneFijo }}</span>
+          </p>
+          <p class="text-[10px] opacity-70 font-mono mt-0.5">
+            {{ selectedPortfolio.contactEmail }} <span *ngIf="selectedPortfolio.website"> • {{ selectedPortfolio.website }}</span>
+          </p>
+        </div>
+
+        <!-- CAROUSEL AREA WITH FLOATING SIDE ARROWS -->
+        <div class="relative flex-1 flex items-center my-2">
+          <!-- Left Chevron Arrow -->
+          <button type="button" (click)="prevSlide()"
+                  class="absolute left-1 z-20 w-8 h-8 rounded-full bg-black/30 border border-white/10 flex items-center justify-center text-white hover:bg-black/50 transition-all cursor-pointer focus:outline-none">
+            ‹
+          </button>
+
+          <!-- HORIZONTAL CAROUSEL CONTAINER (Snap scroll list) -->
+          <div class="w-full flex overflow-x-auto snap-x snap-mandatory scroll-smooth hide-scrollbar slides-container py-3 min-h-[160px]"
+               (scroll)="onSlideScroll($event)">
+            
+            <!-- Dynamic Sections slides -->
+            <div *ngFor="let s of selectedPortfolio.landingConfig?.sections; let idx = index" 
+                 class="slide-item flex-shrink-0 w-full snap-start px-8 text-left" 
+                 [id]="'modal-slide-' + idx">
+              
+              <!-- Section title -->
+              <span class="font-serif text-base italic block font-bold mb-2 border-b border-white/10 pb-1" style="color: var(--landing-accent); border-color: var(--landing-card-border);">
+                {{ s.title || 'Sección ' + (idx + 1) }}
+              </span>
+              
+              <!-- Section content -->
+              <p class="text-xs leading-relaxed opacity-90 line-clamp-6 whitespace-pre-line font-serif overflow-y-auto max-h-[130px] hide-scrollbar">
+                {{ s.content || 'Sin descripción.' }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Right Chevron Arrow -->
+          <button type="button" (click)="nextSlide()"
+                  class="absolute right-1 z-20 w-8 h-8 rounded-full bg-black/30 border border-white/10 flex items-center justify-center text-white hover:bg-black/50 transition-all cursor-pointer focus:outline-none">
+            ›
+          </button>
+        </div>
+
+        <!-- Bottom indicators / Page dots tracker & Footer -->
+        <div class="flex items-center justify-between pt-2 border-t border-white/10" style="border-color: var(--landing-card-border);">
+          <span class="font-mono text-[8px] opacity-65">arandu.ch</span>
+          
+          <div class="flex gap-1.5">
+            <div *ngFor="let s of slides; let i = index" 
+                 class="w-1.5 h-1.5 rounded-full transition-all"
+                 [style.background-color]="currentSlideIndex === i ? 'var(--landing-accent)' : 'rgba(255,255,255,0.3)'"></div>
+          </div>
+          
+          <span class="font-mono text-[8px] opacity-65">© Ginebra, Suiza</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

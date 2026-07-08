@@ -7,6 +7,7 @@ import { ServicesCatalogService } from '../../services/services-catalog.service'
 import { InteractionService, CommentItem } from '../../services/interaction.service';
 import { AuthService } from '../../services/auth.service';
 import { Subscription } from 'rxjs';
+import { SupabaseService } from '../../services/supabase.service';
 
 interface Anuncio {
   id: string;
@@ -56,18 +57,29 @@ export class AnunciosComponent implements OnInit, OnDestroy {
   selectedSubCategory: string = 'Todo';
   sortBy: 'date' | 'price' = 'date';
   sortDirection: 'asc' | 'desc' = 'desc';
-  categories: string[] = ['Todo', 'Empleo', 'Servicios y Reparación', 'Clases y Cursos', 'Venta y Donación'];
+  categories: string[] = ['Todo', 'Sitios Comerciales', 'Empleo', 'Servicios y Reparación', 'Clases y Cursos', 'Venta y Donación'];
   anuncios: Anuncio[] = [];
   filteredAnuncios: Anuncio[] = [];
   loading = false;
   searchQuery: string = '';
   selectedAd: Anuncio | null = null;
   currentUser: any = null;
-  showModal = false;
+  showAdModal = false; // renamed from showModal
   isLoggedIn = false;
   isProfileComplete = false;
   activeDetailTab = 'presentacion';
   private authSubscription!: Subscription;
+
+  // Portfolio viewer properties
+  selectedPortfolio: any = null;
+  activePreviewTab = 'presentacion';
+  currentSlideIndex = 0;
+  get slides(): string[] {
+    if (!this.selectedPortfolio) return [];
+    const config = this.selectedPortfolio.landingConfig || {};
+    const sections = config.sections || [];
+    return sections.map((s: any) => s.title || 'Sección');
+  }
 
   // Session-based likes tracker
   likedAds: Set<string> = new Set();
@@ -150,7 +162,8 @@ export class AnunciosComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private authService: AuthService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private supabase: SupabaseService
   ) {}
 
   ngOnInit() {
@@ -279,7 +292,7 @@ export class AnunciosComponent implements OnInit, OnDestroy {
             entityType: 'service',
             clicks: item.clicks || 0,
             galleryUrls: item.gallery_urls || [],
-            landingTemplate: item.landing_template || 'servicios',
+            landingTemplate: item.landing_template,
             landingConfig: item.landing_config || {},
             contactName: item.contact_name || item.contactName || '',
             website: item.website || ''
@@ -401,6 +414,9 @@ export class AnunciosComponent implements OnInit, OnDestroy {
       list = list.filter(a => {
         const titleDesc = (a.title + ' ' + a.description).toLowerCase();
         
+        if (this.selectedCategory === 'Sitios Comerciales') {
+          return !!a.landingTemplate;
+        }
         if (this.selectedCategory === 'Servicios y Reparación') {
           return a.category === 'Servicios y Reparación';
         }
@@ -647,6 +663,10 @@ export class AnunciosComponent implements OnInit, OnDestroy {
   }
 
   async openAdModal(ad: Anuncio) {
+    if (ad.landingTemplate) {
+      this.openPortfolio(ad);
+      return;
+    }
     let cleanDescription = ad.description || '';
     let announcerName = '';
     let registeredSince = '';
@@ -690,7 +710,7 @@ export class AnunciosComponent implements OnInit, OnDestroy {
       }).catch(err => console.error('Error incrementing clicks:', err));
     }
     
-    this.showModal = true;
+    this.showAdModal = true;
     this.selectedAd.loadingComments = true;
     
     // Load comments in background (no await)
@@ -710,7 +730,218 @@ export class AnunciosComponent implements OnInit, OnDestroy {
 
   closeAdModal() {
     this.selectedAd = null;
-    this.showModal = false;
+    this.showAdModal = false;
+  }
+
+  openPortfolio(portfolio: any) {
+    this.selectedPortfolio = portfolio;
+    const config = portfolio.landingConfig || {};
+    const firstSection = config.sections && config.sections.length > 0 ? config.sections[0].title : 'Inicio';
+    this.activePreviewTab = firstSection;
+    this.currentSlideIndex = 0;
+    this.cdr.detectChanges();
+  }
+
+  closePortfolio() {
+    this.selectedPortfolio = null;
+    this.cdr.detectChanges();
+  }
+
+  getLandingStyles(config: any): any {
+    if (!config) return {};
+    const palette = config.palette || 'crosby';
+    
+    let bg = '#1e2321';
+    let text = '#fdfbf7';
+    let accent = '#8ba495';
+    let cardBg = 'rgba(255, 255, 255, 0.07)';
+    let cardBorder = 'rgba(255, 255, 255, 0.15)';
+
+    switch (palette) {
+      case 'emmeline':
+        bg = '#fcf8f2';
+        text = '#2e2522';
+        accent = '#8b3d2b';
+        cardBg = '#ffffff';
+        cardBorder = '#f1eae0';
+        break;
+      case 'sage':
+        bg = '#f4f6f4';
+        text = '#242a27';
+        accent = '#2d3a34';
+        cardBg = '#ffffff';
+        cardBorder = '#e6eae6';
+        break;
+      case 'minimal':
+        bg = '#ffffff';
+        text = '#111111';
+        accent = '#333333';
+        cardBg = '#fafafa';
+        cardBorder = '#eeeeee';
+        break;
+      case 'slate':
+        bg = '#f0f3f5';
+        text = '#1e293b';
+        accent = '#3b82f6';
+        cardBg = '#ffffff';
+        cardBorder = '#e2e8f0';
+        break;
+      case 'clay':
+        bg = '#faf6f5';
+        text = '#3c2f2f';
+        accent = '#b27c66';
+        cardBg = '#ffffff';
+        cardBorder = '#f0e5e1';
+        break;
+      case 'gold':
+        bg = '#111111';
+        text = '#f9f9f9';
+        accent = '#d4af37';
+        cardBg = '#1c1c1c';
+        cardBorder = '#2a2a2a';
+        break;
+      case 'ocean':
+        bg = '#f2f5f8';
+        text = '#122b40';
+        accent = '#0f4c81';
+        cardBg = '#ffffff';
+        cardBorder = '#e1e6eb';
+        break;
+      case 'mist':
+        bg = '#fafbfa';
+        text = '#1b2d20';
+        accent = '#385a42';
+        cardBg = '#f0f4f1';
+        cardBorder = '#e2ebd5';
+        break;
+      case 'amber':
+        bg = '#fffbf4';
+        text = '#4a3728';
+        accent = '#d97706';
+        cardBg = '#ffffff';
+        cardBorder = '#fef3c7';
+        break;
+    }
+
+    const font = config.font || 'serif';
+    let fontFamily = 'Georgia, serif';
+    switch (font) {
+      case 'sans':
+        fontFamily = 'var(--font-sans, "Outfit", sans-serif)';
+        break;
+      case 'monospace':
+        fontFamily = 'monospace';
+        break;
+      case 'geometric':
+        fontFamily = '"Cabin", "Futura", sans-serif';
+        break;
+      case 'elegant':
+        fontFamily = '"Great Vibes", "Playball", cursive';
+        break;
+    }
+
+    const styles: any = {
+      '--landing-bg': bg,
+      '--landing-text': text,
+      '--landing-accent': accent,
+      '--landing-card-bg': cardBg,
+      '--landing-card-border': cardBorder,
+      'font-family': fontFamily,
+      'background-color': 'var(--landing-bg)',
+      'color': 'var(--landing-text)',
+      'padding': '1.75rem',
+      'border-radius': '0.75rem',
+      'border': '1px solid var(--landing-card-border)',
+      'margin-bottom': '1.5rem',
+      'transition': 'all 0.3s ease'
+    };
+
+    if (config.heroImage && (palette === 'crosby' || palette === 'gold')) {
+      styles['color'] = '#fdfbf7';
+      styles['--landing-text'] = '#fdfbf7';
+      styles['--landing-card-bg'] = 'rgba(255, 255, 255, 0.1)';
+      styles['--landing-card-border'] = 'rgba(255, 255, 255, 0.2)';
+    }
+
+    return styles;
+  }
+
+  getDefaultImage(template: string): string {
+    switch (template) {
+      case 'restauracion':
+        return 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&auto=format&fit=crop&q=80';
+      case 'venta':
+        return 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&auto=format&fit=crop&q=80';
+      case 'empleo':
+        return 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=800&auto=format&fit=crop&q=80';
+      case 'particulares':
+        return 'https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=800&auto=format&fit=crop&q=80';
+      case 'educacion':
+        return 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&auto=format&fit=crop&q=80';
+      case 'belleza':
+        return 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&auto=format&fit=crop&q=80';
+      case 'limpieza':
+        return 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&auto=format&fit=crop&q=80';
+      case 'creativo':
+        return 'https://images.unsplash.com/photo-1588702547919-26089e690eca?w=800&auto=format&fit=crop&q=80';
+      case 'mascotas':
+        return 'https://images.unsplash.com/photo-1535268647977-a403b69fc756?w=800&auto=format&fit=crop&q=80';
+      case 'servicios':
+      default:
+        return 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800&auto=format&fit=crop&q=80';
+    }
+  }
+
+  getPreviewConfig(portfolio: any): any {
+    if (!portfolio) return {};
+    const config = portfolio.landingConfig || {};
+    return {
+      palette: config.palette || 'crosby',
+      font: config.font || 'serif',
+      heroImage: portfolio.imageUrl || this.getDefaultImage(portfolio.landingTemplate)
+    };
+  }
+
+  prevSlide() {
+    this.currentSlideIndex = (this.currentSlideIndex - 1 + this.slides.length) % this.slides.length;
+    this.activePreviewTab = this.slides[this.currentSlideIndex];
+    this.scrollToActiveSlide();
+  }
+
+  nextSlide() {
+    this.currentSlideIndex = (this.currentSlideIndex + 1) % this.slides.length;
+    this.activePreviewTab = this.slides[this.currentSlideIndex];
+    this.scrollToActiveSlide();
+  }
+
+  selectPreviewTab(tab: string) {
+    this.activePreviewTab = tab;
+    this.currentSlideIndex = this.slides.indexOf(tab);
+    this.scrollToActiveSlide();
+  }
+
+  scrollToActiveSlide() {
+    const container = document.querySelector('.slides-container');
+    if (container) {
+      const slideElements = container.querySelectorAll('.slide-item');
+      const targetElement = slideElements[this.currentSlideIndex];
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+      }
+    }
+  }
+
+  onSlideScroll(event: any) {
+    const container = event.target;
+    const scrollLeft = container.scrollLeft;
+    const width = container.clientWidth;
+    if (width > 0) {
+      const newIndex = Math.round(scrollLeft / width);
+      if (newIndex !== this.currentSlideIndex && newIndex >= 0 && newIndex < this.slides.length) {
+        this.currentSlideIndex = newIndex;
+        this.activePreviewTab = this.slides[this.currentSlideIndex];
+      }
+    }
   }
 
   getAdImage(ad: Anuncio): string {
@@ -763,93 +994,6 @@ export class AnunciosComponent implements OnInit, OnDestroy {
 
   selectDetailTab(tab: string) {
     this.activeDetailTab = tab;
-  }
-
-  getLandingStyles(config: any): any {
-    if (!config) return {};
-    const palette = config.palette || 'crosby';
-    
-    // Crosby Dark (Default)
-    let bg = '#1e2321';
-    let text = '#fdfbf7';
-    let accent = '#8ba495';
-    let cardBg = 'rgba(255, 255, 255, 0.07)';
-    let cardBorder = 'rgba(255, 255, 255, 0.15)';
-
-    if (palette === 'emmeline') {
-      bg = '#8b3d2b';
-      text = '#fdfbf7';
-      accent = '#e8a342';
-      cardBg = 'rgba(255, 255, 255, 0.08)';
-      cardBorder = 'rgba(255, 255, 255, 0.15)';
-    } else if (palette === 'sage') {
-      bg = '#fdfbf7';
-      text = '#2d3a34';
-      accent = '#8ba495';
-      cardBg = 'rgba(45, 58, 52, 0.05)';
-      cardBorder = 'rgba(45, 58, 52, 0.12)';
-    } else if (palette === 'minimal') {
-      bg = '#ffffff';
-      text = '#000000';
-      accent = '#333333';
-      cardBg = 'rgba(0, 0, 0, 0.03)';
-      cardBorder = 'rgba(0, 0, 0, 0.1)';
-    } else if (palette === 'mustard') {
-      bg = '#f7f4eb';
-      text = '#4a3e21';
-      accent = '#d4a373';
-      cardBg = 'rgba(74, 62, 33, 0.05)';
-      cardBorder = 'rgba(74, 62, 33, 0.12)';
-    } else if (palette === 'clay') {
-      bg = '#faf0e6';
-      text = '#5c4033';
-      accent = '#cd853f';
-      cardBg = 'rgba(92, 64, 51, 0.06)';
-      cardBorder = 'rgba(92, 64, 51, 0.12)';
-    } else if (palette === 'ocean') {
-      bg = '#1d3557';
-      text = '#f1faee';
-      accent = '#a8dadc';
-      cardBg = 'rgba(241, 250, 238, 0.08)';
-      cardBorder = 'rgba(241, 250, 238, 0.15)';
-    }
-
-    const font = config.font || 'serif';
-    let fontFamily = 'Georgia, serif';
-    if (font === 'sans') {
-      fontFamily = 'var(--font-sans, "Outfit", sans-serif)';
-    } else if (font === 'monospace') {
-      fontFamily = 'monospace';
-    } else if (font === 'elegant') {
-      fontFamily = '"Didot", "Bodoni MT", serif';
-    } else if (font === 'geometric') {
-      fontFamily = '"Futura", "Trebuchet MS", sans-serif';
-    }
-
-    const styles: any = {
-      '--landing-bg': bg,
-      '--landing-text': text,
-      '--landing-accent': accent,
-      '--landing-card-bg': cardBg,
-      '--landing-card-border': cardBorder,
-      'font-family': fontFamily,
-      'background-color': 'var(--landing-bg)',
-      'color': 'var(--landing-text)',
-      'padding': '1.75rem',
-      'border-radius': '0.75rem',
-      'border': '1px solid var(--landing-card-border)',
-      'margin-bottom': '1.5rem',
-      'transition': 'all 0.3s ease'
-    };
-
-    if (config.heroImage) {
-      styles['color'] = '#fdfbf7';
-      styles['--landing-text'] = '#fdfbf7';
-      styles['--landing-card-bg'] = 'rgba(255, 255, 255, 0.1)';
-      styles['--landing-card-border'] = 'rgba(255, 255, 255, 0.2)';
-    }
-
-    return styles;
   }
 }
 

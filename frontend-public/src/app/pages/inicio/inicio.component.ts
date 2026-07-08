@@ -9,6 +9,7 @@ import { AuthService } from '../../services/auth.service';
 import { InteractionService, CommentItem } from '../../services/interaction.service';
 import { User } from '@supabase/supabase-js';
 import { WorldCupService, WorldCupGame, WorldCupGroup } from '../../services/world-cup.service';
+import { SupabaseService } from '../../services/supabase.service';
 
 interface Headline {
   id: string;
@@ -151,13 +152,26 @@ export class InicioComponent implements OnInit {
   matchStats: any = null;
   worldCupLoading = false;
 
+  // Portfolios properties
+  portfolios: any[] = [];
+  selectedPortfolio: any = null;
+  activePreviewTab = 'presentacion';
+  currentSlideIndex = 0;
+  get slides(): string[] {
+    if (!this.selectedPortfolio) return [];
+    const config = this.selectedPortfolio.landing_config || {};
+    const sections = config.sections || [];
+    return sections.map((s: any) => s.title || 'Sección');
+  }
+
   constructor(
     private mediaService: MediaService,
     private authService: AuthService,
     private interactionService: InteractionService,
     private sanitizer: DomSanitizer,
     private worldCupService: WorldCupService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private supabase: SupabaseService
   ) {}
 
   async ngOnInit() {
@@ -176,6 +190,7 @@ export class InicioComponent implements OnInit {
 
     await this.loadLatestMedia();
     this.loadWorldCupData();
+    this.loadPortfolios();
   }
 
   // Cross-browser helper to parse "MM/DD/YYYY HH:mm" safely to local Date
@@ -754,5 +769,231 @@ export class InicioComponent implements OnInit {
       return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
     }
     return 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600&auto=format&fit=crop&q=60';
+  }
+
+  async loadPortfolios() {
+    try {
+      const { data, error } = await this.supabase.client
+        .from('services')
+        .select('*')
+        .not('landing_template', 'is', null);
+
+      if (error) throw error;
+      this.portfolios = data || [];
+      this.cdr.detectChanges();
+    } catch (err) {
+      console.error('Error loading portfolios in home:', err);
+    }
+  }
+
+  openPortfolio(portfolio: any) {
+    this.selectedPortfolio = portfolio;
+    const config = portfolio.landing_config || {};
+    const firstSection = config.sections && config.sections.length > 0 ? config.sections[0].title : 'Inicio';
+    this.activePreviewTab = firstSection;
+    this.currentSlideIndex = 0;
+    this.cdr.detectChanges();
+  }
+
+  closePortfolio() {
+    this.selectedPortfolio = null;
+    this.cdr.detectChanges();
+  }
+
+  getLandingStyles(config: any): any {
+    if (!config) return {};
+    const palette = config.palette || 'crosby';
+    
+    let bg = '#1e2321';
+    let text = '#fdfbf7';
+    let accent = '#8ba495';
+    let cardBg = 'rgba(255, 255, 255, 0.07)';
+    let cardBorder = 'rgba(255, 255, 255, 0.15)';
+
+    switch (palette) {
+      case 'emmeline':
+        bg = '#fcf8f2';
+        text = '#2e2522';
+        accent = '#8b3d2b';
+        cardBg = '#ffffff';
+        cardBorder = '#f1eae0';
+        break;
+      case 'sage':
+        bg = '#f4f6f4';
+        text = '#242a27';
+        accent = '#2d3a34';
+        cardBg = '#ffffff';
+        cardBorder = '#e6eae6';
+        break;
+      case 'minimal':
+        bg = '#ffffff';
+        text = '#111111';
+        accent = '#333333';
+        cardBg = '#fafafa';
+        cardBorder = '#eeeeee';
+        break;
+      case 'slate':
+        bg = '#f0f3f5';
+        text = '#1e293b';
+        accent = '#3b82f6';
+        cardBg = '#ffffff';
+        cardBorder = '#e2e8f0';
+        break;
+      case 'clay':
+        bg = '#faf6f5';
+        text = '#3c2f2f';
+        accent = '#b27c66';
+        cardBg = '#ffffff';
+        cardBorder = '#f0e5e1';
+        break;
+      case 'gold':
+        bg = '#111111';
+        text = '#f9f9f9';
+        accent = '#d4af37';
+        cardBg = '#1c1c1c';
+        cardBorder = '#2a2a2a';
+        break;
+      case 'ocean':
+        bg = '#f2f5f8';
+        text = '#122b40';
+        accent = '#0f4c81';
+        cardBg = '#ffffff';
+        cardBorder = '#e1e6eb';
+        break;
+      case 'mist':
+        bg = '#fafbfa';
+        text = '#1b2d20';
+        accent = '#385a42';
+        cardBg = '#f0f4f1';
+        cardBorder = '#e2ebd5';
+        break;
+      case 'amber':
+        bg = '#fffbf4';
+        text = '#4a3728';
+        accent = '#d97706';
+        cardBg = '#ffffff';
+        cardBorder = '#fef3c7';
+        break;
+    }
+
+    const font = config.font || 'serif';
+    let fontFamily = 'Georgia, serif';
+    switch (font) {
+      case 'sans':
+        fontFamily = 'var(--font-sans, "Outfit", sans-serif)';
+        break;
+      case 'monospace':
+        fontFamily = 'monospace';
+        break;
+      case 'geometric':
+        fontFamily = '"Cabin", "Futura", sans-serif';
+        break;
+      case 'elegant':
+        fontFamily = '"Great Vibes", "Playball", cursive';
+        break;
+    }
+
+    const styles: any = {
+      '--landing-bg': bg,
+      '--landing-text': text,
+      '--landing-accent': accent,
+      '--landing-card-bg': cardBg,
+      '--landing-card-border': cardBorder,
+      'font-family': fontFamily,
+      'background-color': 'var(--landing-bg)',
+      'color': 'var(--landing-text)',
+      'padding': '1.75rem',
+      'border-radius': '0.75rem',
+      'border': '1px solid var(--landing-card-border)',
+      'margin-bottom': '1.5rem',
+      'transition': 'all 0.3s ease'
+    };
+
+    if (config.heroImage && (palette === 'crosby' || palette === 'gold')) {
+      styles['color'] = '#fdfbf7';
+      styles['--landing-text'] = '#fdfbf7';
+      styles['--landing-card-bg'] = 'rgba(255, 255, 255, 0.1)';
+      styles['--landing-card-border'] = 'rgba(255, 255, 255, 0.2)';
+    }
+
+    return styles;
+  }
+
+  getDefaultImage(template: string): string {
+    switch (template) {
+      case 'restauracion':
+        return 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&auto=format&fit=crop&q=80';
+      case 'venta':
+        return 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&auto=format&fit=crop&q=80';
+      case 'empleo':
+        return 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=800&auto=format&fit=crop&q=80';
+      case 'particulares':
+        return 'https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=800&auto=format&fit=crop&q=80';
+      case 'educacion':
+        return 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&auto=format&fit=crop&q=80';
+      case 'belleza':
+        return 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&auto=format&fit=crop&q=80';
+      case 'limpieza':
+        return 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&auto=format&fit=crop&q=80';
+      case 'creativo':
+        return 'https://images.unsplash.com/photo-1588702547919-26089e690eca?w=800&auto=format&fit=crop&q=80';
+      case 'mascotas':
+        return 'https://images.unsplash.com/photo-1535268647977-a403b69fc756?w=800&auto=format&fit=crop&q=80';
+      case 'servicios':
+      default:
+        return 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800&auto=format&fit=crop&q=80';
+    }
+  }
+
+  getPreviewConfig(portfolio: any): any {
+    if (!portfolio) return {};
+    const config = portfolio.landing_config || {};
+    return {
+      palette: config.palette || 'crosby',
+      font: config.font || 'serif',
+      heroImage: portfolio.image_url || this.getDefaultImage(portfolio.landing_template)
+    };
+  }
+
+  prevSlide() {
+    this.currentSlideIndex = (this.currentSlideIndex - 1 + this.slides.length) % this.slides.length;
+    this.activePreviewTab = this.slides[this.currentSlideIndex];
+    this.scrollToActiveSlide();
+  }
+
+  nextSlide() {
+    this.currentSlideIndex = (this.currentSlideIndex + 1) % this.slides.length;
+    this.activePreviewTab = this.slides[this.currentSlideIndex];
+    this.scrollToActiveSlide();
+  }
+
+  selectPreviewTab(tab: string) {
+    this.activePreviewTab = tab;
+    this.currentSlideIndex = this.slides.indexOf(tab);
+    this.scrollToActiveSlide();
+  }
+
+  scrollToActiveSlide() {
+    const container = document.querySelector('.slides-container');
+    if (container) {
+      const slideElements = container.querySelectorAll('.slide-item');
+      const targetElement = slideElements[this.currentSlideIndex];
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+      }
+    }
+  }
+
+  onSlideScroll(event: any) {
+    const container = event.target;
+    const scrollLeft = container.scrollLeft;
+    const width = container.clientWidth;
+    if (width > 0) {
+      const newIndex = Math.round(scrollLeft / width);
+      if (newIndex !== this.currentSlideIndex && newIndex >= 0 && newIndex < this.slides.length) {
+        this.currentSlideIndex = newIndex;
+        this.activePreviewTab = this.slides[this.currentSlideIndex];
+      }
+    }
   }
 }

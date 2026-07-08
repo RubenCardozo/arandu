@@ -8,13 +8,20 @@ import { JobsService } from '../../services/jobs.service';
 
 interface UnifiedItem {
   id: string;
-  type: 'articulo' | 'anuncio';
+  type: 'articulo' | 'anuncio' | 'portfolio';
   title: string;
   description: string;
   category: string;
   date: Date;
   imageUrl?: string;
   link: string;
+  landingTemplate?: string;
+  landingConfig?: any;
+  contactPhone?: string;
+  contactEmail?: string;
+  contactName?: string;
+  website?: string;
+  galleryUrls?: string[];
 }
 
 @Component({
@@ -25,8 +32,33 @@ interface UnifiedItem {
 })
 export class BuscarComponent implements OnInit {
   searchQuery: string = '';
-  activeFilter: 'TODO' | 'ARTÍCULOS' | 'ANUNCIOS' = 'TODO';
+  activeFilter: 'TODO' | 'ARTÍCULOS' | 'ANUNCIOS' | 'PORTFOLIOS' = 'TODO';
   activeCategory: string | null = null;
+  activeTemplate: string | null = null;
+
+  oficios = [
+    { key: 'servicios', label: 'Servicios' },
+    { key: 'restauracion', label: 'Comida' },
+    { key: 'venta', label: 'Tienda' },
+    { key: 'particulares', label: 'Tecnología' },
+    { key: 'educacion', label: 'Profesor' },
+    { key: 'belleza', label: 'Estética' },
+    { key: 'limpieza', label: 'Limpieza' },
+    { key: 'creativo', label: 'Reparación' },
+    { key: 'mascotas', label: 'Mascotas' },
+    { key: 'empleo', label: 'Varios' }
+  ];
+
+  // Portfolio viewer properties
+  selectedPortfolio: any = null;
+  activePreviewTab = 'presentacion';
+  currentSlideIndex = 0;
+  get slides(): string[] {
+    if (!this.selectedPortfolio) return [];
+    const config = this.selectedPortfolio.landingConfig || {};
+    const sections = config.sections || [];
+    return sections.map((s: any) => s.title || 'Sección');
+  }
   
   topCategories = ['EMPLEO', 'INMOBILIARIA', 'SERVICIOS', 'RESTAURANTES', 'TRÁMITES', 'CLIMA', 'TRÁFICO', 'ANIMALES', 'CULTURA', 'EVENTOS'];
 
@@ -108,6 +140,10 @@ export class BuscarComponent implements OnInit {
 
     this.route.queryParams.subscribe(params => {
       this.searchQuery = params['q'] || '';
+      const filterParam = params['filter'];
+      if (filterParam === 'PORTFOLIOS' || filterParam === 'ANUNCIOS' || filterParam === 'ARTÍCULOS') {
+        this.activeFilter = filterParam;
+      }
       this.loadData();
     });
   }
@@ -134,13 +170,20 @@ export class BuscarComponent implements OnInit {
 
       const servicesAds: UnifiedItem[] = (dirData || []).map((d: any) => ({
         id: d.id,
-        type: 'anuncio',
+        type: d.landing_template ? 'portfolio' : 'anuncio',
         title: d.title,
         description: d.description || '',
-        category: d.category || 'SERVICIOS',
+        category: d.landing_template ? 'PORTFOLIO' : (d.category || 'SERVICIOS'),
         date: new Date(),
         imageUrl: d.imageUrl,
-        link: '/anuncios'
+        link: '/anuncios',
+        landingTemplate: d.landing_template,
+        landingConfig: d.landing_config || {},
+        contactPhone: d.phone,
+        contactEmail: d.email,
+        contactName: d.contact_name || d.contactName || '',
+        website: d.website || '',
+        galleryUrls: d.gallery_urls || []
       }));
 
       const jobsAds: UnifiedItem[] = (jobsData || []).map((j: any) => ({
@@ -216,8 +259,25 @@ export class BuscarComponent implements OnInit {
     });
   }
 
-  setFilter(filter: 'TODO' | 'ARTÍCULOS' | 'ANUNCIOS') {
+  setFilter(filter: 'TODO' | 'ARTÍCULOS' | 'ANUNCIOS' | 'PORTFOLIOS') {
     this.activeFilter = filter;
+    this.activeTemplate = null;
+    this.activeCategory = null;
+    this.currentPage = 1;
+    this.applyFilters();
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { filter: filter },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  setTemplateFilter(templateKey: string | null) {
+    if (this.activeTemplate === templateKey) {
+      this.activeTemplate = null;
+    } else {
+      this.activeTemplate = templateKey;
+    }
     this.currentPage = 1;
     this.applyFilters();
   }
@@ -260,6 +320,11 @@ export class BuscarComponent implements OnInit {
       result = result.filter(item => item.type === 'articulo');
     } else if (this.activeFilter === 'ANUNCIOS') {
       result = result.filter(item => item.type === 'anuncio');
+    } else if (this.activeFilter === 'PORTFOLIOS') {
+      result = result.filter(item => item.type === 'portfolio');
+      if (this.activeTemplate) {
+        result = result.filter(item => item.landingTemplate === this.activeTemplate);
+      }
     }
 
     if (this.activeCategory) {
@@ -307,5 +372,224 @@ export class BuscarComponent implements OnInit {
       }
     } catch (e) {}
     return description;
+  }
+
+  openPortfolio(portfolio: any) {
+    this.selectedPortfolio = portfolio;
+    const config = portfolio.landingConfig || {};
+    const firstSection = config.sections && config.sections.length > 0 ? config.sections[0].title : 'Inicio';
+    this.activePreviewTab = firstSection;
+    this.currentSlideIndex = 0;
+    this.cdr.detectChanges();
+  }
+
+  closePortfolio() {
+    this.selectedPortfolio = null;
+    this.cdr.detectChanges();
+  }
+
+  onItemClick(item: UnifiedItem) {
+    if (item.type === 'portfolio') {
+      this.openPortfolio(item);
+    } else {
+      this.router.navigate([item.link]);
+    }
+  }
+
+  getLandingStyles(config: any): any {
+    if (!config) return {};
+    const palette = config.palette || 'crosby';
+    
+    let bg = '#1e2321';
+    let text = '#fdfbf7';
+    let accent = '#8ba495';
+    let cardBg = 'rgba(255, 255, 255, 0.07)';
+    let cardBorder = 'rgba(255, 255, 255, 0.15)';
+
+    switch (palette) {
+      case 'emmeline':
+        bg = '#fcf8f2';
+        text = '#2e2522';
+        accent = '#8b3d2b';
+        cardBg = '#ffffff';
+        cardBorder = '#f1eae0';
+        break;
+      case 'sage':
+        bg = '#f4f6f4';
+        text = '#242a27';
+        accent = '#2d3a34';
+        cardBg = '#ffffff';
+        cardBorder = '#e6eae6';
+        break;
+      case 'minimal':
+        bg = '#ffffff';
+        text = '#111111';
+        accent = '#333333';
+        cardBg = '#fafafa';
+        cardBorder = '#eeeeee';
+        break;
+      case 'slate':
+        bg = '#f0f3f5';
+        text = '#1e293b';
+        accent = '#3b82f6';
+        cardBg = '#ffffff';
+        cardBorder = '#e2e8f0';
+        break;
+      case 'clay':
+        bg = '#faf6f5';
+        text = '#3c2f2f';
+        accent = '#b27c66';
+        cardBg = '#ffffff';
+        cardBorder = '#f0e5e1';
+        break;
+      case 'gold':
+        bg = '#111111';
+        text = '#f9f9f9';
+        accent = '#d4af37';
+        cardBg = '#1c1c1c';
+        cardBorder = '#2a2a2a';
+        break;
+      case 'ocean':
+        bg = '#f2f5f8';
+        text = '#122b40';
+        accent = '#0f4c81';
+        cardBg = '#ffffff';
+        cardBorder = '#e1e6eb';
+        break;
+      case 'mist':
+        bg = '#fafbfa';
+        text = '#1b2d20';
+        accent = '#385a42';
+        cardBg = '#f0f4f1';
+        cardBorder = '#e2ebd5';
+        break;
+      case 'amber':
+        bg = '#fffbf4';
+        text = '#4a3728';
+        accent = '#d97706';
+        cardBg = '#ffffff';
+        cardBorder = '#fef3c7';
+        break;
+    }
+
+    const font = config.font || 'serif';
+    let fontFamily = 'Georgia, serif';
+    switch (font) {
+      case 'sans':
+        fontFamily = 'var(--font-sans, "Outfit", sans-serif)';
+        break;
+      case 'monospace':
+        fontFamily = 'monospace';
+        break;
+      case 'geometric':
+        fontFamily = '"Cabin", "Futura", sans-serif';
+        break;
+      case 'elegant':
+        fontFamily = '"Great Vibes", "Playball", cursive';
+        break;
+    }
+
+    const styles: any = {
+      '--landing-bg': bg,
+      '--landing-text': text,
+      '--landing-accent': accent,
+      '--landing-card-bg': cardBg,
+      '--landing-card-border': cardBorder,
+      'font-family': fontFamily,
+      'background-color': 'var(--landing-bg)',
+      'color': 'var(--landing-text)',
+      'padding': '1.75rem',
+      'border-radius': '0.75rem',
+      'border': '1px solid var(--landing-card-border)',
+      'margin-bottom': '1.5rem',
+      'transition': 'all 0.3s ease'
+    };
+
+    if (config.heroImage && (palette === 'crosby' || palette === 'gold')) {
+      styles['color'] = '#fdfbf7';
+      styles['--landing-text'] = '#fdfbf7';
+      styles['--landing-card-bg'] = 'rgba(255, 255, 255, 0.1)';
+      styles['--landing-card-border'] = 'rgba(255, 255, 255, 0.2)';
+    }
+
+    return styles;
+  }
+
+  getDefaultImage(template: string): string {
+    switch (template) {
+      case 'restauracion':
+        return 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&auto=format&fit=crop&q=80';
+      case 'venta':
+        return 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&auto=format&fit=crop&q=80';
+      case 'empleo':
+        return 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=800&auto=format&fit=crop&q=80';
+      case 'particulares':
+        return 'https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=800&auto=format&fit=crop&q=80';
+      case 'educacion':
+        return 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&auto=format&fit=crop&q=80';
+      case 'belleza':
+        return 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&auto=format&fit=crop&q=80';
+      case 'limpieza':
+        return 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&auto=format&fit=crop&q=80';
+      case 'creativo':
+        return 'https://images.unsplash.com/photo-1588702547919-26089e690eca?w=800&auto=format&fit=crop&q=80';
+      case 'mascotas':
+        return 'https://images.unsplash.com/photo-1535268647977-a403b69fc756?w=800&auto=format&fit=crop&q=80';
+      case 'servicios':
+      default:
+        return 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800&auto=format&fit=crop&q=80';
+    }
+  }
+
+  getPreviewConfig(portfolio: any): any {
+    if (!portfolio) return {};
+    const config = portfolio.landingConfig || {};
+    return {
+      palette: config.palette || 'crosby',
+      font: config.font || 'serif',
+      heroImage: portfolio.imageUrl || this.getDefaultImage(portfolio.landingTemplate)
+    };
+  }
+
+  prevSlide() {
+    this.currentSlideIndex = (this.currentSlideIndex - 1 + this.slides.length) % this.slides.length;
+    this.activePreviewTab = this.slides[this.currentSlideIndex];
+    this.scrollToActiveSlide();
+  }
+
+  nextSlide() {
+    this.currentSlideIndex = (this.currentSlideIndex + 1) % this.slides.length;
+    this.activePreviewTab = this.slides[this.currentSlideIndex];
+    this.scrollToActiveSlide();
+  }
+
+  selectPreviewTab(tab: string) {
+    this.activePreviewTab = tab;
+    this.currentSlideIndex = this.slides.indexOf(tab);
+    this.scrollToActiveSlide();
+  }
+
+  scrollToActiveSlide() {
+    const container = document.querySelector('.slides-container');
+    if (container) {
+      const slideElements = container.querySelectorAll('.slide-item');
+      const targetElement = slideElements[this.currentSlideIndex];
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+      }
+    }
+  }
+
+  onSlideScroll(event: any) {
+    const container = event.target;
+    const scrollLeft = container.scrollLeft;
+    const width = container.clientWidth;
+    if (width > 0) {
+      const newIndex = Math.round(scrollLeft / width);
+      if (newIndex !== this.currentSlideIndex && newIndex >= 0 && newIndex < this.slides.length) {
+        this.currentSlideIndex = newIndex;
+        this.activePreviewTab = this.slides[this.currentSlideIndex];
+      }
+    }
   }
 }

@@ -1,7 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { SupabaseService } from '../../services/supabase.service';
 import { InteractionService } from '../../services/interaction.service';
@@ -39,6 +39,21 @@ export class SessionComponent implements OnInit, OnDestroy {
   // Keywords help modal
   keywordsModalVisible = false;
   
+  // Portfolio properties
+  portfolioForm!: FormGroup;
+  portfolioAd: any = null;
+  portfolioLoading = false;
+  portfolioSubmitting = false;
+  showLandingPreviewModal = false;
+  portfolioHeroPreview: string | null = null;
+  activePreviewTab = 'Inicio';
+  currentSlideIndex = 0;
+  get slides(): string[] {
+    if (!this.portfolioForm) return [];
+    const sections = this.portfolioForm.get('sections')?.value || [];
+    return sections.map((s: any) => s.title || 'Sección');
+  }
+  
   private authSubscription!: Subscription;
 
   constructor(
@@ -47,7 +62,8 @@ export class SessionComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private supabase: SupabaseService,
     private interactionService: InteractionService,
-    private servicesCatalogService: ServicesCatalogService
+    private servicesCatalogService: ServicesCatalogService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -105,6 +121,26 @@ export class SessionComponent implements OnInit, OnDestroy {
       landingSobreNosotros: [''],
       
       galleryUrlsRaw: ['']
+    });
+
+    this.portfolioForm = this.fb.group({
+      title: ['', [Validators.required, Validators.minLength(3)]],
+      description: ['', [Validators.required, Validators.minLength(10)]],
+      category: ['Servicios y Reparación'],
+      contactName: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      phone: ['', [Validators.required, Validators.pattern(/^\+?[0-9\s\-]{8,20}$/)]],
+      phoneFijo: ['', [Validators.pattern(/^\+?[0-9\s\-]{8,20}$/)]],
+      website: [''],
+      landingTemplate: ['servicios'],
+      landingPalette: ['crosby'],
+      landingFont: ['serif'],
+      landingHeroImage: [''],
+      sections: this.fb.array([
+        this.fb.group({ title: ['Inicio', [Validators.required]], content: ['Presentación detallada de nuestro negocio...', [Validators.required, Validators.minLength(10)]] }),
+        this.fb.group({ title: ['Servicios', [Validators.required]], content: ['Detalles sobre los servicios y experiencia de nuestro negocio...', [Validators.required, Validators.minLength(10)]] }),
+        this.fb.group({ title: ['Contacto', [Validators.required]], content: ['Información de horarios y contacto...', [Validators.required, Validators.minLength(10)]] })
+      ])
     });
 
     this.authSubscription = this.authService.currentUser$.subscribe(currentUser => {
@@ -277,7 +313,7 @@ export class SessionComponent implements OnInit, OnDestroy {
     return this.editingAd?.type;
   }
 
-  activeTab: 'profile' | 'publications' | 'publish' | 'stats' = 'publications';
+  activeTab: 'profile' | 'publications' | 'publish' | 'stats' | 'portfolio' = 'publications';
 
   totalViews = 0;
   mostVisitedAd: any = null;
@@ -285,10 +321,13 @@ export class SessionComponent implements OnInit, OnDestroy {
   mostCommentedAd: any = null;
   mostSearchedGlobal: any[] = [];
 
-  setTab(tab: 'profile' | 'publications' | 'publish' | 'stats') {
+  setTab(tab: 'profile' | 'publications' | 'publish' | 'stats' | 'portfolio') {
     this.activeTab = tab;
     this.errorMessage = '';
     this.successMessage = '';
+    if (tab === 'portfolio') {
+      this.loadOrCreatePortfolio();
+    }
   }
 
   onAdPublished() {
@@ -1156,5 +1195,471 @@ export class SessionComponent implements OnInit, OnDestroy {
       default:
         return 'bg-brand-charcoal/5 text-brand-charcoal/80';
     }
+  }
+
+  get sections(): FormArray {
+    return this.portfolioForm?.get('sections') as FormArray;
+  }
+
+  createSectionGroup(title: string = '', content: string = ''): FormGroup {
+    return this.fb.group({
+      title: [title, [Validators.required]],
+      content: [content, [Validators.required, Validators.minLength(10)]]
+    });
+  }
+
+  addSection(title: string = '', content: string = '') {
+    if (this.sections && this.sections.length < 5) {
+      this.sections.push(this.createSectionGroup(title, content));
+      this.cdr.detectChanges();
+    }
+  }
+
+  removeSection(index: number) {
+    if (this.sections && this.sections.length > 3) {
+      this.sections.removeAt(index);
+      this.cdr.detectChanges();
+    }
+  }
+
+  // Portfolio discovery & load logic
+  async loadOrCreatePortfolio() {
+    if (!this.user) return;
+    this.portfolioLoading = true;
+    this.cdr.detectChanges();
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    const userId = this.user.id;
+
+    try {
+      const { data, error } = await this.runWithTimeout<any>(
+        (async () => {
+          return await this.supabase.client
+            .from('services')
+            .select('*')
+            .eq('owner_id', userId);
+        })()
+      );
+
+      if (error) throw error;
+
+      const portfolio = data && data.length > 0 ? data.find((item: any) => item.landing_template !== null && item.landing_template !== undefined) : null;
+
+      if (portfolio) {
+        this.portfolioAd = portfolio;
+        const config = this.portfolioAd.landing_config || {};
+
+        // Clear sections FormArray
+        while (this.sections.length !== 0) {
+          this.sections.removeAt(0);
+        }
+
+        // Fill sections from database or use defaults
+        const dbSections = config.sections || [];
+        if (dbSections.length >= 3) {
+          dbSections.forEach((s: any) => this.addSection(s.title, s.content));
+        } else {
+          // Default 3 sections
+          this.addSection('Inicio', this.portfolioAd.description || 'Presentación de nuestro negocio...');
+          this.addSection('Servicios', 'Detalles sobre los servicios y experiencia de nuestro negocio...');
+          this.addSection('Contacto', 'Puedes contactar con nosotros a través de nuestro teléfono o correo.');
+        }
+
+        this.portfolioForm.patchValue({
+          title: this.portfolioAd.title || '',
+          description: this.portfolioAd.description || '',
+          category: this.portfolioAd.category || 'Servicios y Reparación',
+          contactName: this.portfolioAd.contact_name || '',
+          email: this.portfolioAd.email || '',
+          phone: this.portfolioAd.phone || '',
+          website: this.portfolioAd.website || '',
+          landingTemplate: this.portfolioAd.landing_template || 'servicios',
+          landingPalette: config.palette || 'crosby',
+          landingFont: config.font || 'serif',
+          landingHeroImage: config.heroImage || '',
+          phoneFijo: config.phoneFijo || ''
+        });
+      } else {
+        // Pre-fill user contact info
+        const metadata = this.user.user_metadata;
+
+        // Clear and add 3 defaults
+        while (this.sections.length !== 0) {
+          this.sections.removeAt(0);
+        }
+        this.addSection('Inicio', 'Presentación detallada de nuestro negocio...');
+        this.addSection('Servicios', 'Servicios de alta calidad adaptados a tus necesidades.');
+        this.addSection('Contacto', 'Información de horarios y contacto.');
+
+        this.portfolioForm.patchValue({
+          title: '',
+          description: '',
+          category: 'Servicios y Reparación',
+          contactName: `${metadata?.['first_name'] || ''} ${metadata?.['last_name'] || ''}`.trim(),
+          email: this.user.email || '',
+          phone: metadata?.['phone'] || '',
+          phoneFijo: '',
+          landingTemplate: 'servicios',
+          landingPalette: 'crosby',
+          landingFont: 'serif',
+          landingHeroImage: this.getDefaultImage('servicios')
+        });
+        this.portfolioAd = null;
+      }
+    } catch (err: any) {
+      console.error('Error loading portfolio:', err);
+      this.errorMessage = 'No se pudo cargar la información de tu Sitio Comercial.';
+      this.cdr.detectChanges();
+    } finally {
+      this.portfolioLoading = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  setLandingTemplate(template: string) {
+    const currentHero = this.portfolioForm.get('landingHeroImage')?.value;
+    const isDefault = !currentHero || 
+      currentHero === this.getDefaultImage('servicios') ||
+      currentHero === this.getDefaultImage('restauracion') ||
+      currentHero === this.getDefaultImage('venta') ||
+      currentHero === this.getDefaultImage('empleo') ||
+      currentHero === this.getDefaultImage('particulares') ||
+      currentHero === this.getDefaultImage('educacion') ||
+      currentHero === this.getDefaultImage('belleza') ||
+      currentHero === this.getDefaultImage('limpieza') ||
+      currentHero === this.getDefaultImage('creativo') ||
+      currentHero === this.getDefaultImage('mascotas') ||
+      currentHero.startsWith('https://images.unsplash.com/');
+
+    this.portfolioForm.patchValue({
+      landingTemplate: template,
+      ...(isDefault ? { landingHeroImage: this.getDefaultImage(template) } : {})
+    });
+  }
+
+  getDefaultImage(template: string): string {
+    switch (template) {
+      case 'restauracion':
+        return 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&auto=format&fit=crop&q=80';
+      case 'venta':
+        return 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&auto=format&fit=crop&q=80';
+      case 'empleo':
+        return 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=800&auto=format&fit=crop&q=80';
+      case 'particulares':
+        return 'https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=800&auto=format&fit=crop&q=80';
+      case 'educacion':
+        return 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&auto=format&fit=crop&q=80';
+      case 'belleza':
+        return 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&auto=format&fit=crop&q=80';
+      case 'limpieza':
+        return 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&auto=format&fit=crop&q=80';
+      case 'creativo':
+        return 'https://images.unsplash.com/photo-1588702547919-26089e690eca?w=800&auto=format&fit=crop&q=80';
+      case 'mascotas':
+        return 'https://images.unsplash.com/photo-1535268647977-a403b69fc756?w=800&auto=format&fit=crop&q=80';
+      case 'servicios':
+      default:
+        return 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800&auto=format&fit=crop&q=80';
+    }
+  }
+
+  async onLandingHeroSelected(event: any) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      this.errorMessage = 'Por favor, selecciona un archivo de imagen válido.';
+      return;
+    }
+
+    try {
+      const compressed = await this.compressImageToDataUrl(file);
+      this.portfolioForm.patchValue({ landingHeroImage: compressed });
+    } catch (err) {
+      console.error('Error compressing landing cover:', err);
+      this.errorMessage = 'No se pudo procesar la imagen de portada.';
+    }
+  }
+
+
+
+  private compressImageToDataUrl(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event: any) => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const maxDimension = 800;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > maxDimension) {
+              height = Math.round((height * maxDimension) / width);
+              width = maxDimension;
+            }
+          } else {
+            if (height > maxDimension) {
+              width = Math.round((width * maxDimension) / height);
+              height = maxDimension;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', 0.6));
+        };
+        img.onerror = (err) => reject(err);
+      };
+      reader.onerror = (err) => reject(err);
+    });
+  }
+
+  getPreviewConfig(): any {
+    if (!this.portfolioForm) return {};
+    const val = this.portfolioForm.value;
+    return {
+      palette: val.landingPalette || 'crosby',
+      font: val.landingFont || 'serif',
+      heroImage: val.landingHeroImage || this.getDefaultImage(val.landingTemplate),
+      sections: val.sections || []
+    };
+  }
+
+  getLandingStyles(config: any): any {
+    if (!config) return {};
+    const palette = config.palette || 'crosby';
+    
+    let bg = '#1e2321';
+    let text = '#fdfbf7';
+    let accent = '#8ba495';
+    let cardBg = 'rgba(255, 255, 255, 0.07)';
+    let cardBorder = 'rgba(255, 255, 255, 0.15)';
+
+    switch (palette) {
+      case 'emmeline':
+        bg = '#fcf8f2';
+        text = '#2e2522';
+        accent = '#8b3d2b';
+        cardBg = '#ffffff';
+        cardBorder = '#f1eae0';
+        break;
+      case 'sage':
+        bg = '#f4f6f4';
+        text = '#242a27';
+        accent = '#2d3a34';
+        cardBg = '#ffffff';
+        cardBorder = '#e6eae6';
+        break;
+      case 'minimal':
+        bg = '#ffffff';
+        text = '#111111';
+        accent = '#333333';
+        cardBg = '#fafafa';
+        cardBorder = '#eeeeee';
+        break;
+      case 'slate':
+        bg = '#f0f3f5';
+        text = '#1e293b';
+        accent = '#3b82f6';
+        cardBg = '#ffffff';
+        cardBorder = '#e2e8f0';
+        break;
+      case 'clay':
+        bg = '#faf6f5';
+        text = '#3c2f2f';
+        accent = '#b27c66';
+        cardBg = '#ffffff';
+        cardBorder = '#f0e5e1';
+        break;
+      case 'gold':
+        bg = '#111111';
+        text = '#f9f9f9';
+        accent = '#d4af37';
+        cardBg = '#1c1c1c';
+        cardBorder = '#2a2a2a';
+        break;
+      case 'ocean':
+        bg = '#f2f5f8';
+        text = '#122b40';
+        accent = '#0f4c81';
+        cardBg = '#ffffff';
+        cardBorder = '#e1e6eb';
+        break;
+      case 'mist':
+        bg = '#fafbfa';
+        text = '#1b2d20';
+        accent = '#385a42';
+        cardBg = '#f0f4f1';
+        cardBorder = '#e2ebd5';
+        break;
+      case 'amber':
+        bg = '#fffbf4';
+        text = '#4a3728';
+        accent = '#d97706';
+        cardBg = '#ffffff';
+        cardBorder = '#fef3c7';
+        break;
+    }
+
+    const font = config.font || 'serif';
+    let fontFamily = 'Georgia, serif';
+    switch (font) {
+      case 'sans':
+        fontFamily = 'var(--font-sans, "Outfit", sans-serif)';
+        break;
+      case 'monospace':
+        fontFamily = 'monospace';
+        break;
+      case 'geometric':
+        fontFamily = '"Cabin", "Futura", sans-serif';
+        break;
+      case 'elegant':
+        fontFamily = '"Great Vibes", "Playball", cursive';
+        break;
+    }
+
+    const styles: any = {
+      '--landing-bg': bg,
+      '--landing-text': text,
+      '--landing-accent': accent,
+      '--landing-card-bg': cardBg,
+      '--landing-card-border': cardBorder,
+      'font-family': fontFamily,
+      'background-color': 'var(--landing-bg)',
+      'color': 'var(--landing-text)',
+      'padding': '1.75rem',
+      'border-radius': '0.75rem',
+      'border': '1px solid var(--landing-card-border)',
+      'margin-bottom': '1.5rem',
+      'transition': 'all 0.3s ease'
+    };
+
+    if (config.heroImage && (palette === 'crosby' || palette === 'gold')) {
+      styles['color'] = '#fdfbf7';
+      styles['--landing-text'] = '#fdfbf7';
+      styles['--landing-card-bg'] = 'rgba(255, 255, 255, 0.1)';
+      styles['--landing-card-border'] = 'rgba(255, 255, 255, 0.2)';
+    }
+
+    return styles;
+  }
+
+  // Carrusel & touch swipe logic
+  prevSlide() {
+    this.currentSlideIndex = (this.currentSlideIndex - 1 + this.slides.length) % this.slides.length;
+    this.activePreviewTab = this.slides[this.currentSlideIndex];
+    this.scrollToActiveSlide();
+  }
+
+  nextSlide() {
+    this.currentSlideIndex = (this.currentSlideIndex + 1) % this.slides.length;
+    this.activePreviewTab = this.slides[this.currentSlideIndex];
+    this.scrollToActiveSlide();
+  }
+
+  selectPreviewTab(tab: string) {
+    this.activePreviewTab = tab;
+    this.currentSlideIndex = this.slides.indexOf(tab);
+    this.scrollToActiveSlide();
+  }
+
+  scrollToActiveSlide() {
+    const container = document.querySelector('.slides-container');
+    if (container) {
+      const slideElements = container.querySelectorAll('.slide-item');
+      const targetElement = slideElements[this.currentSlideIndex];
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+      }
+    }
+  }
+
+  onSlideScroll(event: any) {
+    const container = event.target;
+    const scrollLeft = container.scrollLeft;
+    const width = container.clientWidth;
+    if (width > 0) {
+      const newIndex = Math.round(scrollLeft / width);
+      if (newIndex !== this.currentSlideIndex && newIndex >= 0 && newIndex < this.slides.length) {
+        this.currentSlideIndex = newIndex;
+        this.activePreviewTab = this.slides[this.currentSlideIndex];
+      }
+    }
+  }
+
+  // Save changes conditional logic
+  async onSavePortfolio() {
+    if (this.portfolioForm.invalid) {
+      this.portfolioForm.markAllAsTouched();
+      return;
+    }
+
+    if (!this.user) return;
+
+    this.portfolioSubmitting = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    const formValues = this.portfolioForm.value;
+    const config: any = {
+      palette: formValues.landingPalette || 'crosby',
+      font: formValues.landingFont || 'serif',
+      heroImage: formValues.landingHeroImage || '',
+      sections: formValues.sections || [],
+      phoneFijo: formValues.phoneFijo || ''
+    };
+
+    const payload = {
+      title: formValues.title,
+      category: formValues.category,
+      description: formValues.description,
+      contact_name: formValues.contactName,
+      phone: formValues.phone,
+      email: formValues.email,
+      website: formValues.website,
+      image_url: formValues.landingHeroImage || this.getDefaultImage(formValues.landingTemplate),
+      owner_id: this.user.id,
+      gallery_urls: [],
+      landing_template: formValues.landingTemplate,
+      landing_config: config
+    };
+
+    try {
+      if (this.portfolioAd) {
+        const { error } = await this.supabase.client
+          .from('services')
+          .update(payload)
+          .eq('id', this.portfolioAd.id);
+        if (error) throw error;
+        this.successMessage = '¡Sitio Comercial actualizado con éxito!';
+      } else {
+        const { error } = await this.supabase.client
+          .from('services')
+          .insert([payload]);
+        if (error) throw error;
+        this.successMessage = '¡Sitio Comercial creado con éxito!';
+      }
+      this.loadOrCreatePortfolio();
+    } catch (err: any) {
+      console.error('Error saving portfolio:', err);
+      this.errorMessage = err.message || 'Error al guardar el Sitio Comercial.';
+    } finally {
+      this.portfolioSubmitting = false;
+    }
+  }
+
+  openLandingPreviewModal() {
+    this.showLandingPreviewModal = true;
+  }
+
+  closeLandingPreviewModal() {
+    this.showLandingPreviewModal = false;
   }
 }

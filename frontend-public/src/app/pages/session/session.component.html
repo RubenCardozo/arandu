@@ -1,6 +1,107 @@
 <main class="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4 bg-brand-paper">
   <div class="w-full max-w-3xl bg-brand-paper border-2 border-brand-charcoal relative z-10">
     <div class="absolute top-0 left-0 w-2 h-full bg-brand-sage"></div>
+
+<!-- FULLSCREEN CLIENT PREVIEW MODAL -->
+<div *ngIf="showLandingPreviewModal && portfolioForm" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <!-- Backdrop -->
+  <div (click)="closeLandingPreviewModal()" class="fixed inset-0 bg-brand-charcoal/80 backdrop-blur-sm"></div>
+
+  <!-- Modal Content Box (Simulates mobile card container centered on computer screen) -->
+  <div class="bg-transparent w-full max-w-lg flex flex-col rounded-2xl overflow-hidden relative z-10 animate-fade-in">
+    <!-- Float Close button -->
+    <button (click)="closeLandingPreviewModal()" class="absolute top-8 right-8 z-50 font-mono text-xl text-white hover:text-brand-sage bg-black/40 backdrop-blur-sm w-9 h-9 rounded-full flex items-center justify-center border border-white/10 cursor-pointer focus:outline-none" aria-label="Cerrar vista de cliente">
+      ✕
+    </button>
+
+    <!-- Simulated mobile viewport card -->
+    <div [style]="getLandingStyles(getPreviewConfig())" class="w-full border border-brand-charcoal rounded-2xl shadow-2xl overflow-hidden flex flex-col min-h-[480px] justify-between relative p-6 select-none">
+      
+      <!-- Cover Banner (Background absolute image with opacity) -->
+      <div class="absolute inset-0 z-0 pointer-events-none opacity-15 overflow-hidden">
+        <img *ngIf="portfolioForm.get('landingHeroImage')?.value" [src]="portfolioForm.get('landingHeroImage')?.value" class="w-full h-full object-cover">
+      </div>
+
+      <div class="relative z-10 flex flex-col h-full justify-between flex-1">
+        <!-- Top header metadata -->
+        <div class="flex justify-between items-center pb-2 border-b border-white/10" style="border-color: var(--landing-card-border);">
+          <div class="flex items-center gap-1.5">
+            <span class="font-mono text-[9px] uppercase tracking-wider font-bold" style="color: var(--landing-accent);">{{ portfolioForm.get('landingTemplate')?.value }}</span>
+          </div>
+          <div class="flex items-center gap-1 opacity-85" style="color: var(--landing-text);">
+            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+              <path d="M12 2L2 22h4.5l2.5-5.5h6l2.5 5.5H22L12 2zm1 11.5h-2L12 9l1 4.5z"/>
+            </svg>
+            <span class="font-serif text-[11px] font-bold lowercase tracking-tight">arandu</span>
+          </div>
+        </div>
+
+        <!-- Main Business Info (Static upper section) -->
+        <div class="py-4 text-center">
+          <h1 class="italic font-bold text-2xl tracking-tight leading-tight">
+            {{ portfolioForm.get('title')?.value || 'Mi Negocio' }}
+          </h1>
+          <p class="text-[10px] opacity-75 font-mono mt-1.5">
+            Contacto: {{ portfolioForm.get('contactName')?.value }} • Móvil: {{ portfolioForm.get('phone')?.value }}<span *ngIf="portfolioForm.get('phoneFijo')?.value"> • Fijo: {{ portfolioForm.get('phoneFijo')?.value }}</span>
+          </p>
+          <p class="text-[10px] opacity-70 font-mono mt-0.5">
+            {{ portfolioForm.get('email')?.value }} <span *ngIf="portfolioForm.get('website')?.value"> • {{ portfolioForm.get('website')?.value }}</span>
+          </p>
+        </div>
+
+        <!-- CAROUSEL AREA WITH FLOATING SIDE ARROWS -->
+        <div class="relative flex-1 flex items-center my-2">
+          <!-- Left Chevron Arrow -->
+          <button type="button" (click)="prevSlide()"
+                  class="absolute left-1 z-20 w-8 h-8 rounded-full bg-black/30 border border-white/10 flex items-center justify-center text-white hover:bg-black/50 transition-all cursor-pointer focus:outline-none">
+            ‹
+          </button>
+
+          <!-- HORIZONTAL CAROUSEL CONTAINER (Snap scroll list) -->
+          <div class="w-full flex overflow-x-auto snap-x snap-mandatory scroll-smooth hide-scrollbar slides-container py-3 min-h-[160px]"
+               (scroll)="onSlideScroll($event)">
+            
+            <!-- Dynamic Sections slides -->
+            <div *ngFor="let s of getPreviewConfig().sections; let idx = index" 
+                 class="slide-item flex-shrink-0 w-full snap-start px-8 text-left" 
+                 [id]="'modal-slide-' + idx">
+              
+              <!-- Section title -->
+              <span class="font-serif text-base italic block font-bold mb-2 border-b border-white/10 pb-1" style="color: var(--landing-accent); border-color: var(--landing-card-border);">
+                {{ s.title || 'Sección ' + (idx + 1) }}
+              </span>
+              
+              <!-- Section content -->
+              <p class="text-xs leading-relaxed opacity-90 line-clamp-6 whitespace-pre-line font-serif overflow-y-auto max-h-[130px] hide-scrollbar">
+                {{ s.content || 'Sin descripción.' }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Right Chevron Arrow -->
+          <button type="button" (click)="nextSlide()"
+                  class="absolute right-1 z-20 w-8 h-8 rounded-full bg-black/30 border border-white/10 flex items-center justify-center text-white hover:bg-black/50 transition-all cursor-pointer focus:outline-none">
+            ›
+          </button>
+        </div>
+
+        <!-- Bottom indicators / Page dots tracker & Footer -->
+        <div class="flex items-center justify-between pt-2 border-t border-white/10" style="border-color: var(--landing-card-border);">
+          <span class="font-mono text-[8px] opacity-65">arandu.ch</span>
+          
+          <div class="flex gap-1.5">
+            <div *ngFor="let s of slides; let i = index" 
+                 class="w-1.5 h-1.5 rounded-full transition-all"
+                 [style.background-color]="currentSlideIndex === i ? 'var(--landing-accent)' : 'rgba(255,255,255,0.3)'"></div>
+          </div>
+          
+          <span class="font-mono text-[8px] opacity-65">© Ginebra, Suiza</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
     <div class="p-8 md:p-12 pl-10 md:pl-16">
       
       <!-- Loading State -->
@@ -78,6 +179,17 @@
             [class.text-brand-charcoal/60]="activeTab !== 'profile'"
             class="pb-3 px-4 font-mono text-xs uppercase tracking-wider focus:outline-none transition-all cursor-pointer">
             PERFIL
+          </button>
+          <button 
+            type="button"
+            (click)="setTab('portfolio')"
+            [class.border-b-2]="activeTab === 'portfolio'"
+            [class.border-brand-sage]="activeTab === 'portfolio'"
+            [class.font-bold]="activeTab === 'portfolio'"
+            [class.text-brand-sage]="activeTab === 'portfolio'"
+            [class.text-brand-charcoal/60]="activeTab !== 'portfolio'"
+            class="pb-3 px-4 font-mono text-xs uppercase tracking-wider focus:outline-none transition-all cursor-pointer">
+            PORTFOLIO
           </button>
           <button 
             type="button"
@@ -835,6 +947,473 @@
                 </div>
               </div>
             </div>
+          </div>
+
+          <!-- TAB 5: PORTFOLIO (Sitio Comercial Editor) -->
+          <div *ngIf="activeTab === 'portfolio'" class="space-y-8 animate-fade-in">
+            <!-- Header -->
+            <div class="border-b border-brand-charcoal pb-4 mb-6">
+              <h2 class="font-serif italic text-2xl font-bold text-brand-charcoal">Mi Sitio Comercial</h2>
+              <p class="font-sans text-xs text-brand-charcoal/70 leading-relaxed mt-1">
+                Personaliza y publica tu página de presentación única en Ginebra. Elige tu plantilla, colores, tipografía, sube hasta 2 fotos para tu galería y activa una oferta destacada.
+              </p>
+            </div>
+
+            <div *ngIf="portfolioLoading" class="flex flex-col items-center justify-center py-12">
+              <div class="w-8 h-8 border-4 border-brand-sage border-t-transparent rounded-full animate-spin"></div>
+              <p class="mt-4 font-mono text-xs text-brand-charcoal/60 uppercase">Cargando tu Sitio Comercial...</p>
+            </div>
+
+            <form *ngIf="portfolioForm && !portfolioLoading" [formGroup]="portfolioForm" (ngSubmit)="onSavePortfolio()" class="space-y-8">
+              
+              <!-- 1. DATOS BÁSICOS -->
+              <div class="space-y-4 border border-brand-charcoal/20 p-5 bg-brand-charcoal/[0.02]">
+                <h3 class="font-mono text-xs font-bold uppercase tracking-wider text-brand-sage border-b border-brand-charcoal/10 pb-2 mb-4">1. Información del Negocio</h3>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div class="flex flex-col gap-1">
+                    <label class="font-serif text-xs italic">Título comercial / Nombre de fantasía</label>
+                    <input formControlName="title" type="text" placeholder="Ej. Electricidad y Reformas Ginebra"
+                           class="w-full bg-transparent border-0 border-b border-brand-charcoal/30 py-1.5 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0">
+                    <p *ngIf="portfolioForm.get('title')?.touched && portfolioForm.get('title')?.invalid" class="font-mono text-[9px] text-brand-red uppercase mt-0.5">Mínimo 3 caracteres requeridos.</p>
+                  </div>
+
+                  <div class="flex flex-col gap-1">
+                    <label class="font-serif text-xs italic">Categoría</label>
+                    <select formControlName="category" 
+                            class="w-full bg-transparent border-0 border-b border-brand-charcoal/30 py-1.5 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0">
+                      <option value="Electricidad">Electricidad</option>
+                      <option value="Servicios">Servicios y Reparación</option>
+                      <option value="Empleo">Empleo y Hostelería</option>
+                      <option value="Cursos">Cursos y Clases</option>
+                      <option value="Venta y Donaciones">Ventas y Comercios</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  <div class="flex flex-col gap-1">
+                    <label class="font-serif text-xs italic">Nombre del contacto</label>
+                    <input formControlName="contactName" type="text" placeholder="Ej. Rubén Cardozo"
+                           class="w-full bg-transparent border-0 border-b border-brand-charcoal/30 py-1.5 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0">
+                  </div>
+
+                  <div class="flex flex-col gap-1">
+                    <label class="font-serif text-xs italic">Teléfono móvil</label>
+                    <input formControlName="phone" type="text" placeholder="Ej. +41 79 123 45 67"
+                           class="w-full bg-transparent border-0 border-b border-brand-charcoal/30 py-1.5 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0">
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  <div class="flex flex-col gap-1">
+                    <label class="font-serif text-xs italic">Teléfono fijo (Opcional)</label>
+                    <input formControlName="phoneFijo" type="text" placeholder="Ej. +41 22 123 45 67"
+                           class="w-full bg-transparent border-0 border-b border-brand-charcoal/30 py-1.5 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0">
+                  </div>
+
+                  <div class="flex flex-col gap-1">
+                    <label class="font-serif text-xs italic">Email de contacto</label>
+                    <input formControlName="email" type="email" placeholder="Ej. contacto@nonegocio.ch"
+                           class="w-full bg-transparent border-0 border-b border-brand-charcoal/30 py-1.5 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0">
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  <div class="flex flex-col gap-1">
+                    <label class="font-serif text-xs italic">Sitio Web (Opcional)</label>
+                    <input formControlName="website" type="text" placeholder="Ej. www.minegocio.ch"
+                           class="w-full bg-transparent border-0 border-b border-brand-charcoal/30 py-1.5 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0">
+                  </div>
+                </div>
+
+                <div class="flex flex-col gap-1 pt-2">
+                  <label class="font-serif text-xs italic">Descripción detallada sobre tu negocio / oficio</label>
+                  <textarea formControlName="description" rows="3" placeholder="Describe a qué te dedicas, tus años de experiencia y la calidad de tus servicios..."
+                            class="w-full bg-transparent border border-brand-charcoal/30 p-2 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0 resize-none"></textarea>
+                  <p *ngIf="portfolioForm.get('description')?.touched && portfolioForm.get('description')?.invalid" class="font-mono text-[9px] text-brand-red uppercase mt-0.5">Mínimo 10 caracteres requeridos.</p>
+                </div>
+              </div>
+
+              <!-- 2. SELECCIÓN DE METIER / PLANTILLA -->
+              <div class="space-y-4 border border-brand-charcoal/20 p-5 bg-brand-charcoal/[0.02]">
+                <h3 class="font-mono text-xs font-bold uppercase tracking-wider text-brand-sage border-b border-brand-charcoal/10 pb-2 mb-4">2. Elige tu Oficio / Tipo de Negocio (Plantilla)</h3>
+                
+                <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                  <!-- SERVICIOS -->
+                  <button type="button" (click)="setLandingTemplate('servicios')"
+                          [class.border-brand-sage]="portfolioForm.get('landingTemplate')?.value === 'servicios'"
+                          [style.box-shadow]="portfolioForm.get('landingTemplate')?.value === 'servicios' ? '0 0 14px var(--landing-accent, #8ba495)' : 'none'"
+                          class="border border-brand-charcoal/20 p-1.5 text-center flex flex-col items-center justify-center gap-1 hover:border-brand-charcoal cursor-pointer bg-brand-paper transition-all rounded overflow-hidden">
+                    <img [src]="getDefaultImage('servicios')" class="w-full h-12 object-cover rounded opacity-80 hover:opacity-100 transition-opacity">
+                    <span class="font-mono text-[8px] uppercase tracking-wider font-bold mt-1">Servicios</span>
+                  </button>
+
+                  <!-- COMIDA -->
+                  <button type="button" (click)="setLandingTemplate('restauracion')"
+                          [class.border-brand-sage]="portfolioForm.get('landingTemplate')?.value === 'restauracion'"
+                          [style.box-shadow]="portfolioForm.get('landingTemplate')?.value === 'restauracion' ? '0 0 14px var(--landing-accent, #8ba495)' : 'none'"
+                          class="border border-brand-charcoal/20 p-1.5 text-center flex flex-col items-center justify-center gap-1 hover:border-brand-charcoal cursor-pointer bg-brand-paper transition-all rounded overflow-hidden">
+                    <img [src]="getDefaultImage('restauracion')" class="w-full h-12 object-cover rounded opacity-80 hover:opacity-100 transition-opacity">
+                    <span class="font-mono text-[8px] uppercase tracking-wider font-bold mt-1">Comida</span>
+                  </button>
+
+                  <!-- TIENDA -->
+                  <button type="button" (click)="setLandingTemplate('venta')"
+                          [class.border-brand-sage]="portfolioForm.get('landingTemplate')?.value === 'venta'"
+                          [style.box-shadow]="portfolioForm.get('landingTemplate')?.value === 'venta' ? '0 0 14px var(--landing-accent, #8ba495)' : 'none'"
+                          class="border border-brand-charcoal/20 p-1.5 text-center flex flex-col items-center justify-center gap-1 hover:border-brand-charcoal cursor-pointer bg-brand-paper transition-all rounded overflow-hidden">
+                    <img [src]="getDefaultImage('venta')" class="w-full h-12 object-cover rounded opacity-80 hover:opacity-100 transition-opacity">
+                    <span class="font-mono text-[8px] uppercase tracking-wider font-bold mt-1">Tienda</span>
+                  </button>
+
+                  <!-- SALUD -->
+                  <button type="button" (click)="setLandingTemplate('particulares')"
+                          [class.border-brand-sage]="portfolioForm.get('landingTemplate')?.value === 'particulares'"
+                          [style.box-shadow]="portfolioForm.get('landingTemplate')?.value === 'particulares' ? '0 0 14px var(--landing-accent, #8ba495)' : 'none'"
+                          class="border border-brand-charcoal/20 p-1.5 text-center flex flex-col items-center justify-center gap-1 hover:border-brand-charcoal cursor-pointer bg-brand-paper transition-all rounded overflow-hidden">
+                    <img [src]="getDefaultImage('particulares')" class="w-full h-12 object-cover rounded opacity-80 hover:opacity-100 transition-opacity">
+                    <span class="font-mono text-[8px] uppercase tracking-wider font-bold mt-1">Salud</span>
+                  </button>
+
+                  <!-- PROFESOR -->
+                  <button type="button" (click)="setLandingTemplate('educacion')"
+                          [class.border-brand-sage]="portfolioForm.get('landingTemplate')?.value === 'educacion'"
+                          [style.box-shadow]="portfolioForm.get('landingTemplate')?.value === 'educacion' ? '0 0 14px var(--landing-accent, #8ba495)' : 'none'"
+                          class="border border-brand-charcoal/20 p-1.5 text-center flex flex-col items-center justify-center gap-1 hover:border-brand-charcoal cursor-pointer bg-brand-paper transition-all rounded overflow-hidden">
+                    <img [src]="getDefaultImage('educacion')" class="w-full h-12 object-cover rounded opacity-80 hover:opacity-100 transition-opacity">
+                    <span class="font-mono text-[8px] uppercase tracking-wider font-bold mt-1">Profesor</span>
+                  </button>
+
+                  <!-- ESTÉTICA -->
+                  <button type="button" (click)="setLandingTemplate('belleza')"
+                          [class.border-brand-sage]="portfolioForm.get('landingTemplate')?.value === 'belleza'"
+                          [style.box-shadow]="portfolioForm.get('landingTemplate')?.value === 'belleza' ? '0 0 14px var(--landing-accent, #8ba495)' : 'none'"
+                          class="border border-brand-charcoal/20 p-1.5 text-center flex flex-col items-center justify-center gap-1 hover:border-brand-charcoal cursor-pointer bg-brand-paper transition-all rounded overflow-hidden">
+                    <img [src]="getDefaultImage('belleza')" class="w-full h-12 object-cover rounded opacity-80 hover:opacity-100 transition-opacity">
+                    <span class="font-mono text-[8px] uppercase tracking-wider font-bold mt-1">Estética</span>
+                  </button>
+
+                  <!-- LIMPIEZA -->
+                  <button type="button" (click)="setLandingTemplate('limpieza')"
+                          [class.border-brand-sage]="portfolioForm.get('landingTemplate')?.value === 'limpieza'"
+                          [style.box-shadow]="portfolioForm.get('landingTemplate')?.value === 'limpieza' ? '0 0 14px var(--landing-accent, #8ba495)' : 'none'"
+                          class="border border-brand-charcoal/20 p-1.5 text-center flex flex-col items-center justify-center gap-1 hover:border-brand-charcoal cursor-pointer bg-brand-paper transition-all rounded overflow-hidden">
+                    <img [src]="getDefaultImage('limpieza')" class="w-full h-12 object-cover rounded opacity-80 hover:opacity-100 transition-opacity">
+                    <span class="font-mono text-[8px] uppercase tracking-wider font-bold mt-1">Limpieza</span>
+                  </button>
+
+                  <!-- DISEÑO -->
+                  <button type="button" (click)="setLandingTemplate('creativo')"
+                          [class.border-brand-sage]="portfolioForm.get('landingTemplate')?.value === 'creativo'"
+                          [style.box-shadow]="portfolioForm.get('landingTemplate')?.value === 'creativo' ? '0 0 14px var(--landing-accent, #8ba495)' : 'none'"
+                          class="border border-brand-charcoal/20 p-1.5 text-center flex flex-col items-center justify-center gap-1 hover:border-brand-charcoal cursor-pointer bg-brand-paper transition-all rounded overflow-hidden">
+                    <img [src]="getDefaultImage('creativo')" class="w-full h-12 object-cover rounded opacity-80 hover:opacity-100 transition-opacity">
+                    <span class="font-mono text-[8px] uppercase tracking-wider font-bold mt-1">Diseño</span>
+                  </button>
+
+                  <!-- MASCOTAS -->
+                  <button type="button" (click)="setLandingTemplate('mascotas')"
+                          [class.border-brand-sage]="portfolioForm.get('landingTemplate')?.value === 'mascotas'"
+                          [style.box-shadow]="portfolioForm.get('landingTemplate')?.value === 'mascotas' ? '0 0 14px var(--landing-accent, #8ba495)' : 'none'"
+                          class="border border-brand-charcoal/20 p-1.5 text-center flex flex-col items-center justify-center gap-1 hover:border-brand-charcoal cursor-pointer bg-brand-paper transition-all rounded overflow-hidden">
+                    <img [src]="getDefaultImage('mascotas')" class="w-full h-12 object-cover rounded opacity-80 hover:opacity-100 transition-opacity">
+                    <span class="font-mono text-[8px] uppercase tracking-wider font-bold mt-1">Mascotas</span>
+                  </button>
+
+                  <!-- EMPLEO -->
+                  <button type="button" (click)="setLandingTemplate('empleo')"
+                          [class.border-brand-sage]="portfolioForm.get('landingTemplate')?.value === 'empleo'"
+                          [style.box-shadow]="portfolioForm.get('landingTemplate')?.value === 'empleo' ? '0 0 14px var(--landing-accent, #8ba495)' : 'none'"
+                          class="border border-brand-charcoal/20 p-1.5 text-center flex flex-col items-center justify-center gap-1 hover:border-brand-charcoal cursor-pointer bg-brand-paper transition-all rounded overflow-hidden">
+                    <img [src]="getDefaultImage('empleo')" class="w-full h-12 object-cover rounded opacity-80 hover:opacity-100 transition-opacity">
+                    <span class="font-mono text-[8px] uppercase tracking-wider font-bold mt-1">Empleo</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- 3. CONFIGURACIÓN DE APARIENCIA -->
+              <div class="space-y-6 border border-brand-charcoal/20 p-5 bg-brand-charcoal/[0.02]">
+                <h3 class="font-mono text-xs font-bold uppercase tracking-wider text-brand-sage border-b border-brand-charcoal/10 pb-2 mb-4">3. Diseño y Estética</h3>
+                
+                <!-- 10 Paletas -->
+                <div class="space-y-2">
+                  <label class="font-serif text-sm italic block">Paleta de Colores (10 Opciones)</label>
+                  <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                    <button type="button" (click)="portfolioForm.patchValue({landingPalette: 'crosby'})"
+                            [class.border-brand-sage]="portfolioForm.get('landingPalette')?.value === 'crosby'"
+                            class="border border-brand-charcoal/20 p-2 text-left bg-[#1e2321] text-[#fdfbf7] flex items-center justify-between rounded cursor-pointer hover:border-brand-charcoal">
+                      <span class="font-mono text-[9px] uppercase font-bold tracking-wider">Crosby Dark</span>
+                      <div class="flex gap-0.5"><div class="w-2 h-2 rounded-full bg-[#8ba495]"></div></div>
+                    </button>
+
+                    <button type="button" (click)="portfolioForm.patchValue({landingPalette: 'emmeline'})"
+                            [class.border-brand-sage]="portfolioForm.get('landingPalette')?.value === 'emmeline'"
+                            class="border border-brand-charcoal/20 p-2 text-left bg-[#fcf8f2] text-[#2e2522] flex items-center justify-between rounded cursor-pointer hover:border-brand-charcoal">
+                      <span class="font-mono text-[9px] uppercase font-bold tracking-wider">Emmeline Terra</span>
+                      <div class="flex gap-0.5"><div class="w-2 h-2 rounded-full bg-[#8b3d2b]"></div></div>
+                    </button>
+
+                    <button type="button" (click)="portfolioForm.patchValue({landingPalette: 'sage'})"
+                            [class.border-brand-sage]="portfolioForm.get('landingPalette')?.value === 'sage'"
+                            class="border border-brand-charcoal/20 p-2 text-left bg-[#f4f6f4] text-[#242a27] flex items-center justify-between rounded cursor-pointer hover:border-brand-charcoal">
+                      <span class="font-mono text-[9px] uppercase font-bold tracking-wider">Sage Soft</span>
+                      <div class="flex gap-0.5"><div class="w-2 h-2 rounded-full bg-[#2d3a34]"></div></div>
+                    </button>
+
+                    <button type="button" (click)="portfolioForm.patchValue({landingPalette: 'minimal'})"
+                            [class.border-brand-sage]="portfolioForm.get('landingPalette')?.value === 'minimal'"
+                            class="border border-brand-charcoal/20 p-2 text-left bg-white text-brand-charcoal flex items-center justify-between rounded cursor-pointer hover:border-brand-charcoal">
+                      <span class="font-mono text-[9px] uppercase font-bold tracking-wider">Minimal Light</span>
+                      <div class="flex gap-0.5"><div class="w-2 h-2 rounded-full bg-[#333333]"></div></div>
+                    </button>
+
+                    <button type="button" (click)="portfolioForm.patchValue({landingPalette: 'slate'})"
+                            [class.border-brand-sage]="portfolioForm.get('landingPalette')?.value === 'slate'"
+                            class="border border-brand-charcoal/20 p-2 text-left bg-[#f0f3f5] text-[#1e293b] flex items-center justify-between rounded cursor-pointer hover:border-brand-charcoal">
+                      <span class="font-mono text-[9px] uppercase font-bold tracking-wider">Nordic Slate</span>
+                      <div class="flex gap-0.5"><div class="w-2 h-2 rounded-full bg-[#3b82f6]"></div></div>
+                    </button>
+
+                    <button type="button" (click)="portfolioForm.patchValue({landingPalette: 'clay'})"
+                            [class.border-brand-sage]="portfolioForm.get('landingPalette')?.value === 'clay'"
+                            class="border border-brand-charcoal/20 p-2 text-left bg-[#faf6f5] text-[#3c2f2f] flex items-center justify-between rounded cursor-pointer hover:border-brand-charcoal">
+                      <span class="font-mono text-[9px] uppercase font-bold tracking-wider">Rose & Clay</span>
+                      <div class="flex gap-0.5"><div class="w-2 h-2 rounded-full bg-[#b27c66]"></div></div>
+                    </button>
+
+                    <button type="button" (click)="portfolioForm.patchValue({landingPalette: 'gold'})"
+                            [class.border-brand-sage]="portfolioForm.get('landingPalette')?.value === 'gold'"
+                            class="border border-brand-charcoal/20 p-2 text-left bg-[#111] text-[#f9f9f9] flex items-center justify-between rounded cursor-pointer hover:border-brand-charcoal">
+                      <span class="font-mono text-[9px] uppercase font-bold tracking-wider">Luxury Gold</span>
+                      <div class="flex gap-0.5"><div class="w-2 h-2 rounded-full bg-[#d4af37]"></div></div>
+                    </button>
+
+                    <button type="button" (click)="portfolioForm.patchValue({landingPalette: 'ocean'})"
+                            [class.border-brand-sage]="portfolioForm.get('landingPalette')?.value === 'ocean'"
+                            class="border border-brand-charcoal/20 p-2 text-left bg-[#f2f5f8] text-[#122b40] flex items-center justify-between rounded cursor-pointer hover:border-brand-charcoal">
+                      <span class="font-mono text-[9px] uppercase font-bold tracking-wider">Ocean Deep</span>
+                      <div class="flex gap-0.5"><div class="w-2 h-2 rounded-full bg-[#0f4c81]"></div></div>
+                    </button>
+
+                    <button type="button" (click)="portfolioForm.patchValue({landingPalette: 'mist'})"
+                            [class.border-brand-sage]="portfolioForm.get('landingPalette')?.value === 'mist'"
+                            class="border border-brand-charcoal/20 p-2.5 text-left bg-[#fafbfa] text-[#1b2d20] flex items-center justify-between rounded cursor-pointer hover:border-brand-charcoal">
+                      <span class="font-mono text-[9px] uppercase font-bold tracking-wider">Forest Mist</span>
+                      <div class="flex gap-0.5"><div class="w-2 h-2 rounded-full bg-[#385a42]"></div></div>
+                    </button>
+
+                    <button type="button" (click)="portfolioForm.patchValue({landingPalette: 'amber'})"
+                            [class.border-brand-sage]="portfolioForm.get('landingPalette')?.value === 'amber'"
+                            class="border border-brand-charcoal/20 p-2 text-left bg-[#fffbf4] text-[#4a3728] flex items-center justify-between rounded cursor-pointer hover:border-brand-charcoal">
+                      <span class="font-mono text-[9px] uppercase font-bold tracking-wider">Warm Amber</span>
+                      <div class="flex gap-0.5"><div class="w-2 h-2 rounded-full bg-[#d97706]"></div></div>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 5 Tipografías -->
+                <div class="space-y-2 pt-2">
+                  <label class="font-serif text-sm italic block">Tipografía del Sitio (5 Opciones)</label>
+                  <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                    <button type="button" (click)="portfolioForm.patchValue({landingFont: 'serif'})"
+                            [class.border-brand-sage]="portfolioForm.get('landingFont')?.value === 'serif'"
+                            class="border border-brand-charcoal/20 p-2.5 text-center font-serif text-xs rounded bg-brand-paper hover:border-brand-charcoal cursor-pointer">
+                      Aa Serif
+                    </button>
+                    <button type="button" (click)="portfolioForm.patchValue({landingFont: 'sans'})"
+                            [class.border-brand-sage]="portfolioForm.get('landingFont')?.value === 'sans'"
+                            class="border border-brand-charcoal/20 p-2.5 text-center font-sans text-xs rounded bg-brand-paper hover:border-brand-charcoal cursor-pointer">
+                      Aa Sans
+                    </button>
+                    <button type="button" (click)="portfolioForm.patchValue({landingFont: 'monospace'})"
+                            [class.border-brand-sage]="portfolioForm.get('landingFont')?.value === 'monospace'"
+                            class="border border-brand-charcoal/20 p-2.5 text-center font-mono text-xs rounded bg-brand-paper hover:border-brand-charcoal cursor-pointer">
+                      Aa Mono
+                    </button>
+                    <button type="button" (click)="portfolioForm.patchValue({landingFont: 'geometric'})"
+                            [class.border-brand-sage]="portfolioForm.get('landingFont')?.value === 'geometric'"
+                            class="border border-brand-charcoal/20 p-2.5 text-center text-xs rounded bg-brand-paper hover:border-brand-charcoal cursor-pointer" style="font-family: 'Cabin', sans-serif;">
+                      Aa Geometric
+                    </button>
+                    <button type="button" (click)="portfolioForm.patchValue({landingFont: 'elegant'})"
+                            [class.border-brand-sage]="portfolioForm.get('landingFont')?.value === 'elegant'"
+                            class="border border-brand-charcoal/20 p-2.5 text-center text-xs rounded bg-brand-paper hover:border-brand-charcoal cursor-pointer" style="font-family: 'Great Vibes', cursive;">
+                      Aa Elegant
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Imagen Portada -->
+                <div class="space-y-2 pt-2">
+                  <label class="font-serif text-sm italic block">Imagen de Portada / Logotipo de la Ficha</label>
+                  <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 border border-brand-charcoal bg-brand-charcoal/5 overflow-hidden flex items-center justify-center">
+                      <img *ngIf="portfolioForm.get('landingHeroImage')?.value" [src]="portfolioForm.get('landingHeroImage')?.value" class="w-full h-full object-cover">
+                      <span *ngIf="!portfolioForm.get('landingHeroImage')?.value" class="text-xs text-brand-charcoal/40">Sin foto</span>
+                    </div>
+                    <div class="flex-1">
+                      <input type="file" id="landingHeroInput" (change)="onLandingHeroSelected($event)" accept="image/*" class="hidden">
+                      <button type="button" onclick="document.getElementById('landingHeroInput').click()" 
+                              class="px-4 py-2 border border-brand-charcoal font-mono text-[10px] uppercase font-bold tracking-wider hover:bg-brand-charcoal hover:text-brand-paper transition-all cursor-pointer">
+                        Subir Portada
+                      </button>
+                      <span class="block text-[10px] text-brand-charcoal/50 mt-1">Se recomienda imagen horizontal. Reducción inteligente automática.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 4. SECCIONES DE TU SITIO COMERCIAL (DINÁMICO, MÍNIMO 3, MÁXIMO 5) -->
+              <div class="space-y-6 border border-brand-charcoal/20 p-5 bg-brand-charcoal/[0.02]">
+                <div class="flex items-center justify-between border-b border-brand-charcoal/10 pb-2 mb-4">
+                  <h3 class="font-mono text-xs font-bold uppercase tracking-wider text-brand-sage">4. Contenido de las Secciones</h3>
+                  <button *ngIf="sections.length < 5" type="button" (click)="addSection()"
+                          class="px-3 py-1 bg-brand-sage text-brand-paper hover:bg-brand-charcoal transition-colors font-mono text-[9px] uppercase font-bold tracking-wider cursor-pointer">
+                    ＋ Añadir Sección
+                  </button>
+                </div>
+
+                <p class="font-sans text-[11px] text-brand-charcoal/60 leading-relaxed mb-4">
+                  Crea entre 3 y 5 secciones personalizadas para tu Sitio Comercial (por ejemplo: Inicio, Servicios, Tarifas, Sobre Nosotros, Contacto).
+                </p>
+
+                <div formArrayName="sections" class="space-y-6">
+                  <div *ngFor="let s of sections.controls; let i = index" [formGroupName]="i" class="border border-brand-charcoal/10 p-4 bg-brand-paper/50 rounded relative">
+                    <!-- Delete button for optional sections (index >= 3) -->
+                    <button *ngIf="sections.length > 3" type="button" (click)="removeSection(i)"
+                            class="absolute top-3 right-3 text-brand-red hover:text-brand-charcoal font-mono text-xs font-bold cursor-pointer bg-transparent border-0 focus:outline-none" title="Eliminar sección">
+                      ✕ Eliminar
+                    </button>
+
+                    <div class="space-y-4">
+                      <!-- Title input -->
+                      <div class="flex flex-col gap-1">
+                        <label class="font-serif text-xs italic">Título de la Sección {{ i + 1 }}</label>
+                        <input formControlName="title" type="text" placeholder="Ej. Inicio / Servicios / Horarios / Sobre Nosotros"
+                               class="w-full bg-transparent border-0 border-b border-brand-charcoal/30 py-1.5 px-0 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0">
+                        <p *ngIf="s.get('title')?.touched && s.get('title')?.invalid" class="font-mono text-[9px] text-brand-red uppercase mt-0.5">
+                          El título es requerido.
+                        </p>
+                      </div>
+
+                      <!-- Content textarea -->
+                      <div class="flex flex-col gap-1">
+                        <label class="font-serif text-xs italic">Contenido de la Sección {{ i + 1 }}</label>
+                        <textarea formControlName="content" rows="3" placeholder="Describe detalladamente esta sección para tus clientes..."
+                                  class="w-full bg-transparent border border-brand-charcoal/30 p-2 font-sans text-sm focus:outline-none focus:border-brand-sage focus:ring-0 resize-none"></textarea>
+                        <p *ngIf="s.get('content')?.touched && s.get('content')?.invalid" class="font-mono text-[9px] text-brand-red uppercase mt-0.5">
+                          Mínimo 10 caracteres requeridos.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- PREVISUALIZACIÓN HORIZONTAL NATIVA AL 100% -->
+              <div class="space-y-4 pt-4 border-t border-brand-charcoal/20">
+                <div class="flex items-center justify-between">
+                  <h3 class="font-serif text-base italic font-bold text-brand-charcoal">Previsualización en tiempo real (Mobile-First)</h3>
+                </div>
+
+                <p class="font-sans text-[10px] text-brand-charcoal/60">
+                  Usa las flechas a los lados o desliza (Swipe) sobre la tarjeta para navegar por las secciones del Sitio Comercial.
+                </p>
+
+                <!-- CARD WRAPPER WITH CUSTOM STYLES -->
+                <div [style]="getLandingStyles(getPreviewConfig())" class="relative overflow-hidden w-full select-none max-w-lg mx-auto">
+                  
+                  <!-- Cover Banner (Background absolute image with opacity) -->
+                  <div class="absolute inset-0 z-0 pointer-events-none opacity-15 overflow-hidden">
+                    <img *ngIf="portfolioForm.get('landingHeroImage')?.value" [src]="portfolioForm.get('landingHeroImage')?.value" class="w-full h-full object-cover">
+                  </div>
+
+                  <!-- INNER VIEWPORT: HORIZONTAL ONLY -->
+                  <div class="relative z-10 flex flex-col h-full min-h-[360px] justify-between">
+                    
+                    <!-- Top header metadata -->
+                    <div class="flex justify-between items-center pb-2 border-b border-white/10" style="border-color: var(--landing-card-border);">
+                      <div class="flex items-center gap-1.5">
+                        <span class="font-mono text-[9px] uppercase tracking-wider font-bold" style="color: var(--landing-accent);">{{ portfolioForm.get('landingTemplate')?.value }}</span>
+                      </div>
+                      <div class="flex items-center gap-1 opacity-85" style="color: var(--landing-text);">
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                          <path d="M12 2L2 22h4.5l2.5-5.5h6l2.5 5.5H22L12 2zm1 11.5h-2L12 9l1 4.5z"/>
+                        </svg>
+                        <span class="font-serif text-[11px] font-bold lowercase tracking-tight">arandu</span>
+                      </div>
+                    </div>
+
+                    <!-- Main Business Info (Static upper section) -->
+                    <div class="py-3 text-center">
+                      <h4 class="italic font-bold text-2xl tracking-tight leading-tight">
+                        {{ portfolioForm.get('title')?.value || 'Mi Negocio' }}
+                      </h4>
+                      <p class="text-[10px] opacity-75 font-mono mt-1">
+                        Contacto: {{ portfolioForm.get('contactName')?.value }} • Móvil: {{ portfolioForm.get('phone')?.value }}<span *ngIf="portfolioForm.get('phoneFijo')?.value"> • Fijo: {{ portfolioForm.get('phoneFijo')?.value }}</span>
+                      </p>
+                    </div>
+
+                    <!-- CAROUSEL AREA WITH FLOATING SIDE ARROWS -->
+                    <div class="relative flex-1 flex items-center">
+                      <!-- Left Chevron Arrow -->
+                      <button type="button" (click)="prevSlide()"
+                              class="absolute left-1 z-20 w-8 h-8 rounded-full bg-black/30 border border-white/10 flex items-center justify-center text-white hover:bg-black/50 transition-all cursor-pointer focus:outline-none">
+                        ‹
+                      </button>
+
+                      <!-- HORIZONTAL CAROUSEL CONTAINER (Snap scroll list) -->
+                      <div class="w-full flex overflow-x-auto snap-x snap-mandatory scroll-smooth hide-scrollbar slides-container py-3 min-h-[160px]"
+                           (scroll)="onSlideScroll($event)">
+                        
+                        <!-- Dynamic Sections slides -->
+                        <div *ngFor="let s of getPreviewConfig().sections; let idx = index" 
+                             class="slide-item flex-shrink-0 w-full snap-start px-8 text-left" 
+                             [id]="'slide-' + idx">
+                          
+                          <!-- Section title -->
+                          <span class="font-serif text-base italic block font-bold mb-2 border-b border-white/10 pb-1" style="color: var(--landing-accent); border-color: var(--landing-card-border);">
+                            {{ s.title || 'Sección ' + (idx + 1) }}
+                          </span>
+                          
+                          <!-- Section content -->
+                          <p class="text-xs leading-relaxed opacity-90 line-clamp-5 whitespace-pre-line font-serif overflow-y-auto max-h-[120px] hide-scrollbar">
+                            {{ s.content || 'Sin descripción.' }}
+                          </p>
+                        </div>
+                      </div>
+
+                      <!-- Right Chevron Arrow -->
+                      <button type="button" (click)="nextSlide()"
+                              class="absolute right-1 z-20 w-8 h-8 rounded-full bg-black/30 border border-white/10 flex items-center justify-center text-white hover:bg-black/50 transition-all cursor-pointer focus:outline-none">
+                        ›
+                      </button>
+                    </div>
+
+                    <!-- Bottom indicators / Page dots tracker -->
+                    <div class="flex items-center justify-center gap-1.5 py-2 border-t border-white/10" style="border-color: var(--landing-card-border);">
+                      <div *ngFor="let s of slides; let i = index" 
+                           class="w-1.5 h-1.5 rounded-full transition-all"
+                           [style.background-color]="currentSlideIndex === i ? 'var(--landing-accent)' : 'rgba(255,255,255,0.3)'"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- BOTONES DE ACCIÓN AL FINAL DEL FORMULARIO -->
+              <div class="pt-6 border-t border-brand-charcoal/20 flex flex-wrap items-center justify-end gap-4">
+                <button type="button" (click)="openLandingPreviewModal()"
+                        class="px-8 py-3 border border-brand-charcoal text-brand-charcoal hover:bg-brand-charcoal hover:text-brand-paper font-mono text-[11px] font-bold uppercase tracking-widest transition-all duration-150 cursor-pointer">
+                  PREVISUALIZAR
+                </button>
+                <button type="submit" [disabled]="portfolioSubmitting"
+                        class="px-8 py-3 bg-brand-sage text-brand-paper font-mono text-[11px] font-bold uppercase tracking-widest hover:bg-brand-charcoal hover:text-brand-paper transition-all duration-150 cursor-pointer disabled:opacity-50">
+                  {{ portfolioSubmitting ? 'GUARDANDO...' : 'GUARDAR SITIO COMERCIAL' }}
+                </button>
+              </div>
+
+            </form>
           </div>
 
         </div>

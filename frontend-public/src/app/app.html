@@ -18,6 +18,10 @@
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M11 5L6 9H2v6h4l5 4V5z"></path><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
         ANUNCIOS
       </a>
+      <a routerLink="/buscar" [queryParams]="{filter: 'PORTFOLIOS'}" routerLinkActive="border-b-2 border-brand-charcoal font-bold pb-1" class="text-brand-charcoal font-mono tracking-widest text-[11px] hover:text-brand-sage transition-colors flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10h3m-3-4h3"></path></svg>
+        PORTFOLIOS
+      </a>
     </nav>
 
     <!-- Desktop Actions (hidden on mobile) -->
@@ -89,6 +93,9 @@
     </a>
     <a routerLink="/anuncios" (click)="closeMobileMenu()" routerLinkActive="font-bold text-brand-sage" class="text-brand-charcoal font-mono tracking-widest text-xs py-2 border-b border-brand-charcoal/10 flex items-center gap-2">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M11 5L6 9H2v6h4l5 4V5z"></path><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg> ANUNCIOS
+    </a>
+    <a routerLink="/buscar" [queryParams]="{filter: 'PORTFOLIOS'}" (click)="closeMobileMenu()" routerLinkActive="font-bold text-brand-sage" class="text-brand-charcoal font-mono tracking-widest text-xs py-2 border-b border-brand-charcoal/10 flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10h3m-3-4h3"></path></svg> PORTFOLIOS
     </a>
     <a *ngIf="isLoggedIn" routerLink="/anuncios/nuevo" (click)="closeMobileMenu()" routerLinkActive="font-bold text-brand-sage" class="text-brand-charcoal font-mono tracking-widest text-xs py-2 border-b border-brand-charcoal/10">PUBLICAR ANUNCIO</a>
     
