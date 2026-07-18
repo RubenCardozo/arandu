@@ -47,6 +47,11 @@ export class AnunciosNuevoComponent implements OnInit, OnDestroy {
 
 
   ngOnInit() {
+    if (!this.isEmbedded) {
+      this.router.navigate(['/session'], { queryParams: { tab: 'publish' } });
+      return;
+    }
+
     this.adForm = this.fb.group({
       type: ['service', [Validators.required]],
       title: ['', [Validators.required, Validators.minLength(3)]],
@@ -396,21 +401,7 @@ export class AnunciosNuevoComponent implements OnInit, OnDestroy {
   }
 
   getCategoryEmoji(category: string): string {
-    switch (category) {
-      case 'Electricidad':
-        return '⚡';
-      case 'Trabajos Casa':
-      case 'Servicios':
-        return '🏠';
-      case 'Empleo':
-        return '💼';
-      case 'Cursos':
-        return '📚';
-      case 'Venta y Donaciones':
-        return '🛍️';
-      default:
-        return '📣';
-    }
+    return '';
   }
 
   getCategoryBgClass(category: string): string {

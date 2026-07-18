@@ -35,8 +35,8 @@ export class ServicesCatalogService {
         image_url: imageUrl,
         owner_id: service.ownerId,
         gallery_urls: service.galleryUrls || [],
-        landing_template: service.landingTemplate || 'profesional',
-        landing_config: service.landingConfig || {}
+        landing_template: service.landingTemplate ?? null,
+        landing_config: service.landingConfig ?? {}
       }]);
 
     if (error) throw error;
@@ -127,7 +127,7 @@ export class ServicesCatalogService {
             .toUpperCase()
         : '',
       galleryUrls: row.gallery_urls ?? [],
-      landingTemplate: row.landing_template ?? 'profesional',
+      landingTemplate: row.landing_template ?? undefined,
       landingConfig: row.landing_config ?? {}
     };
   }

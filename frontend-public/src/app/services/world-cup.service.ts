@@ -34,6 +34,12 @@ export interface WorldCupGame {
   home_flag?: string;
   away_flag?: string;
   stadium_name?: string;
+  comments?: any[];
+  loadingComments?: boolean;
+  clicks?: number;
+  totalLikes?: number;
+  totalDislikes?: number;
+  userVote?: 'like' | 'dislike' | null;
 }
 
 export interface WorldCupGroupTeam {
@@ -101,24 +107,22 @@ export class WorldCupService {
   constructor() {}
 
   async getTeams(): Promise<WorldCupTeam[]> {
-    if (this.teamsCache.length > 0) return this.teamsCache;
     try {
-      const res = await fetchWithTimeout('https://worldcup26.ir/get/teams');
+      const res = await fetchWithTimeout(`https://worldcup26.ir/get/teams?t=${Date.now()}`);
       const data = await res.json();
       this.teamsCache = data.teams || [];
       return this.teamsCache;
     } catch (e) {
       console.error('Error fetching World Cup teams:', e);
-      return [];
+      return this.teamsCache || [];
     }
   }
 
   async getGames(): Promise<WorldCupGame[]> {
-    if (this.gamesCache.length > 0) return this.gamesCache;
     try {
       const [teams, gamesRes] = await Promise.all([
         this.getTeams(),
-        fetchWithTimeout('https://worldcup26.ir/get/games')
+        fetchWithTimeout(`https://worldcup26.ir/get/games?t=${Date.now()}`)
       ]);
       const data = await gamesRes.json();
       const rawGames: WorldCupGame[] = data.games || [];
@@ -141,16 +145,15 @@ export class WorldCupService {
       return this.gamesCache;
     } catch (e) {
       console.error('Error fetching World Cup games:', e);
-      return [];
+      return this.gamesCache || [];
     }
   }
 
   async getGroups(): Promise<WorldCupGroup[]> {
-    if (this.groupsCache.length > 0) return this.groupsCache;
     try {
       const [teams, groupsRes] = await Promise.all([
         this.getTeams(),
-        fetchWithTimeout('https://worldcup26.ir/get/groups')
+        fetchWithTimeout(`https://worldcup26.ir/get/groups?t=${Date.now()}`)
       ]);
       const data = await groupsRes.json();
       const rawGroups: WorldCupGroup[] = data.groups || [];
@@ -183,7 +186,7 @@ export class WorldCupService {
       return this.groupsCache;
     } catch (e) {
       console.error('Error fetching World Cup groups:', e);
-      return [];
+      return this.groupsCache || [];
     }
   }
 }

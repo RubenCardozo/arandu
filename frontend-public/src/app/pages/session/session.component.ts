@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, signal, computed, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { SupabaseService } from '../../services/supabase.service';
@@ -9,11 +9,14 @@ import { ServicesCatalogService } from '../../services/services-catalog.service'
 import { User } from '@supabase/supabase-js';
 import { Subscription } from 'rxjs';
 import { AnunciosNuevoComponent } from '../anuncios-nuevo/anuncios-nuevo.component';
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { PortfolioStateService, PortfolioBlock, PortfolioSection } from '../../services/portfolio-state.service';
+import { SafeUrlPipe } from '../../pipes/safe-url.pipe';
 
 @Component({
   selector: 'app-session',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, AnunciosNuevoComponent],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, AnunciosNuevoComponent, DragDropModule, SafeUrlPipe],
   templateUrl: './session.component.html',
   styleUrls: ['./session.component.css']
 })
@@ -28,6 +31,8 @@ export class SessionComponent implements OnInit, OnDestroy {
   successMessage = '';
   myAnuncios: any[] = [];
   loadingAnuncios = false;
+  activeMobileTab = signal<'canvas' | 'settings'>('canvas');
+  activeSectionLabel = signal<string>('');
   previewAd: any = null;
   showPreviewModal = false;
   showCompletionBanner = true;
@@ -48,6 +53,15 @@ export class SessionComponent implements OnInit, OnDestroy {
   portfolioHeroPreview: string | null = null;
   activePreviewTab = 'Inicio';
   currentSlideIndex = 0;
+  portfolioEditorMobileTab: 'edit' | 'preview' = 'edit';
+
+  isModalOpen(): boolean {
+    return this.portfolioState.showVisualBuilder() || 
+           this.showLandingPreviewModal || 
+           this.showPreviewModal || 
+           this.keywordsModalVisible;
+  }
+
   get slides(): string[] {
     if (!this.portfolioForm) return [];
     const sections = this.portfolioForm.get('sections')?.value || [];
@@ -63,7 +77,9 @@ export class SessionComponent implements OnInit, OnDestroy {
     private supabase: SupabaseService,
     private interactionService: InteractionService,
     private servicesCatalogService: ServicesCatalogService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private route: ActivatedRoute,
+    public portfolioState: PortfolioStateService
   ) {}
 
   ngOnInit() {
@@ -76,6 +92,7 @@ export class SessionComponent implements OnInit, OnDestroy {
     this.profileForm = this.fb.group({
       firstName: ['', [Validators.required, Validators.minLength(2)]],
       lastName: ['', [Validators.required, Validators.minLength(2)]],
+      nickname: ['', [Validators.minLength(2)]],
       phone: ['', [Validators.required, Validators.pattern(/^\+?[0-9\s\-]{8,20}$/)]],
       address: ['', [Validators.required, Validators.minLength(5)]],
       locality: ['', [Validators.required, Validators.minLength(2)]],
@@ -143,6 +160,28 @@ export class SessionComponent implements OnInit, OnDestroy {
       ])
     });
 
+    // Sync form values to state signals on change
+    this.portfolioForm.valueChanges.subscribe(val => {
+      this.portfolioState.updateFromForm(val);
+    });
+
+    this.route.queryParams.subscribe(params => {
+      const tab = params['tab'];
+      if (tab) {
+        if (tab === 'publish') {
+          this.activeTab = 'publications';
+          this.showPublishFormState = true;
+        } else if (['profile', 'stats', 'portfolio', 'publications'].includes(tab)) {
+          this.activeTab = tab as any;
+          this.showPublishFormState = false;
+          if (tab === 'portfolio') {
+            this.loadOrCreatePortfolio();
+          }
+        }
+        this.cdr.detectChanges();
+      }
+    });
+
     this.authSubscription = this.authService.currentUser$.subscribe(currentUser => {
       if (currentUser === undefined) {
         this.loading = true;
@@ -154,15 +193,18 @@ export class SessionComponent implements OnInit, OnDestroy {
         this.profileForm.patchValue({
           firstName: currentUser.user_metadata?.['first_name'] || '',
           lastName: currentUser.user_metadata?.['last_name'] || '',
+          nickname: currentUser.user_metadata?.['nickname'] || '',
           phone: currentUser.user_metadata?.['phone'] || '',
           address: currentUser.user_metadata?.['address'] || '',
           locality: currentUser.user_metadata?.['locality'] || '',
           subscribeNewsletter: currentUser.user_metadata?.['subscribe_newsletter'] || false
         });
         this.loadMyAnuncios();
+        this.loadFavorites();
       }
       
       this.loading = false;
+      this.cdr.detectChanges();
       
       // If no active session, redirect to registration/login page
       if (!this.loading && !this.user) {
@@ -186,6 +228,7 @@ export class SessionComponent implements OnInit, OnDestroy {
       this.profileForm.patchValue({
         firstName: this.user.user_metadata?.['first_name'] || '',
         lastName: this.user.user_metadata?.['last_name'] || '',
+        nickname: this.user.user_metadata?.['nickname'] || '',
         phone: this.user.user_metadata?.['phone'] || '',
         address: this.user.user_metadata?.['address'] || '',
         locality: this.user.user_metadata?.['locality'] || '',
@@ -313,7 +356,8 @@ export class SessionComponent implements OnInit, OnDestroy {
     return this.editingAd?.type;
   }
 
-  activeTab: 'profile' | 'publications' | 'publish' | 'stats' | 'portfolio' = 'publications';
+  showPublishFormState = false;
+  activeTab: 'profile' | 'publications' | 'stats' | 'portfolio' | 'favorites' = 'publications';
 
   totalViews = 0;
   mostVisitedAd: any = null;
@@ -321,19 +365,64 @@ export class SessionComponent implements OnInit, OnDestroy {
   mostCommentedAd: any = null;
   mostSearchedGlobal: any[] = [];
 
-  setTab(tab: 'profile' | 'publications' | 'publish' | 'stats' | 'portfolio') {
+  // Favorites properties
+  favoriteItems: any[] = [];
+  loadingFavorites = false;
+
+  async loadFavorites() {
+    if (!this.user) {
+      this.favoriteItems = [];
+      return;
+    }
+    this.loadingFavorites = true;
+    try {
+      this.favoriteItems = await this.interactionService.getFavorites();
+    } catch (e) {
+      console.error('Error loading favorites:', e);
+    } finally {
+      this.loadingFavorites = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  getFavoritesByType(type: 'media' | 'anuncio' | 'portfolio'): any[] {
+    return this.favoriteItems.filter(item => item.type === type);
+  }
+
+  async removeFavorite(entityId: string) {
+    try {
+      const item = this.favoriteItems.find(f => f.id === entityId);
+      if (!item) return;
+      
+      const entityType = item.entityType || (item.type === 'media' ? 'media' : 'service');
+      await this.interactionService.toggleFavorite(entityId, entityType);
+      
+      this.favoriteItems = this.favoriteItems.filter(f => f.id !== entityId);
+      this.cdr.detectChanges();
+    } catch (e) {
+      console.error('Error removing favorite:', e);
+    }
+  }
+
+  setTab(tab: 'profile' | 'publications' | 'stats' | 'portfolio' | 'favorites') {
     this.activeTab = tab;
+    this.showPublishFormState = false;
     this.errorMessage = '';
     this.successMessage = '';
     if (tab === 'portfolio') {
       this.loadOrCreatePortfolio();
+    } else if (tab === 'favorites') {
+      this.loadFavorites();
     }
+    this.cdr.detectChanges();
   }
 
   onAdPublished() {
     this.loadMyAnuncios();
+    this.showPublishFormState = false;
     this.activeTab = 'publications';
     this.successMessage = '¡Anuncio publicado con éxito!';
+    this.cdr.detectChanges();
   }
 
   runWithTimeout<T = any>(promise: Promise<T> | any, timeoutMs: number = 15000): Promise<T> {
@@ -392,11 +481,13 @@ export class SessionComponent implements OnInit, OnDestroy {
           servicesData.data.map(async (item: any) => {
             let avgStars = 0;
             let totalLikes = 0;
+            let totalDislikes = 0;
             let comments: any[] = [];
             try {
               const stats = await this.runWithTimeout(this.interactionService.getRatingStats(item.id), 2000);
               avgStars = stats.avgStars || 0;
               totalLikes = stats.totalLikes || 0;
+              totalDislikes = stats.totalDislikes || 0;
             } catch (e) {
               console.warn('Failed to load stats for service', item.id, e);
             }
@@ -420,8 +511,11 @@ export class SessionComponent implements OnInit, OnDestroy {
               createdAt: item.created_at,
               avgStars,
               totalLikes,
+              totalDislikes,
               comments,
-              showComments: false
+              showComments: false,
+              landingTemplate: item.landing_template,
+              landingConfig: item.landing_config || {}
             };
           })
         );
@@ -433,11 +527,13 @@ export class SessionComponent implements OnInit, OnDestroy {
           jobsData.data.map(async (item: any) => {
             let avgStars = 0;
             let totalLikes = 0;
+            let totalDislikes = 0;
             let comments: any[] = [];
             try {
               const stats = await this.runWithTimeout(this.interactionService.getRatingStats(item.id), 2000);
               avgStars = stats.avgStars || 0;
               totalLikes = stats.totalLikes || 0;
+              totalDislikes = stats.totalDislikes || 0;
             } catch (e) {
               console.warn('Failed to load stats for job', item.id, e);
             }
@@ -463,6 +559,7 @@ export class SessionComponent implements OnInit, OnDestroy {
               createdAt: item.created_at,
               avgStars,
               totalLikes,
+              totalDislikes,
               comments,
               showComments: false
             };
@@ -478,6 +575,7 @@ export class SessionComponent implements OnInit, OnDestroy {
       this.errorMessage = err.message || 'Error al conectar con la base de datos para cargar tus publicaciones.';
     } finally {
       this.loadingAnuncios = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -498,11 +596,13 @@ export class SessionComponent implements OnInit, OnDestroy {
           servicesData.data.map(async (item: any) => {
             let avgStars = 0;
             let totalLikes = 0;
+            let totalDislikes = 0;
             let comments: any[] = [];
             try {
               const stats = await this.runWithTimeout(this.interactionService.getRatingStats(item.id), 2000);
               avgStars = stats.avgStars || 0;
               totalLikes = stats.totalLikes || 0;
+              totalDislikes = stats.totalDislikes || 0;
             } catch (e) {
               console.warn('Failed to load stats for service', item.id, e);
             }
@@ -526,8 +626,11 @@ export class SessionComponent implements OnInit, OnDestroy {
               createdAt: item.created_at,
               avgStars,
               totalLikes,
+              totalDislikes,
               comments,
-              showComments: false
+              showComments: false,
+              landingTemplate: item.landing_template,
+              landingConfig: item.landing_config || {}
             };
           })
         );
@@ -539,11 +642,13 @@ export class SessionComponent implements OnInit, OnDestroy {
           jobsData.data.map(async (item: any) => {
             let avgStars = 0;
             let totalLikes = 0;
+            let totalDislikes = 0;
             let comments: any[] = [];
             try {
               const stats = await this.runWithTimeout(this.interactionService.getRatingStats(item.id), 2000);
               avgStars = stats.avgStars || 0;
               totalLikes = stats.totalLikes || 0;
+              totalDislikes = stats.totalDislikes || 0;
             } catch (e) {
               console.warn('Failed to load stats for job', item.id, e);
             }
@@ -569,6 +674,7 @@ export class SessionComponent implements OnInit, OnDestroy {
               createdAt: item.created_at,
               avgStars,
               totalLikes,
+              totalDislikes,
               comments,
               showComments: false
             };
@@ -1019,6 +1125,25 @@ export class SessionComponent implements OnInit, OnDestroy {
       messageText: ''
     };
 
+    // Load comments in background
+    this.interactionService.getComments(ad.id)
+      .then(comments => {
+        if (this.previewAd && this.previewAd.id === ad.id) {
+          this.previewAd.comments = comments;
+        }
+      });
+
+    // Load rating stats
+    this.interactionService.getRatingStats(ad.id)
+      .then(stats => {
+        if (this.previewAd && this.previewAd.id === ad.id) {
+          this.previewAd.totalLikes = stats.totalLikes;
+          this.previewAd.totalDislikes = stats.totalDislikes;
+          this.previewAd.userVote = stats.userVote;
+          this.previewAd.avgStars = stats.avgStars;
+        }
+      });
+
     if (ad.type) {
       this.interactionService.incrementClicks(ad.id, ad.type, ad.clicks || 0).then(nextClicks => {
         ad.clicks = nextClicks;
@@ -1038,32 +1163,104 @@ export class SessionComponent implements OnInit, OnDestroy {
   }
 
   async likeAd(ad: any) {
+    const prevVote = ad.userVote;
+    const isUndo = prevVote === 'like';
+    const newVote = isUndo ? null : 'like';
+
+    // Optimistic UI update
+    ad.userVote = newVote;
+    if (isUndo) {
+      ad.totalLikes = Math.max(0, (ad.totalLikes || 0) - 1);
+    } else {
+      ad.totalLikes = (ad.totalLikes || 0) + 1;
+      if (prevVote === 'dislike') {
+        ad.totalDislikes = Math.max(0, (ad.totalDislikes || 0) - 1);
+      }
+    }
+
     try {
-      await this.interactionService.like(ad.id, ad.type);
+      await this.interactionService.vote(ad.id, ad.type || 'service', newVote);
       const stats = await this.interactionService.getRatingStats(ad.id);
       ad.totalLikes = stats.totalLikes;
-      ad.avgStars = stats.avgStars;
+      ad.totalDislikes = stats.totalDislikes;
+      ad.userVote = stats.userVote;
       const found = this.myAnuncios.find(x => x.id === ad.id);
       if (found) {
         found.totalLikes = stats.totalLikes;
-        found.avgStars = stats.avgStars;
+        found.totalDislikes = stats.totalDislikes;
+        found.userVote = stats.userVote;
       }
       this.calculateStats();
-    } catch (err) {
-      console.error('likeAd - error:', err);
+    } catch (e) {
+      ad.userVote = prevVote;
+      this.refreshAdRatingStats(ad.id);
     }
+  }
+
+  async dislikeAd(ad: any) {
+    const prevVote = ad.userVote;
+    const isUndo = prevVote === 'dislike';
+    const newVote = isUndo ? null : 'dislike';
+
+    // Optimistic UI update
+    ad.userVote = newVote;
+    if (isUndo) {
+      ad.totalDislikes = Math.max(0, (ad.totalDislikes || 0) - 1);
+    } else {
+      ad.totalDislikes = (ad.totalDislikes || 0) + 1;
+      if (prevVote === 'like') {
+        ad.totalLikes = Math.max(0, (ad.totalLikes || 0) - 1);
+      }
+    }
+
+    try {
+      await this.interactionService.vote(ad.id, ad.type || 'service', newVote);
+      const stats = await this.interactionService.getRatingStats(ad.id);
+      ad.totalLikes = stats.totalLikes;
+      ad.totalDislikes = stats.totalDislikes;
+      ad.userVote = stats.userVote;
+      const found = this.myAnuncios.find(x => x.id === ad.id);
+      if (found) {
+        found.totalLikes = stats.totalLikes;
+        found.totalDislikes = stats.totalDislikes;
+        found.userVote = stats.userVote;
+      }
+      this.calculateStats();
+    } catch (e) {
+      ad.userVote = prevVote;
+      this.refreshAdRatingStats(ad.id);
+    }
+  }
+
+  private refreshAdRatingStats(entityId: string) {
+    this.interactionService.getRatingStats(entityId).then(stats => {
+      const found = this.myAnuncios.find(x => x.id === entityId);
+      if (found) {
+        found.totalLikes = stats.totalLikes;
+        found.totalDislikes = stats.totalDislikes;
+        found.userVote = stats.userVote;
+      }
+      if (this.previewAd && this.previewAd.id === entityId) {
+        this.previewAd.totalLikes = stats.totalLikes;
+        this.previewAd.totalDislikes = stats.totalDislikes;
+        this.previewAd.userVote = stats.userVote;
+      }
+      this.calculateStats();
+    });
   }
 
   async rateAd(ad: any, stars: number) {
     try {
-      await this.interactionService.rate(ad.id, ad.type, stars);
+      await this.interactionService.rate(ad.id, ad.type || 'service', stars);
       const stats = await this.interactionService.getRatingStats(ad.id);
       ad.totalLikes = stats.totalLikes;
-      ad.avgStars = stats.avgStars;
+      ad.totalDislikes = stats.totalDislikes;
+      ad.userVote = stats.userVote;
       const found = this.myAnuncios.find(x => x.id === ad.id);
       if (found) {
         found.totalLikes = stats.totalLikes;
-        found.avgStars = stats.avgStars;
+        found.totalDislikes = stats.totalDislikes;
+        found.userVote = stats.userVote;
       }
       this.calculateStats();
     } catch (err) {
@@ -1164,20 +1361,7 @@ export class SessionComponent implements OnInit, OnDestroy {
   }
 
   getCategoryEmoji(category: string): string {
-    switch (category) {
-      case 'Electricidad':
-        return '⚡';
-      case 'Servicios':
-        return '🏠';
-      case 'Empleo':
-        return '💼';
-      case 'Cursos':
-        return '📚';
-      case 'Venta y Donaciones':
-        return '🛍️';
-      default:
-        return '📣';
-    }
+    return '';
   }
 
   getCategoryBgClass(category: string): string {
@@ -1275,7 +1459,7 @@ export class SessionComponent implements OnInit, OnDestroy {
           phone: this.portfolioAd.phone || '',
           website: this.portfolioAd.website || '',
           landingTemplate: this.portfolioAd.landing_template || 'servicios',
-          landingPalette: config.palette || 'crosby',
+          landingPalette: config.palette || 'minimal',
           landingFont: config.font || 'serif',
           landingHeroImage: config.heroImage || '',
           phoneFijo: config.phoneFijo || ''
@@ -1301,12 +1485,15 @@ export class SessionComponent implements OnInit, OnDestroy {
           phone: metadata?.['phone'] || '',
           phoneFijo: '',
           landingTemplate: 'servicios',
-          landingPalette: 'crosby',
+          landingPalette: 'minimal',
           landingFont: 'serif',
           landingHeroImage: this.getDefaultImage('servicios')
         });
         this.portfolioAd = null;
       }
+
+      // Sync loaded form state to signals
+      this.portfolioState.updateFromForm(this.portfolioForm.value);
     } catch (err: any) {
       console.error('Error loading portfolio:', err);
       this.errorMessage = 'No se pudo cargar la información de tu Sitio Comercial.';
@@ -1434,7 +1621,7 @@ export class SessionComponent implements OnInit, OnDestroy {
 
   getLandingStyles(config: any): any {
     if (!config) return {};
-    const palette = config.palette || 'crosby';
+    const palette = config.palette || 'minimal';
     
     let bg = '#1e2321';
     let text = '#fdfbf7';
@@ -1661,5 +1848,908 @@ export class SessionComponent implements OnInit, OnDestroy {
 
   closeLandingPreviewModal() {
     this.showLandingPreviewModal = false;
+  }
+
+  // ── Visual Builder Focus Mode ───────────────────────────────────
+
+  pendingImages = new Map<string, File>();
+  sliderIndices = new Map<string, number>();
+  socialEditKeys = new Map<string, string>();
+  showExitConfirmDialog = false;
+
+  toolboxBlocks = [
+    { type: 'text', name: 'Texto' },
+    { type: 'image', name: 'Imagen' },
+    { type: 'video', name: 'Video' },
+    { type: 'columns', name: 'Columnas' },
+    { type: 'slider', name: 'Carrusel' }
+  ];
+
+  showPalettePopover = false;
+  showSocialPopover = false;
+  activeSocialKeyToAdd = 'whatsapp';
+  newSocialUrl = '';
+  showColorPickerIdx: number | null = null;
+  activeTextEditIdx: number | null = null;
+
+  onTextClick(idx: number, event: MouseEvent) {
+    if (this.portfolioState.previewMode()) return;
+    event.stopPropagation();
+    this.activeTextEditIdx = idx;
+  }
+
+  toggleFontWeight(idx: number) {
+    const block = this.portfolioState.blocks()[idx];
+    if (!block) return;
+    const nextWeight = block.fontWeight === 'bold' ? 'medium' : 'bold';
+    this.updateBlockProp(idx, 'fontWeight', nextWeight);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.block-toolbar') && !target.closest('[contenteditable="true"]')) {
+      this.activeTextEditIdx = null;
+    }
+  }
+
+  togglePalettePopover() {
+    this.showPalettePopover = !this.showPalettePopover;
+  }
+
+  toggleSocialPopover() {
+    this.showSocialPopover = !this.showSocialPopover;
+    if (this.showSocialPopover) {
+      this.newSocialUrl = '';
+    }
+  }
+
+  getSocialLinkFromBlock(block: any, key: string): string {
+    if (!block || !block.socialLinks) return '';
+    return (block.socialLinks as any)[key] || '';
+  }
+
+  updateSocialLinkValue(key: string, value: string) {
+    const blocks = [...this.portfolioState.blocks()];
+    const socialBlock = blocks.find(b => b.type === 'social');
+    if (socialBlock) {
+      if (!socialBlock.socialLinks) socialBlock.socialLinks = {};
+      (socialBlock.socialLinks as any)[key] = value;
+      this.portfolioState.blocks.set(blocks);
+      this.portfolioState.isDirty.set(true);
+      this.cdr.detectChanges();
+    }
+  }
+
+  addSocialLink(key: string, url: string) {
+    this.updateSocialLinkValue(key, url);
+    this.newSocialUrl = '';
+    this.showSocialPopover = false;
+  }
+
+  removeSocialLink(key: string) {
+    this.updateSocialLinkValue(key, '');
+  }
+
+  activeToolboxCategory = 'text';
+
+  noReturnPredicate = () => false;
+
+  openVisualBuilder() {
+    if (!this.portfolioForm) return;
+    
+    // Reset helper states
+    this.pendingImages.clear();
+    this.sliderIndices.clear();
+    this.socialEditKeys.clear();
+    this.showExitConfirmDialog = false;
+    this.portfolioState.previewMode.set(false);
+    this.portfolioState.isDirty.set(false);
+    
+    // Sync latest form data to signals
+    this.portfolioState.updateFromForm(this.portfolioForm.value);
+    
+    // Inject user profile metadata if empty
+    if (this.user) {
+      const metadata = this.user.user_metadata || {};
+      const firstName = metadata['first_name'] || '';
+      const lastName = metadata['last_name'] || '';
+      const phone = metadata['phone'] || '';
+      const email = this.user.email || '';
+      const fullName = `${firstName} ${lastName}`.trim();
+      
+      if (!this.portfolioState.title()) {
+        this.portfolioState.title.set(fullName || 'Mi Negocio');
+      }
+      if (!this.portfolioState.contactName()) {
+        this.portfolioState.contactName.set(fullName);
+      }
+      if (!this.portfolioState.email()) {
+        this.portfolioState.email.set(email);
+      }
+      if (!this.portfolioState.phone()) {
+        this.portfolioState.phone.set(phone);
+      }
+    }
+    
+    // Load blocks
+    const config = this.portfolioAd?.landing_config || {};
+    this.portfolioState.loadBlocksFromConfig(config);
+    
+    // Check and load draft if it exists
+    if (config.draft) {
+      this.portfolioState.title.set(config.draft.title || this.portfolioState.title());
+      this.portfolioState.description.set(config.draft.description || this.portfolioState.description());
+      this.portfolioState.landingPalette.set(config.draft.palette || this.portfolioState.landingPalette());
+      this.portfolioState.landingFont.set(config.draft.font || this.portfolioState.landingFont());
+      this.portfolioState.landingHeroImage.set(config.draft.heroImage || this.portfolioState.landingHeroImage());
+      this.portfolioState.bgOverlayOpacity.set(config.draft.bgOverlayOpacity ?? this.portfolioState.bgOverlayOpacity());
+      if (config.draft.blocks) {
+        this.portfolioState.blocks.set(config.draft.blocks);
+      }
+    }
+    
+    const menuBlock = this.portfolioState.blocks().find(b => b.type === 'menu');
+    if (menuBlock && menuBlock.menuLinks && menuBlock.menuLinks.length > 0) {
+      this.activeSectionLabel.set(menuBlock.menuLinks[0].label);
+    } else {
+      this.activeSectionLabel.set('Inicio');
+    }
+    this.activeMobileTab.set('canvas');
+
+    this.portfolioState.showVisualBuilder.set(true);
+    this.cdr.detectChanges();
+  }
+
+  closeVisualBuilder() {
+    if (this.portfolioState.isDirty()) {
+      this.showExitConfirmDialog = true;
+      this.cdr.detectChanges();
+    } else {
+      this.closeVisualBuilderConfirm();
+    }
+  }
+
+  closeVisualBuilderConfirm() {
+    this.showExitConfirmDialog = false;
+    this.portfolioState.showVisualBuilder.set(false);
+    this.portfolioState.isDirty.set(false);
+    this.cdr.detectChanges();
+  }
+
+  createBlockInstance(blockType: string): PortfolioBlock {
+    const newBlock: any = {
+      id: `block_${blockType}_${Date.now()}`,
+      type: blockType
+    };
+    if (blockType === 'text') {
+      newBlock.content = 'Haz clic para editar este texto';
+      newBlock.fontSize = 'base';
+      newBlock.fontWeight = 'normal';
+      newBlock.fontFamily = 'sans';
+    } else if (blockType === 'social') {
+      newBlock.socialLinks = {
+        whatsapp: this.portfolioState.phone() || '',
+        email: this.portfolioState.email() || '',
+        website: this.portfolioState.website() || '',
+        instagram: '',
+        linkedin: '',
+        facebook: '',
+        x: '',
+        youtube: ''
+      };
+    } else if (blockType === 'columns') {
+      newBlock.layoutCols = 2;
+      newBlock.columns = [
+        { blocks: [] },
+        { blocks: [] }
+      ];
+    } else if (blockType === 'menu') {
+      newBlock.menuLinks = [
+        { label: 'Sección 1', anchor: '#seccion-1' },
+        { label: 'Sección 2', anchor: '#seccion-2' },
+        { label: 'Sección 3', anchor: '#seccion-3' }
+      ];
+    } else if (blockType === 'slider') {
+      newBlock.sliderSlides = [
+        { url: '', text: 'Slide 1' },
+        { url: '', text: 'Slide 2' },
+        { url: '', text: 'Slide 3' }
+      ];
+    }
+    return newBlock;
+  }
+
+  getConnectedLists(): string[] {
+    const listIds = ['canvas-blocks-list'];
+    for (const b of this.portfolioState.blocks()) {
+      if (b.type === 'columns' && b.columns) {
+        for (let i = 0; i < (b.layoutCols || 2); i++) {
+          listIds.push(`col-drop-${b.id}-${i}`);
+        }
+      }
+    }
+    return listIds;
+  }
+
+  onBlockDropped(event: any) {
+    const blocksList = [...this.portfolioState.blocks()];
+    if (event.previousContainer.id === 'canvas-blocks-list' && event.container.id === 'canvas-blocks-list') {
+      // Reorder inside main canvas
+      const [movedItem] = blocksList.splice(event.previousIndex, 1);
+      blocksList.splice(event.currentIndex, 0, movedItem);
+      this.portfolioState.blocks.set(blocksList);
+    } else if (event.previousContainer.id === 'toolbox-list' && event.container.id === 'canvas-blocks-list') {
+      // Dragging from toolbox into main canvas
+      const blockType = event.previousContainer.data[event.previousIndex].type;
+      const newBlock = this.createBlockInstance(blockType);
+      blocksList.splice(event.currentIndex, 0, newBlock);
+      this.portfolioState.blocks.set(blocksList);
+    }
+    this.portfolioState.isDirty.set(true);
+    this.cdr.detectChanges();
+  }
+
+  onNestedBlockDropped(event: any, parentBlockId: string, colIdx: number) {
+    const blocksList = [...this.portfolioState.blocks()];
+    const parentBlock = blocksList.find(b => b.id === parentBlockId);
+    if (!parentBlock || !parentBlock.columns) return;
+    
+    const colBlocks = [...parentBlock.columns[colIdx].blocks];
+    
+    if (event.previousContainer === event.container) {
+      // Reorder inside the same column
+      const [movedItem] = colBlocks.splice(event.previousIndex, 1);
+      colBlocks.splice(event.currentIndex, 0, movedItem);
+      parentBlock.columns[colIdx].blocks = colBlocks;
+    } else {
+      // Dragging from another container
+      let draggedBlock: PortfolioBlock;
+      
+      if (event.previousContainer.id === 'toolbox-list') {
+        // Dragging from toolbox
+        const blockType = event.previousContainer.data[event.previousIndex].type;
+        // Don't allow nested layout containers inside columns
+        if (['columns', 'menu', 'slider'].includes(blockType)) {
+          this.errorMessage = 'No se permiten layouts anidados en las columnas.';
+          this.cdr.detectChanges();
+          return;
+        }
+        draggedBlock = this.createBlockInstance(blockType);
+      } else {
+        // Dragging from main canvas or another column
+        draggedBlock = event.item.data;
+        // Remove from its previous location
+        this.removeBlockFromCanvas(draggedBlock.id);
+      }
+      
+      colBlocks.splice(event.currentIndex, 0, draggedBlock);
+      parentBlock.columns[colIdx].blocks = colBlocks;
+    }
+    
+    this.portfolioState.blocks.set(blocksList);
+    this.portfolioState.isDirty.set(true);
+    this.cdr.detectChanges();
+  }
+
+  removeBlockFromCanvas(blockId: string) {
+    const blocksList = [...this.portfolioState.blocks()];
+    // Check if it's in the main list
+    const mainIdx = blocksList.findIndex(b => b.id === blockId);
+    if (mainIdx > -1) {
+      blocksList.splice(mainIdx, 1);
+      this.portfolioState.blocks.set(blocksList);
+      return;
+    }
+    // Check inside columns
+    for (const b of blocksList) {
+      if (b.type === 'columns' && b.columns) {
+        for (const col of b.columns) {
+          const childIdx = col.blocks.findIndex(c => c.id === blockId);
+          if (childIdx > -1) {
+            col.blocks.splice(childIdx, 1);
+            this.portfolioState.blocks.set(blocksList);
+            return;
+          }
+        }
+      }
+    }
+  }
+
+  removeBlock(idx: number) {
+    const list = [...this.portfolioState.blocks()];
+    list.splice(idx, 1);
+    this.portfolioState.blocks.set(list);
+    this.portfolioState.isDirty.set(true);
+    this.cdr.detectChanges();
+  }
+
+  updateBlockProp(idx: number, prop: string, value: any) {
+    const list = [...this.portfolioState.blocks()];
+    if (list[idx]) {
+      list[idx] = { ...list[idx], [prop]: value };
+      this.portfolioState.blocks.set(list);
+      this.portfolioForm.markAsDirty();
+    }
+  }
+
+  updateSocialLink(idx: number, platform: string, value: string) {
+    const list = [...this.portfolioState.blocks()];
+    if (list[idx] && list[idx].type === 'social') {
+      const socialLinks = { ...list[idx].socialLinks, [platform]: value };
+      list[idx] = { ...list[idx], socialLinks };
+      this.portfolioState.blocks.set(list);
+      this.portfolioForm.markAsDirty();
+    }
+  }
+
+  getFontSizeClass(size?: string): string {
+    switch (size) {
+      case 'sm': return '0.75rem';
+      case 'base': return '0.95rem';
+      case 'lg': return '1.15rem';
+      case 'xl': return '1.4rem';
+      case '2xl': return '1.75rem';
+      case '3xl': return '2.25rem';
+      case '4xl': return '3rem';
+      default: return '0.95rem';
+    }
+  }
+
+  getFontFamilyStyle(font?: string): string {
+    switch (font) {
+      case 'serif': return 'Georgia, serif';
+      case 'sans': return 'var(--font-sans, "Outfit", sans-serif)';
+      case 'mono': return 'monospace';
+      case 'geometric': return '"Cabin", "Futura", sans-serif';
+      case 'elegant': return '"Great Vibes", "Playball", cursive';
+      default: return 'var(--font-sans, "Outfit", sans-serif)';
+    }
+  }
+
+  getColIndexes(cols?: string): number[] {
+    const num = parseInt(cols || '2', 10);
+    return Array.from({ length: num }, (_, i) => i);
+  }
+
+  getLayoutColContent(block: any, colIdx: number): string {
+    const parts = (block.content || '').split('|');
+    return parts[colIdx] || `Columna ${colIdx + 1}`;
+  }
+
+  onLayoutColBlur(blockIdx: number, colIdx: number, event: FocusEvent) {
+    const el = event.target as HTMLElement;
+    const newVal = el.innerText.trim();
+    const list = [...this.portfolioState.blocks()];
+    if (list[blockIdx]) {
+      const parts = (list[blockIdx].content || '').split('|');
+      while (parts.length < (parseInt(String(list[blockIdx].layoutCols || '2'), 10))) {
+        parts.push('');
+      }
+      parts[colIdx] = newVal;
+      list[blockIdx] = { ...list[blockIdx], content: parts.join('|') };
+      this.portfolioState.blocks.set(list);
+      this.portfolioForm.markAsDirty();
+    }
+  }
+
+  onCanvasTitleBlur(event: FocusEvent) {
+    const el = event.target as HTMLElement;
+    const newTitle = el.innerText.trim();
+    if (newTitle) {
+      this.portfolioState.title.set(newTitle);
+      this.portfolioForm.patchValue({ title: newTitle }, { emitEvent: false });
+    }
+  }
+
+  onCanvasBlockBlur(idx: number, event: FocusEvent) {
+    const el = event.target as HTMLElement;
+    const newVal = el.innerText.trim();
+    this.updateBlockProp(idx, 'content', newVal);
+  }
+
+  async handleBlockImageUpload(event: Event, idx: number) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      this.errorMessage = 'La imagen excede el límite de 2MB.';
+      this.cdr.detectChanges();
+      return;
+    }
+    try {
+      const dataUrl = await this.compressImageToDataUrl(file);
+      this.updateBlockProp(idx, 'mediaUrl', dataUrl);
+      this.updateBlockProp(idx, 'mediaType', 'image');
+    } catch (err) {
+      console.error('Error uploading block image:', err);
+    }
+  }
+
+  parseVideoUrl(url: string): string {
+    if (!url) return '';
+    let videoId = '';
+    if (url.includes('youtube.com/watch?v=')) {
+      videoId = url.split('v=')[1]?.split('&')[0] || '';
+      return `https://www.youtube.com/embed/${videoId}`;
+    } else if (url.includes('youtu.be/')) {
+      videoId = url.split('youtu.be/')[1]?.split('?')[0] || '';
+      return `https://www.youtube.com/embed/${videoId}`;
+    } else if (url.includes('vimeo.com/')) {
+      videoId = url.split('vimeo.com/')[1]?.split('?')[0] || '';
+      return `https://player.vimeo.com/video/${videoId}`;
+    }
+    return url;
+  }
+
+  setBackgroundPreset(imageUrl: string) {
+    this.portfolioState.landingHeroImage.set(imageUrl);
+    this.portfolioForm.patchValue({ landingHeroImage: imageUrl });
+    this.portfolioForm.markAsDirty();
+  }
+
+  async saveDraft(publish: boolean) {
+    if (!this.user) return;
+    this.portfolioSubmitting = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.cdr.detectChanges();
+
+    const blocks = this.portfolioState.blocks();
+    
+    try {
+      // Defer Supabase image uploads until save is explicitly clicked
+      await this.uploadPendingImages(blocks);
+    } catch (uploadErr: any) {
+      console.error('Error uploading pending images:', uploadErr);
+      this.errorMessage = 'Error al subir las imágenes al servidor.';
+      this.portfolioSubmitting = false;
+      this.cdr.detectChanges();
+      return;
+    }
+
+    const config = this.portfolioAd?.landing_config || {};
+
+    const draftState = {
+      title: this.portfolioState.title(),
+      description: this.portfolioState.description(),
+      palette: this.portfolioState.landingPalette(),
+      font: this.portfolioState.landingFont(),
+      heroImage: this.portfolioState.landingHeroImage(),
+      bgOverlayOpacity: this.portfolioState.bgOverlayOpacity(),
+      blocks: blocks
+    };
+
+    let payload: any = {};
+    if (publish) {
+      const mainConfig = {
+        palette: draftState.palette,
+        font: draftState.font,
+        heroImage: draftState.heroImage,
+        blocks: draftState.blocks,
+        bgOverlayOpacity: draftState.bgOverlayOpacity,
+        sections: this.mapBlocksToSections(blocks)
+      };
+
+      payload = {
+        title: draftState.title,
+        category: this.portfolioState.category(),
+        description: draftState.description,
+        contact_name: this.portfolioState.contactName(),
+        phone: this.portfolioState.phone(),
+        email: this.portfolioState.email(),
+        website: this.portfolioState.website(),
+        image_url: draftState.heroImage || this.getDefaultImage(this.portfolioState.landingTemplate()),
+        owner_id: this.user.id,
+        landing_template: this.portfolioState.landingTemplate(),
+        landing_config: {
+          ...config,
+          ...mainConfig,
+          draft: null
+        }
+      };
+    } else {
+      payload = {
+        landing_config: {
+          ...config,
+          draft: draftState
+        }
+      };
+    }
+
+    try {
+      if (this.portfolioAd) {
+        const { error } = await this.supabase.client
+          .from('services')
+          .update(payload)
+          .eq('id', this.portfolioAd.id);
+        if (error) throw error;
+        this.successMessage = publish 
+          ? '¡Sitio Comercial publicado con éxito!' 
+          : 'Progreso guardado como borrador.';
+      } else {
+        const insertPayload = {
+          ...payload,
+          owner_id: this.user.id,
+          title: payload.title || draftState.title || 'Mi Sitio Comercial',
+          category: this.portfolioState.category(),
+          description: payload.description || draftState.description || 'Presentación comercial.',
+          contact_name: this.portfolioState.contactName() || this.user.user_metadata?.['first_name'] || '',
+          phone: this.portfolioState.phone() || 'No especificado',
+          email: this.portfolioState.email() || this.user.email,
+          landing_template: publish ? this.portfolioState.landingTemplate() : null
+        };
+        const { error } = await this.supabase.client
+          .from('services')
+          .insert([insertPayload]);
+        if (error) throw error;
+        this.successMessage = '¡Sitio Comercial creado con éxito!';
+      }
+      
+      this.portfolioState.isDirty.set(false); // Reset dirty flag after successful save
+      await this.loadOrCreatePortfolio();
+      
+      if (publish) {
+        this.closeVisualBuilderConfirm(); // Exit builder on publish
+      }
+    } catch (err: any) {
+      console.error('Error in saveDraft:', err);
+      this.errorMessage = err.message || 'Error al guardar el portafolio.';
+    } finally {
+      this.portfolioSubmitting = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  async uploadPendingImages(blocks: PortfolioBlock[]): Promise<void> {
+    if (!this.user) return;
+    for (const block of blocks) {
+      // 1. Check standard image block
+      if (block.type === 'image' && block.mediaUrl && block.mediaUrl.startsWith('blob:') && this.pendingImages.has(block.id)) {
+        const file = this.pendingImages.get(block.id)!;
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${this.user.id}_block_${block.id}_${Date.now()}.${fileExt}`;
+        const path = `portfolios/${fileName}`;
+        const publicUrl = await this.servicesCatalogService.uploadFile('assets', path, file);
+        block.mediaUrl = publicUrl;
+        this.pendingImages.delete(block.id);
+      }
+      
+      // 2. Check slider slides
+      if (block.type === 'slider' && block.sliderSlides) {
+        for (let i = 0; i < block.sliderSlides.length; i++) {
+          const slide = block.sliderSlides[i];
+          const slideKey = `${block.id}-slide-${i}`;
+          if (slide.url && slide.url.startsWith('blob:') && this.pendingImages.has(slideKey)) {
+            const file = this.pendingImages.get(slideKey)!;
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${this.user.id}_slide_${block.id}_${i}_${Date.now()}.${fileExt}`;
+            const path = `portfolios/${fileName}`;
+            const publicUrl = await this.servicesCatalogService.uploadFile('assets', path, file);
+            slide.url = publicUrl;
+            this.pendingImages.delete(slideKey);
+          }
+        }
+      }
+
+      // 3. Check nested column blocks
+      if (block.type === 'columns' && block.columns) {
+        for (let colIdx = 0; colIdx < block.columns.length; colIdx++) {
+          const col = block.columns[colIdx];
+          if (col.blocks) {
+            for (const child of col.blocks) {
+              const childKey = `${block.id}-col-${colIdx}-${child.id}`;
+              if (child.type === 'image' && child.mediaUrl && child.mediaUrl.startsWith('blob:') && this.pendingImages.has(childKey)) {
+                const file = this.pendingImages.get(childKey)!;
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${this.user.id}_col_${child.id}_${Date.now()}.${fileExt}`;
+                const path = `portfolios/${fileName}`;
+                const publicUrl = await this.servicesCatalogService.uploadFile('assets', path, file);
+                child.mediaUrl = publicUrl;
+                this.pendingImages.delete(childKey);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  addMenuLink(block: PortfolioBlock) {
+    if (!block.menuLinks) block.menuLinks = [];
+    if (block.menuLinks.length < 5) {
+      const nextNum = block.menuLinks.length + 1;
+      block.menuLinks.push({ label: `Sección ${nextNum}`, anchor: `#seccion-${nextNum}` });
+      this.portfolioState.isDirty.set(true);
+      this.cdr.detectChanges();
+    }
+  }
+  
+  removeMenuLink(block: PortfolioBlock, idx: number) {
+    if (block.menuLinks && block.menuLinks.length > 3) {
+      block.menuLinks.splice(idx, 1);
+      this.portfolioState.isDirty.set(true);
+      this.cdr.detectChanges();
+    }
+  }
+
+  mobileMenuOpen = new Map<string, boolean>();
+
+  isMobileMenuOpen(blockId: string): boolean {
+    return this.mobileMenuOpen.get(blockId) || false;
+  }
+
+  toggleMobileMenu(blockId: string) {
+    this.mobileMenuOpen.set(blockId, !this.isMobileMenuOpen(blockId));
+    this.cdr.detectChanges();
+  }
+
+  getBlockSectionId(block: PortfolioBlock): string {
+    if (block.type === 'menu') return '';
+    const menuBlock = this.portfolioState.blocks().find(b => b.type === 'menu');
+    if (!menuBlock || !menuBlock.menuLinks) return '';
+    
+    const nonMenuBlocks = this.portfolioState.blocks().filter(b => b.type !== 'menu');
+    const index = nonMenuBlocks.indexOf(block);
+    
+    if (index >= 0 && index < menuBlock.menuLinks.length) {
+      const anchor = menuBlock.menuLinks[index].anchor;
+      return anchor ? anchor.replace('#', '') : '';
+    }
+    return '';
+  }
+
+  scrollToSection(anchor: string, event: Event) {
+    event.preventDefault();
+    if (!anchor) return;
+    const id = anchor.startsWith('#') ? anchor.substring(1) : anchor;
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+      const label = (event.target as HTMLElement)?.innerText;
+      if (label) {
+        this.activeSectionLabel.set(label);
+      }
+    }
+  }
+
+  onCanvasScroll(event: Event) {
+    const container = event.target as HTMLElement;
+    if (!container) return;
+    
+    const nonMenuBlocks = this.portfolioState.blocks().filter(b => b.type !== 'menu');
+    if (nonMenuBlocks.length === 0) return;
+    
+    const scrollLeft = container.scrollLeft;
+    const width = container.clientWidth;
+    if (width <= 0) return;
+    
+    const activeIdx = Math.round(scrollLeft / width);
+    const menuBlock = this.portfolioState.blocks().find(b => b.type === 'menu');
+    if (menuBlock && menuBlock.menuLinks && activeIdx >= 0 && activeIdx < menuBlock.menuLinks.length) {
+      this.activeSectionLabel.set(menuBlock.menuLinks[activeIdx].label);
+    } else {
+      this.activeSectionLabel.set(`Sección ${activeIdx + 1}`);
+    }
+  }
+
+  getSocialBlock(): PortfolioBlock | undefined {
+    return this.portfolioState.blocks().find(b => b.type === 'social');
+  }
+
+  updateSocialLinkFromSidebar(key: string, value: string) {
+    const blocks = [...this.portfolioState.blocks()];
+    const socialBlock = blocks.find(b => b.type === 'social');
+    if (socialBlock) {
+      if (!socialBlock.socialLinks) socialBlock.socialLinks = {};
+      (socialBlock.socialLinks as any)[key] = value;
+      this.portfolioState.blocks.set(blocks);
+      this.portfolioState.isDirty.set(true);
+      this.cdr.detectChanges();
+    }
+  }
+
+  getBlockTextContent(block: PortfolioBlock): string {
+    if (block.id === 'block_header_title') {
+      return this.portfolioState.title() || block.content || '';
+    }
+    if (block.id === 'block_header_desc') {
+      return this.portfolioState.description() || block.content || '';
+    }
+    return block.content || '';
+  }
+
+  updateBlockContent(block: PortfolioBlock, event: any) {
+    const text = event.target.innerText;
+    block.content = text;
+    if (block.id === 'block_header_title') {
+      this.portfolioState.title.set(text);
+      if (this.portfolioForm) {
+        this.portfolioForm.patchValue({ title: text });
+      }
+    } else if (block.id === 'block_header_desc') {
+      this.portfolioState.description.set(text);
+      if (this.portfolioForm) {
+        this.portfolioForm.patchValue({ description: text });
+      }
+    }
+    this.portfolioState.isDirty.set(true);
+  }
+
+  getActiveSlideIdx(blockId: string): number {
+    return this.sliderIndices.get(blockId) || 0;
+  }
+  
+  setActiveSlideIdx(blockId: string, idx: number) {
+    this.sliderIndices.set(blockId, idx);
+    this.cdr.detectChanges();
+  }
+  
+  getSlideUrl(block: PortfolioBlock, idx: number): string {
+    return block.sliderSlides?.[idx]?.url || '';
+  }
+  
+  getSlideText(block: PortfolioBlock, idx: number): string {
+    return block.sliderSlides?.[idx]?.text || '';
+  }
+  
+  setSlideText(block: PortfolioBlock, idx: number, val: string) {
+    if (block.sliderSlides?.[idx]) {
+      block.sliderSlides[idx].text = val;
+      this.portfolioState.isDirty.set(true);
+    }
+  }
+  
+  handleSlideImageUpload(event: Event, block: PortfolioBlock, slideIdx: number) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      this.errorMessage = 'La imagen excede el límite de 2MB.';
+      this.cdr.detectChanges();
+      return;
+    }
+    
+    const previewUrl = URL.createObjectURL(file);
+    const slideKey = `${block.id}-slide-${slideIdx}`;
+    this.pendingImages.set(slideKey, file);
+    
+    if (block.sliderSlides?.[slideIdx]) {
+      block.sliderSlides[slideIdx].url = previewUrl;
+      this.portfolioState.isDirty.set(true);
+      this.cdr.detectChanges();
+    }
+  }
+
+  getSocialEditKey(blockId: string): string {
+    return this.socialEditKeys.get(blockId) || 'whatsapp';
+  }
+  
+  setSocialEditKey(blockId: string, key: string) {
+    this.socialEditKeys.set(blockId, key);
+    this.cdr.detectChanges();
+  }
+
+  hasAnySocialLink(block: PortfolioBlock): boolean {
+    if (!block.socialLinks) return false;
+    return !!(
+      block.socialLinks.whatsapp ||
+      block.socialLinks.linkedin ||
+      block.socialLinks.instagram ||
+      block.socialLinks.facebook ||
+      block.socialLinks.x ||
+      block.socialLinks.youtube ||
+      block.socialLinks.website ||
+      block.socialLinks.email
+    );
+  }
+
+  setColumnsLayout(block: PortfolioBlock, cols: number) {
+    if (!block.columns) block.columns = [];
+    const currentLen = block.columns.length;
+    if (currentLen < cols) {
+      for (let i = currentLen; i < cols; i++) {
+        block.columns.push({ blocks: [] });
+      }
+    } else if (currentLen > cols) {
+      block.columns.splice(cols);
+    }
+    block.layoutCols = cols;
+    this.portfolioState.isDirty.set(true);
+    this.cdr.detectChanges();
+  }
+  
+  removeNestedBlock(parentBlockId: string, colIdx: number, childIdx: number) {
+    const blocksList = [...this.portfolioState.blocks()];
+    const parentBlock = blocksList.find(b => b.id === parentBlockId);
+    if (parentBlock && parentBlock.columns?.[colIdx]?.blocks) {
+      parentBlock.columns[colIdx].blocks.splice(childIdx, 1);
+      this.portfolioState.blocks.set(blocksList);
+      this.portfolioState.isDirty.set(true);
+      this.cdr.detectChanges();
+    }
+  }
+
+  onNestedBlockBlur(parentBlockId: string, colIdx: number, childIdx: number, event: FocusEvent) {
+    const el = event.target as HTMLElement;
+    const newVal = el.innerText.trim();
+    const blocksList = [...this.portfolioState.blocks()];
+    const parentBlock = blocksList.find(b => b.id === parentBlockId);
+    if (parentBlock && parentBlock.columns?.[colIdx]?.blocks?.[childIdx]) {
+      parentBlock.columns[colIdx].blocks[childIdx].content = newVal;
+      this.portfolioState.blocks.set(blocksList);
+      this.portfolioState.isDirty.set(true);
+    }
+  }
+
+  handleNestedImageUpload(event: Event, parentBlockId: string, colIdx: number, childId: string) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      this.errorMessage = 'La imagen excede el límite de 2MB.';
+      this.cdr.detectChanges();
+      return;
+    }
+    
+    const previewUrl = URL.createObjectURL(file);
+    const childKey = `${parentBlockId}-col-${colIdx}-${childId}`;
+    this.pendingImages.set(childKey, file);
+    
+    const blocksList = [...this.portfolioState.blocks()];
+    const parentBlock = blocksList.find(b => b.id === parentBlockId);
+    if (parentBlock && parentBlock.columns?.[colIdx]?.blocks) {
+      const child = parentBlock.columns[colIdx].blocks.find(c => c.id === childId);
+      if (child) {
+        child.mediaUrl = previewUrl;
+        child.mediaType = 'image';
+        this.portfolioState.blocks.set(blocksList);
+        this.portfolioState.isDirty.set(true);
+        this.cdr.detectChanges();
+      }
+    }
+  }
+
+  updateNestedBlockProp(parentBlockId: string, colIdx: number, childId: string, prop: string, val: any) {
+    const blocksList = [...this.portfolioState.blocks()];
+    const parentBlock = blocksList.find(b => b.id === parentBlockId);
+    if (parentBlock && parentBlock.columns?.[colIdx]?.blocks) {
+      const child = parentBlock.columns[colIdx].blocks.find(c => c.id === childId) as any;
+      if (child) {
+        child[prop] = val;
+        this.portfolioState.blocks.set(blocksList);
+        this.portfolioState.isDirty.set(true);
+        this.cdr.detectChanges();
+      }
+    }
+  }
+
+  mapBlocksToSections(blocks: PortfolioBlock[]): PortfolioSection[] {
+    const sections: PortfolioSection[] = [];
+    let currentSection: PortfolioSection | null = null;
+
+    blocks.forEach(b => {
+      if (b.type === 'text') {
+        const isHeader = b.fontSize === 'lg' || b.fontSize === 'xl' || b.fontSize === '2xl' || b.fontSize === '3xl' || b.fontSize === '4xl' || b.fontWeight === 'bold' || b.fontWeight === 'semibold';
+        if (isHeader) {
+          if (currentSection) {
+            sections.push(currentSection);
+          }
+          currentSection = { title: b.content || 'Sección', content: '' };
+        } else {
+          if (!currentSection) {
+            currentSection = { title: 'Inicio', content: '' };
+          }
+          currentSection.content += (currentSection.content ? '\n' : '') + (b.content || '');
+        }
+      }
+    });
+
+    if (currentSection) {
+      sections.push(currentSection);
+    }
+
+    while (sections.length < 3) {
+      sections.push({ title: 'Más info', content: 'Detalles adicionales sobre nuestro negocio.' });
+    }
+
+    return sections;
   }
 }

@@ -8,6 +8,7 @@ import { InteractionService, CommentItem } from '../../services/interaction.serv
 import { AuthService } from '../../services/auth.service';
 import { Subscription } from 'rxjs';
 import { SupabaseService } from '../../services/supabase.service';
+import { SafeUrlPipe } from '../../pipes/safe-url.pipe';
 
 interface Anuncio {
   id: string;
@@ -21,7 +22,12 @@ interface Anuncio {
   entityType?: 'job' | 'service';
   avgStars?: number;
   totalLikes?: number;
+  totalDislikes?: number;
+  userVote?: 'like' | 'dislike' | null;
+  isFavorite?: boolean;
   comments?: CommentItem[];
+  commentCount?: number;
+  viewCount?: number;
   showInteractions?: boolean;
   newAuthor?: string;
   newCommentText?: string;
@@ -48,7 +54,7 @@ interface Anuncio {
 @Component({
   selector: 'app-anuncios',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, SafeUrlPipe],
   templateUrl: './anuncios.component.html',
   styleUrls: ['./anuncios.component.css']
 })
@@ -65,9 +71,39 @@ export class AnunciosComponent implements OnInit, OnDestroy {
   selectedAd: Anuncio | null = null;
   currentUser: any = null;
   showAdModal = false; // renamed from showModal
+  showMoreActions = false;
+  commentFocused = false;
+  commentSortOrder: 'recent' | 'popular' = 'recent';
+  activeCommentMenu: any = null;
+  editingCommentId: string | null = null;
+  editingCommentText: string = '';
   isLoggedIn = false;
   isProfileComplete = false;
   activeDetailTab = 'presentacion';
+  activeAdTab: 'info' | 'mensaje' = 'info';
+
+  // Emojis list
+  suggestedEmojis = ['😀', '😂', '😍', '👍', '👏', '🔥', '🙌', '🌟', '💡', '📍'];
+
+  // Public user profile modal properties
+  showPublicProfileModal = false;
+  publicProfileUser: any = null;
+  publicUserAds: any[] = [];
+  publicUserFavorites: any[] = [];
+  publicActiveTab: 'publications' | 'favorites' = 'publications';
+
+  // Modal navigation index
+  currentAdIndex = 0;
+
+  // Report Modal Properties
+  showReportModal = false;
+  reportEntityId = '';
+  reportEntityType = '';
+  reportReason = '';
+  reportDescription = '';
+  reportSuccessMessage = '';
+  reportErrorMessage = '';
+  copiedLinkStatus = false;
   private authSubscription!: Subscription;
 
   // Portfolio viewer properties
@@ -152,8 +188,6 @@ export class AnunciosComponent implements OnInit, OnDestroy {
       entityType: 'service'
     }
   ];
-
-  copiedLinkStatus = false;
 
   constructor(
     private jobsService: JobsService,
@@ -291,10 +325,10 @@ export class AnunciosComponent implements OnInit, OnDestroy {
             imageUrl: item.imageUrl || this.getDefaultAdImage(category),
             entityType: 'service',
             clicks: item.clicks || 0,
-            galleryUrls: item.gallery_urls || [],
-            landingTemplate: item.landing_template,
-            landingConfig: item.landing_config || {},
-            contactName: item.contact_name || item.contactName || '',
+            galleryUrls: item.galleryUrls || [],
+            landingTemplate: item.landingTemplate,
+            landingConfig: item.landingConfig || {},
+            contactName: item.contactName || '',
             website: item.website || ''
           });
         });
@@ -532,19 +566,8 @@ export class AnunciosComponent implements OnInit, OnDestroy {
     }
   }
 
-  async likeAd(ad: Anuncio) {
-    if (!ad.entityType) return;
-    if (this.likedAds.has(ad.id)) return;
-    try {
-      await this.interactionService.like(ad.id, ad.entityType);
-      const stats = await this.interactionService.getRatingStats(ad.id);
-      ad.totalLikes = stats.totalLikes;
-      ad.avgStars = stats.avgStars;
-      this.likedAds.add(ad.id);
-    } catch (err) {
-      console.error('likeAd - error:', err);
-    }
-  }
+
+  // New fully-featured likeAd is implemented below.
 
   async rateAd(ad: Anuncio, stars: number) {
     if (!ad.entityType) return;
@@ -607,7 +630,8 @@ export class AnunciosComponent implements OnInit, OnDestroy {
   async postChatComment(ad: Anuncio) {
     if (!ad.entityType || !ad.newCommentText?.trim()) return;
     
-    const authorName = `${this.currentUser?.user_metadata?.['first_name'] || ''} ${this.currentUser?.user_metadata?.['last_name'] || ''}`.trim() || this.currentUser?.email || 'Vecino';
+    const metadata = this.currentUser?.user_metadata;
+    const authorName = metadata?.['nickname'] || `${metadata?.['first_name'] || ''} ${metadata?.['last_name'] || ''}`.trim() || this.currentUser?.email || 'Vecino';
     const content = ad.newCommentText.trim();
 
     try {
@@ -616,6 +640,89 @@ export class AnunciosComponent implements OnInit, OnDestroy {
       ad.comments = await this.interactionService.getComments(ad.id);
     } catch (err) {
       console.error('postChatComment - error:', err);
+    }
+  }
+
+  getSortedComments(comments: any[]): any[] {
+    if (!comments) return [];
+    const copy = [...comments];
+    if (this.commentSortOrder === 'recent') {
+      return copy.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+    }
+    return copy.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+  }
+
+  isMyComment(comment: any): boolean {
+    if (!this.currentUser || !comment) return false;
+    const metadata = this.currentUser.user_metadata;
+    const currentName = metadata?.['nickname'] || `${metadata?.['first_name'] || ''} ${metadata?.['last_name'] || ''}`.trim() || this.currentUser.email || 'Vecino';
+    return comment.authorName === currentName;
+  }
+
+  openCommentMenu(comment: any, event: Event) {
+    event.stopPropagation();
+    this.activeCommentMenu = comment;
+  }
+
+  closeCommentMenu() {
+    this.activeCommentMenu = null;
+  }
+
+  startEditComment(comment: any) {
+    this.editingCommentId = comment.id;
+    this.editingCommentText = comment.content;
+    this.closeCommentMenu();
+  }
+
+  async saveEditComment(comment: any) {
+    if (!this.editingCommentText.trim()) return;
+    try {
+      await this.interactionService.updateComment(comment.id, this.editingCommentText.trim());
+      comment.content = this.editingCommentText.trim();
+      this.editingCommentId = null;
+      this.editingCommentText = '';
+    } catch (err) {
+      console.error('Error saving edited comment:', err);
+    }
+  }
+
+  cancelEditComment() {
+    this.editingCommentId = null;
+    this.editingCommentText = '';
+  }
+
+  async deleteComment(comment: any) {
+    if (!confirm('¿Estás seguro de que deseas eliminar esta opinión?')) return;
+    try {
+      await this.interactionService.deleteComment(comment.id);
+      if (this.selectedAd && this.selectedAd.comments) {
+        this.selectedAd.comments = this.selectedAd.comments.filter((c: any) => c.id !== comment.id);
+      }
+      this.closeCommentMenu();
+    } catch (err) {
+      console.error('Error deleting comment:', err);
+    }
+  }
+
+  shareComment(comment: any) {
+    const textToCopy = `"${comment.content}" — por ${comment.authorName} en Arandu`;
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      alert('¡Comentario copiado al portapapeles!');
+    }).catch(err => {
+      console.error('Error copying text: ', err);
+    });
+    this.closeCommentMenu();
+  }
+
+  reportComment(comment: any) {
+    alert('Comentario reportado. Gracias por ayudarnos a mantener la comunidad segura.');
+    this.closeCommentMenu();
+  }
+
+  replyToComment(authorName: string) {
+    this.commentFocused = true;
+    if (this.selectedAd) {
+      this.selectedAd.newCommentText = `@${authorName} ` + (this.selectedAd.newCommentText || '');
     }
   }
 
@@ -667,6 +774,13 @@ export class AnunciosComponent implements OnInit, OnDestroy {
       this.openPortfolio(ad);
       return;
     }
+    
+    // Find index of current ad in filtered list
+    this.currentAdIndex = this.filteredAnuncios.findIndex(item => item.id === ad.id);
+    if (this.currentAdIndex === -1) {
+      this.currentAdIndex = 0;
+    }
+
     let cleanDescription = ad.description || '';
     let announcerName = '';
     let registeredSince = '';
@@ -690,6 +804,7 @@ export class AnunciosComponent implements OnInit, OnDestroy {
     }
 
     this.activeDetailTab = 'presentacion';
+    this.activeAdTab = 'info';
     this.selectedAd = {
       ...ad,
       cleanDescription,
@@ -712,25 +827,226 @@ export class AnunciosComponent implements OnInit, OnDestroy {
     
     this.showAdModal = true;
     this.selectedAd.loadingComments = true;
+    this.cdr.detectChanges();
     
     // Load comments in background (no await)
     this.interactionService.getComments(ad.id)
       .then(comments => {
         if (this.selectedAd && this.selectedAd.id === ad.id) {
           this.selectedAd.comments = comments;
+          this.cdr.detectChanges();
         }
       })
       .catch(err => console.error('Error loading comments for modal:', err))
       .finally(() => {
         if (this.selectedAd) {
           this.selectedAd.loadingComments = false;
+          this.cdr.detectChanges();
         }
       });
+
+    // Load rating stats
+    this.interactionService.getRatingStats(ad.id)
+      .then(stats => {
+        if (this.selectedAd && this.selectedAd.id === ad.id) {
+          this.selectedAd.totalLikes = stats.totalLikes;
+          this.selectedAd.totalDislikes = stats.totalDislikes;
+          this.selectedAd.userVote = stats.userVote;
+          this.selectedAd.avgStars = stats.avgStars;
+          this.cdr.detectChanges();
+        }
+      })
+      .catch(err => console.error('Error loading rating stats:', err));
+
+    // Load favorite status
+    this.interactionService.isFavorite(ad.id)
+      .then(isFav => {
+        if (this.selectedAd && this.selectedAd.id === ad.id) {
+          this.selectedAd.isFavorite = isFav;
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  navigateAd(direction: number) {
+    const nextIndex = this.currentAdIndex + direction;
+    if (nextIndex >= 0 && nextIndex < this.filteredAnuncios.length) {
+      this.openAdModal(this.filteredAnuncios[nextIndex]);
+    }
+  }
+
+  setAdTab(tab: 'info' | 'mensaje') {
+    this.activeAdTab = tab;
+    this.cdr.detectChanges();
+  }
+
+  addEmojiToAd(emoji: string) {
+    if (this.selectedAd) {
+      this.selectedAd.newCommentText = (this.selectedAd.newCommentText || '') + emoji;
+      this.cdr.detectChanges();
+    }
+  }
+
+  openPublicProfile(authorName: string) {
+    if (!authorName) return;
+    const nameNorm = authorName.toLowerCase().trim();
+    
+    // Find ads created by this author
+    this.publicUserAds = this.anuncios.filter(item => 
+      ((item.contactName && item.contactName.toLowerCase().includes(nameNorm)) ||
+       (item.announcerName && item.announcerName.toLowerCase().includes(nameNorm)) ||
+       (item.title && item.title.toLowerCase().includes(nameNorm)))
+    );
+
+    // Mock favorites
+    this.publicUserFavorites = this.anuncios
+      .filter(item => item.totalLikes && item.totalLikes > 0)
+      .slice(0, 3);
+
+    this.publicProfileUser = {
+      name: authorName,
+      initials: authorName.substring(0, 2).toUpperCase(),
+      email: this.publicUserAds.length > 0 ? this.publicUserAds[0].contactEmail : 'soporte@arandu.ch'
+    };
+    
+    this.publicActiveTab = 'publications';
+    this.showPublicProfileModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closePublicProfile() {
+    this.showPublicProfileModal = false;
+    this.publicProfileUser = null;
+    this.cdr.detectChanges();
+  }
+
+  sendPublicMessage() {
+    if (!this.publicProfileUser) return;
+    const email = this.publicProfileUser.email || 'soporte@arandu.ch';
+    const subject = encodeURIComponent(`Contacto desde tu perfil público en Arandu`);
+    const body = encodeURIComponent(`Hola ${this.publicProfileUser.name},\n\nTe contacto desde la plataforma Arandu.\n\nPor favor, responde a este correo para ponernos en contacto.\n\nSaludos.`);
+    window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
   }
 
   closeAdModal() {
     this.selectedAd = null;
     this.showAdModal = false;
+  }
+
+  // --- YOUTUBE ACTIONS ---
+  async likeAd(ad: any) {
+    const prevVote = ad.userVote;
+    const isUndo = prevVote === 'like';
+    const newVote = isUndo ? null : 'like';
+
+    // Optimistic UI update
+    ad.userVote = newVote;
+    if (isUndo) {
+      ad.totalLikes = Math.max(0, (ad.totalLikes || 0) - 1);
+    } else {
+      ad.totalLikes = (ad.totalLikes || 0) + 1;
+      if (prevVote === 'dislike') {
+        ad.totalDislikes = Math.max(0, (ad.totalDislikes || 0) - 1);
+      }
+    }
+
+    try {
+      await this.interactionService.vote(ad.id, ad.entityType || 'service', newVote);
+    } catch (e) {
+      ad.userVote = prevVote;
+      this.refreshAdRatingStats(ad.id);
+    }
+  }
+
+  async dislikeAd(ad: any) {
+    const prevVote = ad.userVote;
+    const isUndo = prevVote === 'dislike';
+    const newVote = isUndo ? null : 'dislike';
+
+    // Optimistic UI update
+    ad.userVote = newVote;
+    if (isUndo) {
+      ad.totalDislikes = Math.max(0, (ad.totalDislikes || 0) - 1);
+    } else {
+      ad.totalDislikes = (ad.totalDislikes || 0) + 1;
+      if (prevVote === 'like') {
+        ad.totalLikes = Math.max(0, (ad.totalLikes || 0) - 1);
+      }
+    }
+
+    try {
+      await this.interactionService.vote(ad.id, ad.entityType || 'service', newVote);
+    } catch (e) {
+      ad.userVote = prevVote;
+      this.refreshAdRatingStats(ad.id);
+    }
+  }
+
+  private refreshAdRatingStats(entityId: string) {
+    this.interactionService.getRatingStats(entityId).then(stats => {
+      if (this.selectedAd && this.selectedAd.id === entityId) {
+        this.selectedAd.totalLikes = stats.totalLikes;
+        this.selectedAd.totalDislikes = stats.totalDislikes;
+        this.selectedAd.userVote = stats.userVote;
+      }
+    });
+  }
+
+  shareAd(ad: any) {
+    const url = window.location.origin + '/anuncios?id=' + ad.id;
+    navigator.clipboard.writeText(url).then(() => {
+      this.copiedLinkStatus = true;
+      setTimeout(() => this.copiedLinkStatus = false, 2500);
+    });
+  }
+
+  async toggleFavoriteAd(ad: any) {
+    if (!this.currentUser) {
+      this.router.navigate(['/registro']);
+      return;
+    }
+    try {
+      const isFav = await this.interactionService.toggleFavorite(ad.id, ad.entityType || 'service');
+      ad.isFavorite = isFav;
+      this.cdr.detectChanges();
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  // --- REPORT MODAL ---
+  openReportModal(entityId: string, entityType: string) {
+    this.reportEntityId = entityId;
+    this.reportEntityType = entityType;
+    this.reportReason = '';
+    this.reportDescription = '';
+    this.reportSuccessMessage = '';
+    this.reportErrorMessage = '';
+    this.showReportModal = true;
+  }
+
+  closeReportModal() {
+    this.showReportModal = false;
+  }
+
+  async submitReport() {
+    if (!this.reportReason) return;
+    try {
+      await this.interactionService.submitReport(
+        this.reportEntityId,
+        this.reportEntityType,
+        this.reportReason,
+        this.reportDescription
+      );
+      this.reportSuccessMessage = '¡Gracias! Tu reporte ha sido enviado con éxito.';
+      this.reportErrorMessage = '';
+      setTimeout(() => {
+        this.closeReportModal();
+      }, 2000);
+    } catch (e) {
+      this.reportErrorMessage = 'Ocurrió un error al enviar el reporte. Por favor intenta de nuevo.';
+      this.reportSuccessMessage = '';
+    }
   }
 
   openPortfolio(portfolio: any) {
@@ -961,18 +1277,7 @@ export class AnunciosComponent implements OnInit, OnDestroy {
   }
 
   getCategoryEmoji(category: string): string {
-    switch (category) {
-      case 'Servicios y Reparación':
-        return '🛠️';
-      case 'Empleo':
-        return '💼';
-      case 'Clases y Cursos':
-        return '🎓';
-      case 'Venta y Donación':
-        return '🛍️';
-      default:
-        return '🛠️';
-    }
+    return '';
   }
 
   getCategoryBgClass(category: string): string {
@@ -995,5 +1300,111 @@ export class AnunciosComponent implements OnInit, OnDestroy {
   selectDetailTab(tab: string) {
     this.activeDetailTab = tab;
   }
-}
 
+  sliderIndices = new Map<string, number>();
+  mobileMenuOpenStates = new Map<string, boolean>();
+
+  getFontSizeClass(size?: string): string {
+    switch (size) {
+      case 'sm': return '0.75rem';
+      case 'base': return '0.95rem';
+      case 'lg': return '1.15rem';
+      case 'xl': return '1.4rem';
+      case '2xl': return '1.75rem';
+      case '3xl': return '2.25rem';
+      case '4xl': return '3rem';
+      default: return '0.95rem';
+    }
+  }
+
+  getFontFamilyStyle(font?: string): string {
+    switch (font) {
+      case 'serif': return 'Georgia, serif';
+      case 'sans': return 'var(--font-sans, "Outfit", sans-serif)';
+      case 'mono': return 'monospace';
+      case 'geometric': return '"Cabin", "Futura", sans-serif';
+      case 'elegant': return '"Great Vibes", "Playball", cursive';
+      default: return 'var(--font-sans, "Outfit", sans-serif)';
+    }
+  }
+
+  getBlockTextContent(block: any): string {
+    if (block.id === 'block_header_title') {
+      return this.selectedPortfolio?.title || block.content || '';
+    }
+    if (block.id === 'block_header_desc') {
+      return this.selectedPortfolio?.description || block.content || '';
+    }
+    return block.content || '';
+  }
+
+  parseVideoUrl(url: string): string {
+    if (!url) return '';
+    let videoId = '';
+    if (url.includes('youtube.com/watch?v=')) {
+      videoId = url.split('v=')[1]?.split('&')[0] || '';
+      return `https://www.youtube.com/embed/${videoId}`;
+    } else if (url.includes('youtu.be/')) {
+      videoId = url.split('youtu.be/')[1]?.split('?')[0] || '';
+      return `https://www.youtube.com/embed/${videoId}`;
+    } else if (url.includes('vimeo.com/')) {
+      videoId = url.split('vimeo.com/')[1]?.split('?')[0] || '';
+      return `https://player.vimeo.com/video/${videoId}`;
+    }
+    return url;
+  }
+
+  getActiveSlideIdx(blockId: string): number {
+    return this.sliderIndices.get(blockId) || 0;
+  }
+
+  setActiveSlideIdx(blockId: string, idx: number) {
+    this.sliderIndices.set(blockId, idx);
+    this.cdr.detectChanges();
+  }
+
+  getSlideUrl(block: any, idx: number): string {
+    return block.sliderSlides?.[idx]?.url || '';
+  }
+
+  getSlideText(block: any, idx: number): string {
+    return block.sliderSlides?.[idx]?.text || '';
+  }
+
+  toggleMobileMenu(blockId: string) {
+    const current = this.mobileMenuOpenStates.get(blockId) || false;
+    this.mobileMenuOpenStates.set(blockId, !current);
+    this.cdr.detectChanges();
+  }
+
+  isMobileMenuOpen(blockId: string): boolean {
+    return this.mobileMenuOpenStates.get(blockId) || false;
+  }
+
+  scrollToSection(anchor: string, event: Event) {
+    event.preventDefault();
+    if (!anchor) return;
+    const cleanAnchor = anchor.replace('#', '');
+    const element = document.getElementById(cleanAnchor);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  getBlockSectionId(block: any): string {
+    if (block.type === 'menu' || block.type === 'social') return '';
+    const config = this.selectedPortfolio?.landingConfig || {};
+    const blocks = config.blocks || [];
+    const menuBlock = blocks.find((b: any) => b.type === 'menu');
+    if (!menuBlock || !menuBlock.menuLinks) return '';
+    
+    const nonMenuBlocks = blocks.filter((b: any) => b.type !== 'menu' && b.type !== 'social');
+    const index = nonMenuBlocks.indexOf(block);
+    
+    if (index >= 0 && index < menuBlock.menuLinks.length) {
+      const anchor = menuBlock.menuLinks[index].anchor;
+      return anchor ? anchor.replace('#', '') : '';
+    }
+    return '';
+  }
+}

@@ -1,0 +1,224 @@
+<!-- FLOATING CHAT BALLOON (MINIMIZED) -->
+<button *ngIf="!isOpen" (click)="toggleChat()" 
+        class="fixed bottom-6 right-6 z-[80] w-12 h-12 rounded-full border-2 border-brand-charcoal bg-brand-paper hover:bg-brand-sage/10 text-brand-charcoal hover:scale-115 transition-all cursor-pointer select-none flex items-center justify-center shadow-[3px_3px_0px_#2e3a35]"
+        title="Chat de la Comunidad">
+  <span class="absolute top-0.5 right-0.5 w-2.5 h-2.5 bg-brand-sage rounded-full animate-pulse"></span>
+  <svg class="w-6 h-6 stroke-brand-sage fill-none" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 21a9 9 0 100-18 9 9 0 000 18z"></path>
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 15l3-6 3 6M10 13h4"></path>
+  </svg>
+</button>
+
+<!-- CHAT WINDOW (MAXIMIZED) -->
+<div *ngIf="isOpen" 
+     class="fixed bottom-6 right-6 z-[80] w-[380px] max-w-[92vw] h-[520px] max-h-[80vh] bg-brand-paper border-2 border-brand-charcoal shadow-[6px_6px_0px_#2e3a35] flex flex-col justify-between overflow-hidden animate-fade-in">
+  
+  <!-- Header -->
+  <div class="bg-brand-charcoal text-brand-paper px-4 py-3 flex justify-between items-center border-b-2 border-brand-charcoal">
+    <div class="flex items-center gap-2">
+      <span class="w-2 h-2 bg-brand-sage rounded-full"></span>
+      <span class="font-mono text-xs font-bold tracking-widest">ARANDU CHAT</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <!-- Info Button for Rules -->
+      <button (click)="togglePolicyTab(!policyTabActive)" 
+              class="text-brand-paper/70 hover:text-brand-paper bg-transparent border-0 p-0 text-xs font-mono cursor-pointer" 
+              title="Ver Normas del Chat">
+        [ Normas ⓘ ]
+      </button>
+      <!-- Close Button -->
+      <button (click)="toggleChat()" 
+              class="text-brand-paper hover:text-brand-sage font-mono text-sm bg-transparent border-0 p-0 cursor-pointer">
+        ✕
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="flex-1 flex flex-col justify-between overflow-hidden bg-brand-paper">
+    
+    <!-- CASE A: SHOW CHAT RULES/POLICIES (Active on first use or manually triggered) -->
+    <div *ngIf="!hasAcceptedPolicy || policyTabActive" class="flex-1 p-6 overflow-y-auto flex flex-col justify-between">
+      <div class="space-y-4">
+        <h3 class="font-serif italic font-bold text-lg text-brand-charcoal border-b border-brand-charcoal/20 pb-2">
+          Normas de Convivencia
+        </h3>
+        
+        <p class="font-sans text-xs text-brand-charcoal/80 leading-relaxed">
+          ¡Bienvenido al chat en tiempo real de Arandu! Este es un espacio comunitario diseñado para dialogar, debatir de forma constructiva e intercambiar opiniones. Para mantener un ambiente sano, aplicamos las siguientes normas básicas:
+        </p>
+
+        <ul class="space-y-2.5 font-sans text-xs text-brand-charcoal/90 pl-1.5 list-none">
+          <li class="flex gap-2">
+            <span class="text-brand-sage font-bold">1.</span>
+            <span><strong>Respeto absoluto</strong>: Quedan prohibidos los insultos, faltas de respeto, lenguaje de odio o ataques personales contra cualquier miembro.</span>
+          </li>
+          <li class="flex gap-2">
+            <span class="text-brand-sage font-bold">2.</span>
+            <span><strong>Tolerancia cero al acoso</strong>: Las agresiones verbales persistentes o la difamación serán sancionadas inmediatamente sin previo aviso.</span>
+          </li>
+          <li class="flex gap-2">
+            <span class="text-brand-sage font-bold">3.</span>
+            <span><strong>No Spam ni Trolls</strong>: Evita publicar mensajes masivos repetitivos, enlaces sospechosos o comportamientos tóxicos dirigidos únicamente a sabotear el chat.</span>
+          </li>
+          <li class="flex gap-2">
+            <span class="text-brand-sage font-bold">4.</span>
+            <span><strong>Sanciones Dinámicas</strong>: El desacato de las normas conllevará la eliminación del mensaje y la <strong>suspensión temporal (1h, 24h, 7d)</strong> o el <strong>bloqueo permanente</strong> de la cuenta.</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Accept buttons -->
+      <div class="pt-6">
+        <button *ngIf="!hasAcceptedPolicy" (click)="acceptPolicy()"
+                class="w-full bg-brand-charcoal text-brand-paper border border-brand-charcoal py-3 font-mono text-[10px] font-bold uppercase tracking-widest hover:bg-brand-sage hover:text-brand-charcoal hover:border-brand-sage transition-all cursor-pointer">
+          ACEPTAR Y CONTINUAR
+        </button>
+        <button *ngIf="hasAcceptedPolicy && policyTabActive" (click)="togglePolicyTab(false)"
+                class="w-full bg-brand-charcoal text-brand-paper border border-brand-charcoal py-3 font-mono text-[10px] font-bold uppercase tracking-widest hover:bg-brand-sage hover:text-brand-charcoal hover:border-brand-sage transition-all cursor-pointer">
+          VOLVER AL CHAT
+        </button>
+      </div>
+    </div>
+
+    <!-- CASE B: REGULAR CHAT ROOM STREAM -->
+    <ng-container *ngIf="hasAcceptedPolicy && !policyTabActive">
+      
+      <!-- Scrollable Message List -->
+      <div #scrollContainer class="flex-1 p-4 overflow-y-auto space-y-3 bg-brand-paper/50 messages-container">
+        
+        <!-- Empty State -->
+        <div *ngIf="messages.length === 0" class="text-center py-10">
+          <p class="font-serif italic text-xs text-brand-charcoal/50">No hay mensajes recientes en el chat. ¡Sé el primero en saludar!</p>
+        </div>
+
+        <!-- Messages Loop -->
+        <div *ngFor="let msg of messages" class="group flex flex-col bg-brand-charcoal/[0.02] border border-brand-charcoal/10 p-2.5 rounded-lg relative hover:bg-brand-charcoal/[0.04] transition-all">
+          
+          <!-- Message Header metadata -->
+          <div class="flex justify-between items-center mb-1">
+            <div class="flex items-center gap-1.5">
+              <span class="font-mono text-[10px] font-bold text-brand-charcoal/90">{{ msg.sender_name }}</span>
+              
+              <!-- Ban Button for Admins (Always visible for easy touch/moderation) -->
+              <button *ngIf="isAdmin && msg.sender_id !== currentUser?.id" 
+                      (click)="openBanDialog(msg.sender_id, msg.sender_name, msg.id, $event)" 
+                      class="text-brand-red hover:text-red-700 bg-transparent border-0 p-0 text-[9px] font-mono cursor-pointer ml-1.5" 
+                      title="Bloquear Usuario">
+                [🚫 Bloquear]
+              </button>
+            </div>
+            
+            <div class="flex items-center gap-2">
+              <span class="font-mono text-[8px] text-brand-charcoal/40">{{ msg.created_at | date:'HH:mm' }}</span>
+              
+              <!-- Delete Button for Admins (Always visible for easy touch/moderation) -->
+              <button *ngIf="isAdmin" 
+                      (click)="deleteMessage(msg.id)" 
+                      class="text-brand-charcoal/40 hover:text-brand-red bg-transparent border-0 p-0 text-[10px] font-bold cursor-pointer" 
+                      title="Eliminar Mensaje">
+                ✕
+              </button>
+            </div>
+          </div>
+
+          <!-- Message Text -->
+          <p class="font-sans text-xs text-brand-charcoal/80 leading-relaxed whitespace-pre-line pr-4">
+            {{ msg.content }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Bottom Chat Bar Controls -->
+      <div class="p-3 border-t border-brand-charcoal/20 bg-brand-paper/90 backdrop-blur-md">
+        
+        <!-- Case 1: Banned user -->
+        <div *ngIf="currentUser && isBanned" class="bg-brand-red/10 border border-brand-red/30 p-2.5 text-center rounded-lg">
+          <p class="font-mono text-[9px] text-brand-red font-bold uppercase mb-0.5">SANCIONADO SIN PODER CHATEAR</p>
+          <p class="font-sans text-[10px] text-brand-charcoal/80 leading-normal mb-1">
+            Has sido suspendido temporalmente por un moderador debido a infracciones.
+          </p>
+          <p class="font-mono text-[9px] text-brand-charcoal/60">
+            Motivo: <strong>{{ banReason }}</strong> • Expira: <strong>{{ banUntil }}</strong>
+          </p>
+        </div>
+
+        <!-- Case 2: Unlogged User -->
+        <div *ngIf="!currentUser" class="text-center py-2.5">
+          <p class="font-sans text-xs text-brand-charcoal/60 mb-2">Debes iniciar sesión para participar en el chat de la comunidad.</p>
+          <button (click)="triggerAuth()"
+                  class="bg-brand-charcoal text-brand-paper px-4 py-2 border border-brand-charcoal font-mono text-[9px] font-bold uppercase tracking-widest hover:bg-brand-sage hover:text-brand-charcoal hover:border-brand-sage transition-all cursor-pointer">
+            INICIAR SESIÓN
+          </button>
+        </div>
+
+        <!-- Case 3: Logged in and not banned (Can Chat) -->
+        <div *ngIf="currentUser && !isBanned" class="flex gap-2">
+          <input type="text" [(ngModel)]="newMessage" (keyup.enter)="sendMessage()" 
+                 placeholder="Escribe un mensaje..." 
+                 class="flex-1 bg-white border border-brand-charcoal px-3 py-2 font-sans text-xs rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-sage focus:border-brand-sage shadow-xs">
+          <button (click)="sendMessage()" 
+                  class="bg-brand-charcoal text-brand-paper border border-brand-charcoal px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-wider hover:bg-brand-sage hover:text-brand-charcoal hover:border-brand-sage transition-colors rounded-lg cursor-pointer">
+            ENVIAR
+          </button>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <!-- BAN DIALOG MODAL (ONLY ADMIN) -->
+  <div *ngIf="showBanModal && userToBan" class="fixed inset-0 z-[95] flex items-center justify-center p-4">
+    <!-- Backdrop -->
+    <div (click)="closeBanDialog()" class="fixed inset-0 bg-brand-charcoal/60 backdrop-blur-xs"></div>
+
+    <!-- Modal Content Box -->
+    <div class="bg-brand-paper border-2 border-brand-charcoal p-6 max-w-sm w-full relative z-10 shadow-[6px_6px_0px_#2e3a35] animate-fade-in flex flex-col gap-4">
+      <h3 class="font-serif italic font-bold text-base text-brand-charcoal border-b border-brand-charcoal/20 pb-2">
+        Sancionar a {{ userToBan.name }}
+      </h3>
+      
+      <p class="font-sans text-[11px] text-brand-charcoal/70 leading-relaxed">
+        El mensaje agresivo o spam será eliminado automáticamente y el usuario será bloqueado para chatear durante el tiempo seleccionado.
+      </p>
+
+      <!-- Duration Selector -->
+      <div class="flex flex-col gap-1.5">
+        <label class="font-mono text-[9px] uppercase tracking-wider text-brand-charcoal/50">DURACIÓN DEL BLOQUEO:</label>
+        
+        <div *ngIf="previousBansCount >= 2" class="p-2 border border-brand-red/30 bg-brand-red/10 rounded-lg text-[10px] text-brand-red font-mono leading-relaxed mb-1">
+          ⚠️ ¡ATENCIÓN! Este usuario ya tiene {{ previousBansCount }} bloqueos previos. Por ser su 3ª sanción o superior, se fuerza un bloqueo de <strong>1 HORA obligatoria</strong>.
+        </div>
+        <div *ngIf="previousBansCount === 1" class="text-[9px] text-brand-sage font-mono mb-1">
+          ℹ️ Historial: El usuario tiene 1 bloqueo previo registrado.
+        </div>
+
+        <select [(ngModel)]="banDuration" [disabled]="previousBansCount >= 2"
+                class="bg-transparent border border-brand-charcoal/30 px-3 py-2 font-mono text-xs rounded-lg focus:outline-none focus:border-brand-sage focus:ring-0 disabled:opacity-85 disabled:bg-brand-charcoal/5">
+          <option value="1h">1 Hora (Obligatoria por reincidencia)</option>
+          <option value="24h">24 Horas (Infracción Moderada)</option>
+          <option value="7d">7 Días (Infracción Grave)</option>
+          <option value="perm">Permanente (Troll / Spam Bot)</option>
+        </select>
+      </div>
+
+      <!-- Reason Input -->
+      <div class="flex flex-col gap-1.5">
+        <label class="font-mono text-[9px] uppercase tracking-wider text-brand-charcoal/50">MOTIVO DE LA SANCIÓN:</label>
+        <textarea [(ngModel)]="banReasonInput" placeholder="Ej. Agresión verbal reiterada, vocabulario obsceno..." rows="2"
+                  class="bg-white border border-brand-charcoal/30 p-2.5 font-sans text-xs rounded-lg focus:outline-none focus:border-brand-sage focus:ring-0 resize-none"></textarea>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex gap-2 pt-2">
+        <button (click)="applyBan()"
+                class="flex-1 bg-brand-red text-white border border-brand-red py-2.5 font-mono text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity cursor-pointer">
+          BLOQUEAR
+        </button>
+        <button (click)="closeBanDialog()"
+                class="flex-1 bg-transparent text-brand-charcoal border border-brand-charcoal py-2.5 font-mono text-[10px] font-bold uppercase tracking-widest hover:bg-brand-charcoal/5 transition-colors cursor-pointer">
+          CANCELAR
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

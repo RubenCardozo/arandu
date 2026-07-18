@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { MediaService } from '../../services/media.service';
@@ -23,6 +23,9 @@ interface Articulo {
   clicks?: number;
   avgStars?: number;
   totalLikes?: number;
+  totalDislikes?: number;
+  userVote?: 'like' | 'dislike' | null;
+  isFavorite?: boolean;
   comments?: CommentItem[];
   showInteractions?: boolean;
   newAuthor?: string;
@@ -42,6 +45,15 @@ export class EditorialComponent implements OnInit {
   loading = true;
   searchQuery: string = '';
   visibleLimit = 3;
+
+  // Report Modal Properties
+  showReportModal = false;
+  reportEntityId = '';
+  reportEntityType = '';
+  reportReason = '';
+  reportDescription = '';
+  reportSuccessMessage = '';
+  reportErrorMessage = '';
 
   // Modal properties
   selectedArticulo: Articulo | null = null;
@@ -94,7 +106,8 @@ export class EditorialComponent implements OnInit {
     private interactionService: InteractionService,
     private authService: AuthService,
     private sanitizer: DomSanitizer,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   async ngOnInit() {
@@ -223,16 +236,141 @@ export class EditorialComponent implements OnInit {
       .then(stats => {
         if (this.selectedArticulo && this.selectedArticulo.id === art.id) {
           this.selectedArticulo.totalLikes = stats.totalLikes;
+          this.selectedArticulo.totalDislikes = stats.totalDislikes;
+          this.selectedArticulo.userVote = stats.userVote;
           this.selectedArticulo.avgStars = stats.avgStars;
         }
       })
       .catch(err => console.error('Error fetching stats for modal:', err));
+
+    this.interactionService.isFavorite(art.id)
+      .then(isFav => {
+        if (this.selectedArticulo && this.selectedArticulo.id === art.id) {
+          this.selectedArticulo.isFavorite = isFav;
+        }
+      });
   }
 
   closeModal() {
     this.modalVisible = false;
     this.selectedArticulo = null;
     this.shareModalVisible = false;
+  }
+
+  // --- YOUTUBE ACTIONS ---
+  async likeArticle(art: any) {
+    const prevVote = art.userVote;
+    const isUndo = prevVote === 'like';
+    const newVote = isUndo ? null : 'like';
+
+    // Optimistic UI update
+    art.userVote = newVote;
+    if (isUndo) {
+      art.totalLikes = Math.max(0, (art.totalLikes || 0) - 1);
+    } else {
+      art.totalLikes = (art.totalLikes || 0) + 1;
+      if (prevVote === 'dislike') {
+        art.totalDislikes = Math.max(0, (art.totalDislikes || 0) - 1);
+      }
+    }
+
+    try {
+      await this.interactionService.vote(art.id, 'media', newVote);
+    } catch (e) {
+      art.userVote = prevVote;
+      this.refreshRatingStats(art.id);
+    }
+  }
+
+  async dislikeArticle(art: any) {
+    const prevVote = art.userVote;
+    const isUndo = prevVote === 'dislike';
+    const newVote = isUndo ? null : 'dislike';
+
+    // Optimistic UI update
+    art.userVote = newVote;
+    if (isUndo) {
+      art.totalDislikes = Math.max(0, (art.totalDislikes || 0) - 1);
+    } else {
+      art.totalDislikes = (art.totalDislikes || 0) + 1;
+      if (prevVote === 'like') {
+        art.totalLikes = Math.max(0, (art.totalLikes || 0) - 1);
+      }
+    }
+
+    try {
+      await this.interactionService.vote(art.id, 'media', newVote);
+    } catch (e) {
+      art.userVote = prevVote;
+      this.refreshRatingStats(art.id);
+    }
+  }
+
+  private refreshRatingStats(entityId: string) {
+    this.interactionService.getRatingStats(entityId).then(stats => {
+      if (this.selectedArticulo && this.selectedArticulo.id === entityId) {
+        this.selectedArticulo.totalLikes = stats.totalLikes;
+        this.selectedArticulo.totalDislikes = stats.totalDislikes;
+        this.selectedArticulo.userVote = stats.userVote;
+      }
+    });
+  }
+
+  shareArticle(art: any) {
+    const url = window.location.origin + '/editorial?article=' + art.id;
+    navigator.clipboard.writeText(url).then(() => {
+      this.copiedLinkStatus = true;
+      setTimeout(() => this.copiedLinkStatus = false, 2500);
+    });
+  }
+
+  async toggleFavoriteArticle(art: any) {
+    if (!this.currentUser) {
+      this.router.navigate(['/registro']);
+      return;
+    }
+    try {
+      const isFav = await this.interactionService.toggleFavorite(art.id, 'media');
+      art.isFavorite = isFav;
+      this.cdr.detectChanges();
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  // --- REPORT MODAL ---
+  openReportModal(entityId: string, entityType: string) {
+    this.reportEntityId = entityId;
+    this.reportEntityType = entityType;
+    this.reportReason = '';
+    this.reportDescription = '';
+    this.reportSuccessMessage = '';
+    this.reportErrorMessage = '';
+    this.showReportModal = true;
+  }
+
+  closeReportModal() {
+    this.showReportModal = false;
+  }
+
+  async submitReport() {
+    if (!this.reportReason) return;
+    try {
+      await this.interactionService.submitReport(
+        this.reportEntityId,
+        this.reportEntityType,
+        this.reportReason,
+        this.reportDescription
+      );
+      this.reportSuccessMessage = '¡Gracias! Tu reporte ha sido enviado con éxito.';
+      this.reportErrorMessage = '';
+      setTimeout(() => {
+        this.closeReportModal();
+      }, 2000);
+    } catch (e) {
+      this.reportErrorMessage = 'Ocurrió un error al enviar el reporte. Por favor intenta de nuevo.';
+      this.reportSuccessMessage = '';
+    }
   }
 
   // Consecutive Navigation

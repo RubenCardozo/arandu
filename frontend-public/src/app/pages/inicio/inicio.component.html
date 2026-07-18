@@ -1,283 +1,348 @@
-<div class="flex justify-center items-start gap-8 max-w-[1600px] mx-auto relative px-4 md:px-8">
-  <!-- Left Ad Banner -->
-  <aside class="ad-gutter mt-12 hidden xl:block w-[160px] shrink-0 sticky top-[100px] h-[600px]">
-    <div class="w-full h-full border border-brand-charcoal bg-[#efeeeb] flex flex-col p-4">
-      <span class="font-mono text-[9px] text-brand-charcoal/60 uppercase tracking-widest mb-4">PUBLICIDAD</span>
-      <div class="flex-grow flex flex-col justify-center items-center text-center">
-        <span class="font-serif text-xl italic mb-4">Apoya el periodismo independiente</span>
-        <div class="w-full h-40 bg-brand-charcoal/10 mb-4 border border-brand-charcoal"></div>
-        <p class="font-sans text-[10px] text-brand-charcoal/80 uppercase tracking-wider">Únete al colectivo Arandu</p>
-      </div>
-      <div class="mt-auto pt-4 border-t border-brand-charcoal/20">
-        <span class="font-mono text-[9px] text-brand-charcoal/50">REF: GEN_SOPORT_26</span>
-      </div>
-    </div>
-  </aside>
+<div class="max-w-[1280px] mx-auto px-4 md:px-8 pt-12 pb-6">
+  <!-- Loading state -->
+  <div *ngIf="loading" class="flex flex-col justify-center items-center h-96 w-full text-center">
+    <span class="font-mono text-sm text-brand-charcoal/60 uppercase tracking-widest animate-pulse">Cargando Portada...</span>
+  </div>
 
-  <!-- Main Content -->
-  <main class="w-full max-w-[1280px] py-12 shrink-0">
-    <!-- Loading state -->
-    <div *ngIf="loading" class="flex flex-col justify-center items-center h-96 w-full text-center">
-      <span class="font-mono text-sm text-brand-charcoal/60 uppercase tracking-widest animate-pulse">Cargando Portada...</span>
-    </div>
-
-    <div *ngIf="!loading">
-      <!-- Hero Section -->
-      <section class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-20 border-b border-brand-charcoal/20 pb-16">
-        <div class="md:col-span-8 flex flex-col justify-center">
-          <div class="flex gap-4 items-center mb-6">
-            <span class="px-3 py-1 bg-brand-red text-white font-mono text-[10px] font-bold rounded-full">{{ heroArticle.category }}</span>
-            <span class="font-mono text-[11px] text-brand-charcoal/80 uppercase tracking-widest">{{ heroArticle.date }} — POR {{ heroArticle.author }}</span>
+  <div *ngIf="!loading">
+    <!-- 1. HERO SECTION (TITULAR principal) -->
+    <section class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-20 border-b border-brand-charcoal/20 pb-16">
+      <div class="md:col-span-8 flex flex-col justify-center relative group">
+        <div class="flex gap-4 items-center mb-6 flex-wrap animate-fade-in">
+          <span class="px-3 py-1 bg-brand-red text-white font-mono text-[10px] font-bold rounded-full">{{ heroArticle.category }}</span>
+          <span class="font-mono text-[11px] text-brand-charcoal/60 uppercase tracking-widest">{{ formatPublishedTime(heroArticle.date) }}</span>
+          <span class="font-mono text-[9px] font-bold uppercase tracking-wider bg-brand-sage/10 text-brand-sage border border-brand-sage/30 px-2 py-0.5 rounded-sm">{{ getSourceName(heroArticle.author) }}</span>
+        </div>
+        <h1 class="font-serif text-5xl md:text-7xl font-semibold leading-[1.05] tracking-tighter mb-8 cursor-pointer hover:text-brand-sage transition-colors" (click)="onReadHeroArticle()">
+          {{ heroArticle.title }}
+        </h1>
+        <p class="font-sans text-xl md:text-2xl text-brand-charcoal/80 leading-relaxed mb-10 max-w-2xl">
+          {{ heroArticle.description }}
+        </p>
+        <div class="flex items-center gap-6 flex-wrap">
+          <button (click)="onReadHeroArticle()" class="bg-brand-charcoal text-brand-paper px-8 py-3 font-mono text-xs font-bold uppercase tracking-widest hover:bg-brand-sage hover:text-brand-charcoal border-0 cursor-pointer transition-all">
+            Leer todo
+          </button>
+          <!-- Black stats inline next to Leer todo -->
+          <div class="flex items-center gap-4 text-brand-charcoal">
+            <div class="flex items-center gap-1.5 font-mono text-xs font-bold" title="Me gustas">
+              <svg class="w-4 h-4 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"></path></svg>
+              <span>{{ heroArticle.totalLikes || 0 }}</span>
+            </div>
+            <div class="flex items-center gap-1.5 font-mono text-xs font-bold" title="Comentarios">
+              <svg class="w-4 h-4 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+              <span>{{ heroArticle.commentCount || 0 }}</span>
+            </div>
+            <div class="flex items-center gap-1.5 font-mono text-xs font-bold" title="Visitas">
+              <svg class="w-4 h-4 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              <span>{{ heroArticle.clicks || 0 }}</span>
+            </div>
           </div>
-          <h1 class="font-serif text-5xl md:text-7xl font-semibold leading-[1.05] tracking-tighter mb-8 cursor-pointer hover:text-brand-sage transition-colors" (click)="onReadHeroArticle()">
-            {{ heroArticle.title }}
-          </h1>
-          <p class="font-sans text-xl md:text-2xl text-brand-charcoal/80 leading-relaxed mb-10 max-w-2xl">
-            {{ heroArticle.description }}
-          </p>
-          <div class="flex flex-wrap gap-4">
-            <button (click)="onReadHeroArticle()" class="bg-brand-charcoal text-brand-paper px-8 py-3 font-mono text-xs font-bold uppercase tracking-widest hover:bg-brand-sage hover:text-brand-charcoal border-0 cursor-pointer transition-all">
-              Leer todo el artículo
+        </div>
+      </div>
+      <div class="md:col-span-4 aspect-[3/4] relative overflow-hidden group border border-brand-charcoal">
+        <img class="w-full h-full object-cover" [alt]="heroArticle.title" [src]="heroArticle.imageUrl">
+        <div class="absolute inset-0 border-[12px] border-brand-paper/20 pointer-events-none"></div>
+      </div>
+    </section>
+
+    <!-- 2. TITULARES DESTACADOS SECTION (Segunda Parte - Full Width) -->
+    <section class="mb-12">
+      <div class="w-full flex flex-col justify-between h-full">
+        <div>
+          <div class="flex justify-between items-end mb-6 border-b border-brand-charcoal pb-2">
+            <h2 class="font-mono text-sm font-bold tracking-widest uppercase">Titulares Destacados</h2>
+            <a routerLink="/editorial" class="font-mono text-[10px] text-brand-sage font-bold hover:underline">VER TODAS LAS SECCIONES</a>
+          </div>
+
+          <!-- Carrusel de Titulares -->
+          <div class="relative px-8 md:px-12">
+            <!-- Left Arrow Button (Outside the carousel container) -->
+            <button (click)="onHeadlineArrowClick('left', $event)" 
+                    class="absolute left-0 top-[110px] -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-brand-charcoal text-brand-paper border border-brand-charcoal flex items-center justify-center hover:bg-brand-sage hover:text-brand-charcoal transition-all cursor-pointer shadow-md select-none">
+              ‹
+            </button>
+
+            <div class="relative overflow-hidden group/carousel"
+                 (mouseenter)="onCarouselMouseEnter($event)"
+                 (mouseleave)="onCarouselMouseLeave($event)"
+                 (mousemove)="onCarouselMouseMove($event)">
+              <div class="flex gap-6 overflow-x-auto pb-4 hide-scrollbar" 
+                   [class.snap-x]="isSnappingEnabled" [class.snap-mandatory]="isSnappingEnabled" [class.scroll-smooth]="isSnappingEnabled"
+                   id="headlinesCarousel" (scroll)="onHeadlinesScroll($event)">
+                <article *ngFor="let headline of headlines" 
+                         (click)="onReadArticle(headline)"
+                         class="flex-shrink-0 w-80 snap-start border border-brand-charcoal p-6 flex flex-col justify-between bg-brand-paper hover:bg-brand-charcoal/5 transition-colors group cursor-pointer h-[260px] relative">
+                  
+                  <div class="w-full">
+                    <div class="flex items-center justify-between gap-2 mb-2">
+                      <span class="font-mono text-[9px] font-bold uppercase tracking-widest" [ngClass]="headline.colorClass">{{ headline.category }}</span>
+                      <span class="font-mono text-[9px] text-brand-charcoal/50">{{ formatPublishedTime(headline.publishedAt) }}</span>
+                    </div>
+                    <h3 class="font-serif text-xl font-bold mt-2 group-hover:text-brand-sage transition-colors leading-tight line-clamp-3">{{ headline.title }}</h3>
+                    <p class="font-sans text-xs text-brand-charcoal/70 mt-2 line-clamp-3 leading-relaxed">{{ headline.description }}</p>
+                  </div>
+                  
+                  <div class="flex justify-center items-center pt-4 border-t border-brand-charcoal/10 mt-4 text-[10px] font-mono text-brand-charcoal/60 w-full">
+                    <div class="flex items-center gap-4 text-brand-charcoal/70">
+                      <div class="flex items-center gap-1.5" title="Me gustas">
+                        <svg class="w-3.5 h-3.5 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"></path></svg>
+                        <span class="font-bold text-[9px]">{{ headline.totalLikes || 0 }}</span>
+                      </div>
+                      <div class="flex items-center gap-1.5" title="Comentarios">
+                        <svg class="w-3.5 h-3.5 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                        <span class="font-bold text-[9px]">{{ headline.commentCount || 0 }}</span>
+                      </div>
+                      <div class="flex items-center gap-1.5" title="Visitas">
+                        <svg class="w-3.5 h-3.5 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        <span class="font-bold text-[9px]">{{ headline.clicks || 0 }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              </div>
+              
+              <!-- Lapa Ninja Scroll Indicator Bar (Green) -->
+              <div class="w-full h-1 bg-brand-charcoal/10 relative overflow-hidden rounded-full mt-4">
+                <div class="absolute left-0 top-0 h-full bg-brand-sage transition-all duration-150" 
+                     [style.width.%]="headlinesScrollProgress" [style.left.%]="headlinesScrollLeft"></div>
+              </div>
+            </div>
+
+            <!-- Right Arrow Button (Outside the carousel container) -->
+            <button (click)="onHeadlineArrowClick('right', $event)" 
+                    class="absolute right-0 top-[110px] -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-brand-charcoal text-brand-paper border border-brand-charcoal flex items-center justify-center hover:bg-brand-sage hover:text-brand-charcoal transition-all cursor-pointer shadow-md select-none">
+              ›
             </button>
           </div>
         </div>
-        <div class="md:col-span-4 aspect-[3/4] relative overflow-hidden group border border-brand-charcoal cursor-pointer" (click)="onReadHeroArticle()">
-          <img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" [alt]="heroArticle.title" [src]="heroArticle.imageUrl">
-          <div class="absolute inset-0 border-[12px] border-brand-paper/20 pointer-events-none"></div>
-        </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- Sitios Comerciales Destacados -->
-      <section class="mb-20" *ngIf="portfolios && portfolios.length > 0">
-        <div class="flex justify-between items-end mb-6 border-b border-brand-charcoal pb-2">
-          <h2 class="font-mono text-sm font-bold tracking-widest uppercase flex items-center gap-1.5">
-            👑 SITIOS COMERCIALES DESTACADOS
-          </h2>
-          <span class="font-mono text-[9px] text-brand-charcoal/50">DESLIZA PARA VER MÁS →</span>
-        </div>
+    <!-- 3. NOTICIAS EN GENERAL SECTION -->
+    <section class="mt-16 mb-16">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8 border-b border-brand-charcoal pb-4">
+        <h2 class="font-mono text-sm font-bold tracking-widest uppercase">Noticias en General</h2>
         
-        <div class="flex gap-4 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory">
-          <div *ngFor="let p of portfolios" 
-               (click)="openPortfolio(p)"
-               class="flex-shrink-0 w-72 snap-start border border-brand-charcoal hover:border-brand-sage transition-all bg-brand-paper cursor-pointer group flex flex-col justify-between">
-            <div class="relative h-40 overflow-hidden bg-brand-charcoal/5 flex items-center justify-center border-b border-brand-charcoal">
-              <img [src]="p.image_url" [alt]="p.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-              <div class="absolute top-2 left-2 bg-brand-charcoal text-brand-paper px-2 py-0.5 font-mono text-[8px] font-bold uppercase rounded-sm">
-                {{ p.landing_template }}
-              </div>
-            </div>
+        <div class="flex flex-wrap gap-2">
+          <button *ngFor="let cat of ['Todo', 'Deportes', 'Agenda', 'Educación', 'Trámites', 'Salud']"
+                  (click)="selectGeneralCategory(cat)"
+                  [ngClass]="selectedGeneralCategory === cat ? 'bg-brand-charcoal text-brand-paper border-brand-charcoal hover:bg-brand-charcoal hover:text-brand-paper' : 'bg-transparent text-brand-charcoal border-brand-charcoal/20 hover:bg-brand-sage hover:text-brand-paper hover:border-brand-sage'"
+                  class="px-3.5 py-1.5 font-mono text-[10px] font-bold uppercase tracking-wider rounded-full transition-all cursor-pointer select-none border">
+            {{ cat }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Sort Bar -->
+      <div class="flex items-center gap-2 overflow-x-auto py-1 hide-scrollbar border-b border-brand-charcoal/5 mb-6 pb-4">
+        <span class="font-mono text-[9px] uppercase text-brand-charcoal/40 tracking-widest shrink-0">ORDENAR POR:</span>
+        <button *ngFor="let s of ['RECIENTES','VALORADAS','VISTAS','COMENTADAS']"
+                (click)="selectGeneralSort(s)"
+                [ngClass]="selectedGeneralSortKey === s ? 'bg-brand-charcoal text-brand-paper border-brand-charcoal hover:bg-brand-charcoal hover:text-brand-paper' : 'bg-transparent text-brand-charcoal border-brand-charcoal/20 hover:bg-brand-sage hover:text-brand-paper hover:border-brand-sage'"
+                class="shrink-0 px-3 py-1 font-mono text-[9px] font-bold uppercase border rounded-full transition-all cursor-pointer">
+          {{ s }}
+        </button>
+      </div>
+
+      <!-- News Cards Grid (Max 4 news per page) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 min-h-[344px]">
+        <ng-container *ngFor="let index of [0, 1, 2, 3]">
+          <div *ngIf="getPaginatedGeneralNews()[index] as item" 
+               (click)="onReadArticle(item)"
+               class="bg-brand-paper border border-brand-charcoal p-5 h-[160px] relative overflow-hidden group cursor-pointer hover:bg-brand-charcoal/5 transition-colors flex justify-between gap-4">
             
-            <div class="p-4 flex-grow flex flex-col justify-between">
+            <!-- Left side content -->
+            <div class="flex-1 min-w-0 pr-20 md:pr-24 flex flex-col justify-between h-full">
               <div>
-                <span class="font-mono text-[8px] bg-brand-sage/10 text-brand-sage px-2 py-0.5 rounded uppercase font-bold tracking-wide">
-                  👑 Sitio Comercial
-                </span>
-                <h4 class="font-serif text-lg font-bold text-brand-charcoal mt-2 line-clamp-1 group-hover:text-brand-sage transition-colors">
-                  {{ p.title }}
+                <div class="flex items-center justify-between gap-2 mb-1.5">
+                  <span class="font-mono text-[9px] font-bold uppercase tracking-wider text-brand-sage">{{ item.category }}</span>
+                  <span class="font-mono text-[9px] text-brand-charcoal/50">{{ item.publishedAt }}</span>
+                </div>
+                <h4 class="font-serif text-sm md:text-base font-bold line-clamp-2 text-brand-charcoal group-hover:text-brand-sage transition-colors leading-snug">
+                  {{ item.title }}
                 </h4>
-                <p class="font-sans text-xs text-brand-charcoal/70 line-clamp-2 mt-1 leading-relaxed">
-                  {{ p.description }}
+                <p class="font-sans text-[11px] text-brand-charcoal/70 line-clamp-2 leading-relaxed mt-1">
+                  {{ item.description }}
                 </p>
               </div>
               
-              <div class="pt-4 border-t border-brand-charcoal/10 flex justify-between items-center text-[10px] font-mono text-brand-charcoal/50">
-                <span>{{ p.contact_name }}</span>
-                <span class="text-brand-sage font-bold group-hover:translate-x-1 transition-transform">Ver Sitio →</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Main Headlines Grid -->
-      <section class="mb-24">
-        <div class="flex justify-between items-end mb-8 border-b-2 border-brand-charcoal pb-2">
-          <h2 class="font-mono text-lg font-bold tracking-widest uppercase">Titulares Principales</h2>
-          <a routerLink="/editorial" class="font-mono text-xs text-brand-sage font-bold hover:underline">VER TODAS LAS SECCIONES</a>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-0 border border-brand-charcoal overflow-hidden">
-          <!-- Card Loop -->
-          <article *ngFor="let headline of headlines; let last = last" 
-            [class.border-r]="!last" 
-            (click)="onReadArticle(headline)"
-            class="p-8 border-brand-charcoal flex flex-col hover:bg-brand-charcoal/5 transition-colors group cursor-pointer">
-            <span class="font-mono text-[10px] font-bold mb-4 uppercase tracking-widest" [ngClass]="headline.colorClass">{{ headline.category }}</span>
-            <h3 class="font-serif text-2xl font-semibold mb-4 group-hover:text-brand-sage transition-colors leading-tight">{{ headline.title }}</h3>
-            <p class="font-sans text-xs text-brand-charcoal/70 mb-6 leading-relaxed flex-grow">{{ headline.description }}</p>
-            <div class="flex justify-between items-center pt-6 border-t border-brand-charcoal/10">
-              <span class="font-mono text-[10px] text-brand-charcoal/60 uppercase tracking-widest">{{ headline.readTime }}</span>
-              <span class="text-xl">→</span>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <!-- Sidebar / Modules Section -->
-      <section class="grid grid-cols-1 md:grid-cols-12 gap-12">
-        <!-- Latest Reports -->
-        <div class="md:col-span-8">
-          <div class="mb-8 border-b border-brand-charcoal pb-2">
-            <h2 class="font-mono text-sm font-bold tracking-widest uppercase">Últimos Informes</h2>
-          </div>
-          <div class="space-y-12">
-            <div *ngFor="let report of reports" (click)="onReadArticle(report)" class="grid grid-cols-1 sm:grid-cols-4 gap-6 group cursor-pointer border border-transparent hover:border-brand-charcoal/10 p-2 transition-all">
-              <div class="sm:col-span-1 border border-brand-charcoal/20 overflow-hidden">
-                <img class="w-full aspect-square object-cover grayscale group-hover:grayscale-0 transition-all duration-500" [alt]="report.title" [src]="report.imageUrl">
-              </div>
-              <div class="sm:col-span-3 flex flex-col justify-center">
-                <div class="flex justify-between mb-2">
-                  <span class="font-mono text-[10px] font-bold text-brand-charcoal uppercase tracking-widest">{{ report.category }}</span>
-                  <span class="font-mono text-[10px] text-brand-charcoal/50">{{ report.reportId }}</span>
-                </div>
-                <h4 class="font-serif text-2xl font-semibold mb-2 group-hover:underline leading-snug">{{ report.title }}</h4>
-                <p class="font-sans text-xs text-brand-charcoal/70 leading-relaxed">{{ report.description }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Sidebars -->
-        <aside class="md:col-span-4 space-y-16">
-          <!-- Mundial 2026 Module -->
-          <div class="p-6 bg-brand-charcoal text-brand-paper border border-brand-charcoal/30">
-            <div class="flex flex-col gap-2.5 mb-6 border-b border-brand-paper/20 pb-3">
-              <h3 class="font-mono text-sm font-bold tracking-widest uppercase text-brand-paper">Mundial 2026 🏆</h3>
-              <!-- Tabs -->
-              <div class="flex items-center gap-2">
-                <button (click)="worldCupActiveTab = 'games'" 
-                        [class.text-brand-sage]="worldCupActiveTab === 'games'"
-                        [class.underline]="worldCupActiveTab === 'games'"
-                        class="bg-transparent border-0 font-mono text-[10px] font-bold uppercase tracking-widest cursor-pointer text-brand-paper/60 hover:text-brand-paper p-0">
-                  PARTIDOS
-                </button>
-                <span class="text-brand-paper/20">|</span>
-                <button (click)="worldCupActiveTab = 'standings'" 
-                        [class.text-brand-sage]="worldCupActiveTab === 'standings'"
-                        [class.underline]="worldCupActiveTab === 'standings'"
-                        class="bg-transparent border-0 font-mono text-[10px] font-bold uppercase tracking-widest cursor-pointer text-brand-paper/60 hover:text-brand-paper p-0">
-                  TABLAS
-                </button>
-              </div>
-            </div>
-
-            <!-- Loading Spinner -->
-            <div *ngIf="worldCupLoading" class="text-center py-8">
-              <div class="w-6 h-6 border-2 border-brand-sage border-t-transparent rounded-full animate-spin mx-auto"></div>
-            </div>
-
-            <!-- Content Area -->
-            <div *ngIf="!worldCupLoading">
-              <!-- Games Tab -->
-              <div *ngIf="worldCupActiveTab === 'games'" class="space-y-4">
-                <!-- Date Selector slider -->
-                <div class="flex items-center justify-between bg-brand-paper/10 py-1.5 px-3 border border-brand-paper/10 font-mono text-[10px]">
-                  <button (click)="changeWorldCupDate(-1)" class="bg-transparent border-0 text-brand-paper hover:text-brand-sage cursor-pointer">◀</button>
-                  <span class="font-bold text-brand-paper/90">{{ worldCupSelectedDate | date:'dd MMM yyyy' }}</span>
-                  <button (click)="changeWorldCupDate(1)" class="bg-transparent border-0 text-brand-paper hover:text-brand-sage cursor-pointer">▶</button>
-                </div>
-
-                <!-- Matches list -->
-                <div class="space-y-3 max-h-72 overflow-y-auto pr-1 custom-scrollbar">
-                  <div *ngIf="getFilteredWorldCupGames().length === 0" class="text-center py-6 text-xs font-mono text-brand-paper/50 italic">
-                    No hay partidos para esta fecha.
+              <div class="flex justify-center items-center pt-2 border-t border-brand-charcoal/10 text-[10px] font-mono text-brand-charcoal/60 w-full">
+                <div class="flex items-center gap-4 text-brand-charcoal/70">
+                  <div class="flex items-center gap-1.5" title="Me gustas">
+                    <svg class="w-3.5 h-3.5 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"></path></svg>
+                    <span class="font-bold text-[9px]">{{ item.totalLikes || 0 }}</span>
                   </div>
-                  
-                  <div *ngFor="let g of getFilteredWorldCupGames()" 
-                       (click)="openMatchDetail(g)"
-                       class="p-3 border border-brand-paper/15 hover:border-brand-sage bg-brand-paper/5 cursor-pointer hover:bg-brand-paper/10 transition-all flex flex-col gap-2">
-                    
-                    <!-- Match Status -->
-                    <div class="flex justify-between items-center text-[9px] font-mono">
-                      <span class="text-brand-paper/40">{{ g.group === 'FINAL' || g.group === 'SF' || g.group === 'QF' || g.group === 'R16' || g.group === 'R32' ? 'Eliminatorias' : 'Grupo ' + g.group }}</span>
-                      <span [ngClass]="g.finished === 'TRUE' ? 'text-brand-paper/45' : 'text-brand-sage font-bold uppercase'">
-                        {{ g.finished === 'TRUE' ? 'Finalizado' : (g.time_elapsed === 'notstarted' ? (g.local_date | date:'HH:mm') : 'En Vivo') }}
-                      </span>
-                    </div>
-
-                    <!-- Teams & Scores -->
-                    <div class="grid grid-cols-12 items-center gap-1.5 w-full">
-                      <!-- Home Team -->
-                      <div class="col-span-5 flex items-center gap-1.5 min-w-0">
-                        <img *ngIf="g.home_flag" [src]="g.home_flag" class="w-4 h-2.5 object-cover border border-brand-paper/20 rounded-sm shrink-0">
-                        <span class="font-sans text-xs font-medium truncate text-brand-paper">{{ g.home_team_name_en }}</span>
-                      </div>
-                      <!-- Score -->
-                      <div class="col-span-2 text-center font-mono text-xs font-bold text-brand-sage shrink-0">
-                        {{ g.finished === 'TRUE' || g.time_elapsed !== 'notstarted' ? g.home_score + ' - ' + g.away_score : 'vs' }}
-                      </div>
-                      <!-- Away Team -->
-                      <div class="col-span-5 flex items-center justify-end gap-1.5 min-w-0 text-right">
-                        <span class="font-sans text-xs font-medium truncate text-brand-paper text-right">{{ g.away_team_name_en }}</span>
-                        <img *ngIf="g.away_flag" [src]="g.away_flag" class="w-4 h-2.5 object-cover border border-brand-paper/20 rounded-sm shrink-0">
-                      </div>
-                    </div>
+                  <div class="flex items-center gap-1.5" title="Comentarios">
+                    <svg class="w-3.5 h-3.5 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                    <span class="font-bold text-[9px]">{{ item.commentCount || 0 }}</span>
                   </div>
-                </div>
-              </div>
-
-              <!-- Standings Tab -->
-              <div *ngIf="worldCupActiveTab === 'standings'" class="space-y-4 max-h-80 overflow-y-auto pr-1 custom-scrollbar">
-                <div *ngFor="let grp of worldCupGroups" class="space-y-1.5 border-b border-brand-paper/10 pb-3 mb-3 last:border-0 last:pb-0 last:mb-0">
-                  <div class="font-mono text-[10px] font-bold text-brand-sage uppercase">Grupo {{ grp.name }}</div>
-                  
-                  <!-- Group Header -->
-                  <div class="grid grid-cols-12 text-[8px] font-mono text-brand-paper/50 font-bold border-b border-brand-paper/10 pb-0.5">
-                    <span class="col-span-6">PAÍS</span>
-                    <span class="col-span-2 text-center">PJ</span>
-                    <span class="col-span-2 text-center">DG</span>
-                    <span class="col-span-2 text-right">PTS</span>
-                  </div>
-
-                  <!-- Group Teams -->
-                  <div *ngFor="let t of grp.teams" class="grid grid-cols-12 text-[10px] font-mono py-0.5 items-center">
-                    <div class="col-span-6 flex items-center gap-1.5 min-w-0">
-                      <img *ngIf="t.team_flag" [src]="t.team_flag" class="w-3.5 h-2 object-cover border border-brand-paper/20 rounded-sm shrink-0">
-                      <span class="truncate text-brand-paper/95 font-sans">{{ t.team_name }}</span>
-                    </div>
-                    <span class="col-span-2 text-center text-brand-paper/70">{{ t.mp }}</span>
-                    <span class="col-span-2 text-center" [ngClass]="+t.gd >= 0 ? 'text-green-500' : 'text-red-400'">{{ +t.gd > 0 ? '+' + t.gd : t.gd }}</span>
-                    <span class="col-span-2 text-right font-bold text-brand-sage">{{ t.pts }}</span>
+                  <div class="flex items-center gap-1.5" title="Visitas">
+                    <svg class="w-3.5 h-3.5 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    <span class="font-bold text-[9px]">{{ item.clicks || 0 }}</span>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- From the Archive Module -->
-          <div class="border border-brand-charcoal p-6">
-            <h3 class="font-mono text-xs font-bold tracking-widest uppercase mb-6 border-b border-brand-charcoal/20 pb-2">Desde los Archivos</h3>
-            <div class="space-y-6">
-              <div *ngFor="let arch of archiveItems" class="flex gap-4 items-start">
-                <span class="font-mono text-lg text-brand-sage font-bold">{{ arch.year }}</span>
-                <div>
-                  <h5 class="font-serif text-lg font-bold leading-tight">{{ arch.title }}</h5>
-                  <p class="font-sans text-xs text-brand-charcoal/70 mt-1">{{ arch.desc }}</p>
-                </div>
-              </div>
+            <!-- Right side small image, partially cut off at the border -->
+            <div class="absolute top-1/2 -translate-y-1/2 -right-3 w-20 h-20 md:w-24 md:h-24 border border-brand-charcoal overflow-hidden rounded bg-[#efeeeb] shadow-sm transform rotate-6 group-hover:rotate-12 group-hover:scale-105 transition-all duration-300">
+              <img [src]="item.imageUrl" class="w-full h-full object-cover">
             </div>
-          </div>
-        </aside>
-      </section>
-    </div>
-  </main>
 
-  <!-- Right Ad Banner -->
-  <aside class="ad-gutter mt-12 hidden xl:block w-[160px] shrink-0 sticky top-[100px] h-[600px]">
-    <div class="w-full h-full border border-brand-charcoal bg-[#efeeeb] flex flex-col p-4">
-      <span class="font-mono text-[9px] text-brand-charcoal/60 uppercase tracking-widest mb-4">PUBLICIDAD</span>
-      <div class="flex-grow flex flex-col justify-center items-center text-center">
-        <span class="font-serif text-xl italic mb-4">Exposición Memoria 2026</span>
-        <div class="w-full h-40 bg-brand-charcoal mb-4 border border-brand-charcoal flex items-center justify-center">
-          <span class="text-brand-paper font-mono text-[10px] tracking-widest text-center px-2">ENTRADAS DISPONIBLES</span>
-        </div>
-        <p class="font-sans text-[10px] text-brand-charcoal/80 uppercase tracking-wider">El futuro de los archivos locales</p>
+          </div>
+
+          <!-- Dummy spacer to preserve 2x2 grid height when fewer than 4 articles -->
+          <div *ngIf="!getPaginatedGeneralNews()[index]" 
+               class="h-[160px] border border-transparent pointer-events-none select-none opacity-0">
+          </div>
+        </ng-container>
       </div>
-      <div class="mt-auto pt-4 border-t border-brand-charcoal/20">
-        <span class="font-mono text-[9px] text-brand-charcoal/50">EVNT: MEM_EXPO</span>
+
+      <!-- Empty state -->
+      <div *ngIf="getFilteredGeneralNews().length === 0" class="text-center py-12 border border-dashed border-brand-charcoal/20 font-serif italic text-sm text-brand-charcoal/50">
+        No hay noticias disponibles en esta categoría.
+      </div>
+
+      <!-- Pagination Buttons (Bottom Center) -->
+      <div *ngIf="getFilteredGeneralNews().length > generalPageSize" class="flex items-center justify-center gap-4 mt-8 font-mono text-[10px]">
+        <button (click)="prevGeneralNewsPage()" 
+                [disabled]="generalNewsPage === 0"
+                class="w-8 h-8 rounded-full border border-brand-charcoal flex items-center justify-center hover:bg-brand-charcoal hover:text-brand-paper disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-brand-charcoal cursor-pointer transition-colors focus:outline-none select-none bg-transparent">
+          ◀
+        </button>
+        <span class="font-bold uppercase tracking-wider">PÁGINA {{ generalNewsPage + 1 }} DE {{ getGeneralNewsPageCount() }}</span>
+        <button (click)="nextGeneralNewsPage()" 
+                [disabled]="generalNewsPage >= getGeneralNewsPageCount() - 1"
+                class="w-8 h-8 rounded-full border border-brand-charcoal flex items-center justify-center hover:bg-brand-charcoal hover:text-brand-paper disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-brand-charcoal cursor-pointer transition-colors focus:outline-none select-none bg-transparent">
+          ▶
+        </button>
+      </div>
+    </section>
+
+    <!-- WORLD CUP 2026 MODAL OVERLAY -->
+    <div *ngIf="worldCupModalVisible" class="fixed inset-0 bg-brand-charcoal/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-brand-paper border-2 border-brand-charcoal w-full max-w-lg text-brand-charcoal p-6 relative shadow-2xl flex flex-col max-h-[90vh]">
+        <!-- Close Button -->
+        <button (click)="closeWorldCupModal()" class="absolute top-4 right-4 text-xl border-0 bg-transparent text-brand-charcoal hover:text-brand-red cursor-pointer select-none font-bold p-1 leading-none focus:outline-none" aria-label="Cerrar modal">
+          ✕
+        </button>
+        
+        <div class="flex flex-col gap-2.5 mb-6 border-b border-brand-charcoal/20 pb-3">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 bg-brand-sage text-brand-paper font-mono text-[9px] font-bold rounded">EN VIVO</span>
+            <h3 class="font-mono text-sm font-bold tracking-widest uppercase text-brand-charcoal">Mundial 2026</h3>
+          </div>
+          <!-- Tabs -->
+          <div class="flex items-center gap-3 mt-1.5">
+            <button (click)="worldCupActiveTab = 'games'" 
+                    [class.text-brand-sage]="worldCupActiveTab === 'games'"
+                    [class.border-brand-sage]="worldCupActiveTab === 'games'"
+                    class="bg-transparent border-0 border-b-2 border-transparent font-mono text-[10px] font-bold uppercase tracking-widest cursor-pointer text-brand-charcoal/60 hover:text-brand-charcoal pb-1 focus:outline-none">
+              PARTIDOS
+            </button>
+            <span class="text-brand-charcoal/20 font-mono text-[10px]">|</span>
+            <button (click)="worldCupActiveTab = 'standings'" 
+                    [class.text-brand-sage]="worldCupActiveTab === 'standings'"
+                    [class.border-brand-sage]="worldCupActiveTab === 'standings'"
+                    class="bg-transparent border-0 border-b-2 border-transparent font-mono text-[10px] font-bold uppercase tracking-widest cursor-pointer text-brand-charcoal/60 hover:text-brand-charcoal pb-1 focus:outline-none">
+              TABLAS
+            </button>
+          </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div *ngIf="worldCupLoading" class="text-center py-12">
+          <div class="w-8 h-8 border-3 border-brand-sage border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p class="font-mono text-[10px] text-brand-charcoal/50 uppercase tracking-widest mt-3">Cargando datos...</p>
+        </div>
+
+        <!-- Content Area (Scrollable to prevent overflow) -->
+        <div *ngIf="!worldCupLoading" class="flex-1 overflow-y-auto custom-scrollbar pr-1">
+          <!-- Games Tab -->
+          <div *ngIf="worldCupActiveTab === 'games'" class="space-y-4">
+            <!-- Date Selector slider -->
+            <div class="flex items-center justify-between bg-brand-charcoal/5 py-2 px-4 border border-brand-charcoal/10 font-mono text-[10px]">
+              <button (click)="changeWorldCupDate(-1)" class="bg-transparent border-0 text-brand-charcoal hover:text-brand-sage cursor-pointer text-xs font-bold focus:outline-none">◀</button>
+              <span class="font-bold text-brand-charcoal/90">{{ worldCupSelectedDate | date:'dd MMM yyyy' }}</span>
+              <button (click)="changeWorldCupDate(1)" class="bg-transparent border-0 text-brand-charcoal hover:text-brand-sage cursor-pointer text-xs font-bold focus:outline-none">▶</button>
+            </div>
+
+            <!-- Matches list -->
+            <div class="space-y-3">
+              <div *ngIf="getFilteredWorldCupGames().length === 0" class="text-center py-10 text-xs font-mono text-brand-charcoal/40 italic">
+                No hay partidos programados para esta fecha.
+              </div>
+              
+              <div *ngFor="let g of getFilteredWorldCupGames()" 
+                   (click)="openMatchDetail(g)"
+                   class="p-4 border border-brand-charcoal/10 hover:border-brand-sage bg-brand-charcoal/[0.02] hover:bg-brand-charcoal/[0.05] cursor-pointer transition-all flex flex-col gap-2 rounded">
+                
+                <!-- Match Status -->
+                <div class="flex justify-between items-center text-[9px] font-mono">
+                  <span class="text-brand-charcoal/50">{{ g.group === 'FINAL' || g.group === 'SF' || g.group === 'QF' || g.group === 'R16' || g.group === 'R32' ? 'Eliminatorias' : 'Grupo ' + g.group }}</span>
+                  <span [ngClass]="g.finished === 'TRUE' ? 'text-brand-charcoal/40' : 'text-brand-sage font-bold uppercase'">
+                    {{ g.finished === 'TRUE' ? 'Finalizado' : (g.time_elapsed === 'notstarted' ? getMatchTimeInSwiss(g.local_date, g.stadium_id) : 'En Vivo') }}
+                  </span>
+                </div>
+
+                <!-- Teams & Scores -->
+                <div class="grid grid-cols-12 items-center gap-1.5 w-full">
+                  <!-- Home Team -->
+                  <div class="col-span-5 flex items-center gap-1.5 min-w-0">
+                    <img *ngIf="g.home_flag" [src]="g.home_flag" class="w-4 h-2.5 object-cover border border-brand-charcoal/20 rounded-sm shrink-0">
+                    <span class="font-sans text-xs font-bold truncate text-brand-charcoal">{{ g.home_team_name_en }}</span>
+                  </div>
+                  <!-- Score -->
+                  <div class="col-span-2 text-center font-mono text-xs font-bold text-brand-sage shrink-0">
+                    {{ g.finished === 'TRUE' || g.time_elapsed !== 'notstarted' ? g.home_score + ' - ' + g.away_score : 'vs' }}
+                  </div>
+                  <!-- Away Team -->
+                  <div class="col-span-5 flex items-center justify-end gap-1.5 min-w-0 text-right">
+                    <span class="font-sans text-xs font-bold truncate text-brand-charcoal text-right">{{ g.away_team_name_en }}</span>
+                    <img *ngIf="g.away_flag" [src]="g.away_flag" class="w-4 h-2.5 object-cover border border-brand-charcoal/20 rounded-sm shrink-0">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Standings Tab -->
+          <div *ngIf="worldCupActiveTab === 'standings'" class="space-y-6">
+            <div *ngFor="let grp of worldCupGroups" class="space-y-2 border-b border-brand-charcoal/10 pb-4 last:border-0 last:pb-0">
+              <h4 class="font-mono text-xs font-bold text-brand-sage uppercase tracking-wider">Grupo {{ grp.name }}</h4>
+              <table class="w-full font-mono text-[9px] text-brand-charcoal/85 text-left border-collapse">
+                <thead>
+                  <tr class="border-b border-brand-charcoal/10 text-[8px] text-brand-charcoal/40 uppercase">
+                    <th class="py-1">PAÍS</th>
+                    <th class="py-1 text-center">PJ</th>
+                    <th class="py-1 text-center">DG</th>
+                    <th class="py-1 text-right">PTS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let t of grp.teams" class="border-b border-brand-charcoal/[0.03] last:border-0 hover:bg-brand-charcoal/[0.02]">
+                    <td class="py-1.5 flex items-center gap-1.5 min-w-0">
+                      <img *ngIf="t.team_flag" [src]="t.team_flag" class="w-3.5 h-2 object-cover border border-brand-charcoal/20 rounded-sm shrink-0">
+                      <span class="truncate font-sans text-[10px] text-brand-charcoal/90">{{ t.team_name }}</span>
+                    </td>
+                    <td class="py-1.5 text-center text-brand-charcoal/60">{{ t.mp }}</td>
+                    <td class="py-1.5 text-center font-bold" [ngClass]="+t.gd >= 0 ? 'text-green-600' : 'text-red-500'">
+                      {{ +t.gd > 0 ? '+' + t.gd : t.gd }}
+                    </td>
+                    <td class="py-1.5 text-right font-bold text-brand-sage">{{ t.pts }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  </aside>
-</div>
+
+
+
+
 
 <!-- LOGIN REQUIRED MODAL OVERLAY -->
 <div *ngIf="authModalVisible" class="fixed inset-0 bg-brand-charcoal/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -304,75 +369,161 @@
 </div>
 
 <!-- FULL ARTICLE READING MODAL OVERLAY -->
-<div *ngIf="articleModalVisible && selectedArticulo" class="fixed inset-0 bg-brand-charcoal/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-  <div class="bg-brand-paper border-2 border-brand-charcoal w-full max-w-4xl max-h-[90vh] overflow-y-auto text-brand-charcoal p-6 md:p-8 relative shadow-2xl">
+<div *ngIf="articleModalVisible && selectedArticulo" class="fixed inset-0 bg-brand-charcoal/80 backdrop-blur-sm z-50 flex items-center justify-center px-12 md:px-24 py-4">
+  <!-- Left Modal Nav Button -->
+  <button (click)="navigateModalArticle(-1, $event)" 
+          class="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-55 w-8 h-8 md:w-12 md:h-12 rounded-full bg-brand-charcoal text-brand-paper border border-brand-paper/30 flex items-center justify-center hover:bg-brand-sage hover:text-brand-charcoal transition-all cursor-pointer shadow-lg select-none text-lg md:text-2xl font-bold"
+          title="Artículo Anterior">
+    ‹
+  </button>
+
+  <!-- Right Modal Nav Button -->
+  <button (click)="navigateModalArticle(1, $event)" 
+          class="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-55 w-8 h-8 md:w-12 md:h-12 rounded-full bg-brand-charcoal text-brand-paper border border-brand-paper/30 flex items-center justify-center hover:bg-brand-sage hover:text-brand-charcoal transition-all cursor-pointer shadow-lg select-none text-lg md:text-2xl font-bold"
+          title="Artículo Siguiente">
+    ›
+  </button>
+
+  <div class="bg-brand-paper border-2 border-brand-charcoal w-full max-w-5xl h-[85vh] overflow-hidden text-brand-charcoal flex flex-col relative shadow-2xl rounded-2xl">
     
-    <!-- Sticky Header Bar -->
-    <div class="sticky -top-6 md:-top-8 -mx-6 md:-mx-8 px-6 md:px-8 pt-3 pb-3 bg-brand-paper border-b border-brand-charcoal/20 z-30 flex items-center justify-between gap-3 font-mono text-[10px] uppercase text-brand-charcoal/70 shadow-xs mb-6">
-      <div class="flex flex-wrap items-center gap-3">
+    <!-- NEW UNIFIED HEADER -->
+    <header class="h-14 border-b border-brand-charcoal/10 bg-white px-6 flex items-center justify-between z-10 shrink-0 select-none font-mono text-[10px] uppercase text-brand-charcoal/70">
+      <!-- Left side: Category & Date -->
+      <div class="flex items-center gap-3">
         <span class="bg-brand-sage/20 border border-brand-charcoal text-brand-charcoal px-2 py-0.5 font-bold">{{ selectedArticulo.category }}</span>
         <span>{{ selectedArticulo.publishedAt }}</span>
-        <span class="hidden sm:inline">POR: {{ selectedArticulo.author }}</span>
       </div>
+
+      <!-- Right side: Views, Likes, Comments, Toggle, Options, Close -->
       <div class="flex items-center gap-4">
-        <span class="text-brand-sage font-bold flex items-center gap-1">
-          <svg class="w-3.5 h-3.5 stroke-current fill-none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="12" cy="12" r="3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Views -->
+        <div class="flex items-center gap-1.5 opacity-60">
+          <svg class="w-3.5 h-3.5 stroke-brand-charcoal fill-none" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
           </svg>
-          {{ selectedArticulo.clicks || 0 }} VISTAS
-        </span>
-        <!-- Close Button -->
-        <button (click)="closeArticleModal()" class="text-xl border-0 bg-transparent text-brand-charcoal hover:text-brand-sage cursor-pointer select-none font-bold leading-none" aria-label="Cerrar modal">
+          <span>{{ selectedArticulo.clicks || 0 }}</span>
+        </div>
+
+        <!-- Like/Dislike group -->
+        <div class="flex items-center bg-black/5 border border-black/10 rounded-full overflow-hidden shrink-0">
+          <button (click)="likeArticle(selectedArticulo)" 
+                  [class.bg-black/10]="selectedArticulo.userVote === 'like'"
+                  class="flex items-center gap-1 px-2.5 py-1.5 hover:bg-black/10 transition-colors font-mono text-[9px] border-r border-black/10 cursor-pointer bg-transparent border-0 text-black focus:outline-none">
+            <svg class="w-3 h-3 stroke-black fill-none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+              <path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/>
+            </svg>
+            <span>{{ selectedArticulo.totalLikes || 0 }}</span>
+          </button>
+          <button (click)="dislikeArticle(selectedArticulo)" 
+                  [class.bg-black/10]="selectedArticulo.userVote === 'dislike'"
+                  class="flex items-center gap-1 px-2.5 py-1.5 hover:bg-black/10 transition-colors font-mono text-[9px] cursor-pointer bg-transparent border-0 text-black focus:outline-none">
+            <svg class="w-3 h-3 stroke-black fill-none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+              <path d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3zm7-13h3a2 2 0 012 2v7a2 2 0 01-2 2h-3"/>
+            </svg>
+            <span>{{ selectedArticulo.totalDislikes || 0 }}</span>
+          </button>
+        </div>
+
+        <!-- Comments Button (click triggers toggle) -->
+        <button (click)="toggleCommentsPanel()" 
+                class="flex items-center gap-1.5 hover:bg-black/5 px-2.5 py-1.5 rounded-full transition-colors cursor-pointer bg-transparent border-0 text-brand-charcoal focus:outline-none font-mono text-[10px]">
+          <svg class="w-3.5 h-3.5 stroke-brand-charcoal fill-none" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span>{{ selectedArticulo.comments?.length || 0 }}</span>
+        </button>
+
+        <!-- Panel Toggle Icon -->
+        <button (click)="toggleCommentsPanel()" 
+                class="flex items-center justify-center w-7 h-7 hover:bg-black/5 rounded-full cursor-pointer text-brand-charcoal border-0 focus:outline-none"
+                [title]="commentsPanelOpen ? 'Expandir noticia' : 'Mostrar comentarios'">
+          <!-- Closed: Image 4 layout -->
+          <svg *ngIf="!commentsPanelOpen" class="w-4 h-4 stroke-brand-charcoal fill-none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <path d="M16 3v18"/>
+          </svg>
+          <!-- Open: Image 3 layout -->
+          <svg *ngIf="commentsPanelOpen" class="w-4 h-4 stroke-brand-charcoal fill-none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <path d="M8 3v18"/>
+          </svg>
+        </button>
+
+        <!-- More Actions (Three dots menu) -->
+        <div class="relative">
+          <button (click)="showMoreActions = !showMoreActions" 
+                  class="flex items-center justify-center w-7 h-7 hover:bg-black/5 rounded-full cursor-pointer text-black border-0 bg-transparent focus:outline-none">
+            <svg class="w-4 h-4 stroke-black fill-none" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="1"/>
+              <circle cx="19" cy="12" r="1"/>
+              <circle cx="5" cy="12" r="1"/>
+            </svg>
+          </button>
+          
+          <!-- Click Outside Overlay -->
+          <div *ngIf="showMoreActions" (click)="showMoreActions = false" class="fixed inset-0 z-20 bg-transparent"></div>
+
+          <!-- Dropdown Menu -->
+          <div *ngIf="showMoreActions" class="absolute right-0 mt-1 z-30 bg-brand-paper border border-brand-charcoal py-1.5 rounded-lg shadow-xl w-32 font-mono text-[9px] uppercase">
+            <button (click)="copyLinkToClipboard(); showMoreActions = false" class="w-full text-left px-3 py-2 hover:bg-black/5 flex items-center gap-1.5 cursor-pointer bg-transparent border-0 text-black">
+              Compartir
+            </button>
+            <button (click)="toggleFavoriteArticle(selectedArticulo); showMoreActions = false" class="w-full text-left px-3 py-2 hover:bg-black/5 flex items-center gap-1.5 cursor-pointer bg-transparent border-0 text-black">
+              Guardar
+            </button>
+            <button (click)="openReportModal(selectedArticulo.id, 'media'); showMoreActions = false" class="w-full text-left px-3 py-2 hover:bg-red-500/15 hover:text-red-500 flex items-center gap-1.5 cursor-pointer bg-transparent border-0 text-black border-t border-brand-charcoal/10">
+              Reportar
+            </button>
+          </div>
+        </div>
+
+        <div class="w-px h-5 bg-brand-charcoal/15"></div>
+
+        <!-- Close Button (✕) isolated on the far right -->
+        <button (click)="closeArticleModal()" 
+                class="w-7 h-7 rounded-full border-0 bg-black/5 hover:bg-black/10 text-brand-charcoal flex items-center justify-center cursor-pointer transition-all text-xs leading-none font-bold focus:outline-none" 
+                aria-label="Cerrar modal">
           ✕
         </button>
       </div>
-    </div>
+    </header>
 
-    <!-- Modal Content -->
-    <div class="space-y-6">
+    <!-- COLUMNS CONTAINER -->
+    <div class="flex-grow flex flex-col md:flex-row overflow-hidden w-full h-[calc(85vh-3.5rem)]">
+      
+      <!-- LEFT PANEL: Info & Content -->
+      <div [class.md:w-3/5]="commentsPanelOpen" 
+           [class.w-full]="!commentsPanelOpen"
+           [class.border-r]="commentsPanelOpen"
+           class="overflow-y-auto h-full p-6 md:p-8 flex flex-col gap-4 border-brand-charcoal/10 transition-all duration-300">
 
       <!-- Title -->
-      <h2 class="font-serif text-3xl md:text-5xl font-bold uppercase leading-tight text-brand-charcoal tracking-tight">
+      <h2 class="font-serif text-2xl md:text-4xl font-bold uppercase leading-tight text-brand-charcoal tracking-tight">
         {{ selectedArticulo.title }}
       </h2>
 
-      <!-- MULTI-PHOTO CAROUSEL (MAX 3 IMAGES) -->
-      <div *ngIf="getImages(selectedArticulo.imageUrl).length > 0" class="relative group aspect-video bg-[#efeeeb] border border-brand-charcoal overflow-hidden">
-        
-        <!-- Images Wrapper -->
-        <div class="w-full h-full flex items-center justify-center relative">
-          <img [src]="getImages(selectedArticulo.imageUrl)[activeCarouselIndex]" class="max-h-full object-contain w-full h-full">
+      <!-- Subtitle / Bajada & Small Image on the Right -->
+      <div class="flex flex-col sm:flex-row gap-4 items-start my-3">
+        <!-- Bajada text -->
+        <div class="flex-grow">
+          <p *ngIf="getArticleBajada(selectedArticulo.description)" class="font-sans text-xs md:text-sm font-bold leading-relaxed text-brand-charcoal/80">
+            {{ getArticleBajada(selectedArticulo.description) }}
+          </p>
         </div>
-
-        <!-- Carousel Navigation Arrows -->
-        <div *ngIf="getImages(selectedArticulo.imageUrl).length > 1" class="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-4 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button (click)="prevCarousel(getImages(selectedArticulo.imageUrl).length)" class="w-10 h-10 rounded-full bg-brand-charcoal/80 text-brand-paper hover:bg-brand-sage flex items-center justify-center font-bold text-lg cursor-pointer">
-            ◀
-          </button>
-          <button (click)="nextCarousel(getImages(selectedArticulo.imageUrl).length)" class="w-10 h-10 rounded-full bg-brand-charcoal/80 text-brand-paper hover:bg-brand-sage flex items-center justify-center font-bold text-lg cursor-pointer">
-            ▶
-          </button>
-        </div>
-
-        <!-- Carousel Dots Indicators -->
-        <div *ngIf="getImages(selectedArticulo.imageUrl).length > 1" class="absolute bottom-4 inset-x-0 flex justify-center gap-2">
-          <button *ngFor="let img of getImages(selectedArticulo.imageUrl); let i = index" 
-                  (click)="setCarouselIndex(i)"
-                  [ngClass]="activeCarouselIndex === i ? 'bg-brand-sage w-4' : 'bg-brand-charcoal/40 w-2'" 
-                  class="h-2 rounded-full transition-all duration-300 cursor-pointer">
-          </button>
+        <!-- Right side image (small, responsive, no bother) -->
+        <div *ngIf="getImages(selectedArticulo.imageUrl).length > 0" class="shrink-0 w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 border border-brand-charcoal overflow-hidden self-start rounded shadow-xs bg-[#efeeeb]">
+          <img [src]="getImages(selectedArticulo.imageUrl)[0]" class="w-full h-full object-cover">
         </div>
       </div>
 
-      <!-- EMBED VIDEO PLAYER PREVIEW (YOUTUBE / INSTAGRAM) -->
-      <div *ngIf="selectedArticulo.embedUrl" class="my-6">
-        <p class="font-mono text-[9px] uppercase font-bold text-brand-charcoal/50 mb-2">Video Relacionado (Clic para reproducir)</p>
+      <!-- EMBED VIDEO PLAYER PREVIEW -->
+      <div *ngIf="selectedArticulo.embedUrl" class="my-3">
+        <p class="font-mono text-[9px] uppercase font-bold text-brand-charcoal/50 mb-2">Video Relacionado</p>
         <div (click)="openVideoModal(selectedArticulo.embedUrl)" class="max-w-md mx-auto aspect-video cursor-pointer border-2 border-brand-charcoal relative overflow-hidden group bg-black shadow-md hover:shadow-lg transition-all duration-300">
           <img [src]="getVideoThumbnail(selectedArticulo.embedUrl)" alt="Miniatura de video" class="w-full h-full object-cover opacity-70 group-hover:opacity-60 transition-opacity duration-300">
-          <!-- Play Button Overlay -->
           <div class="absolute inset-0 flex items-center justify-center">
-            <div class="w-14 h-14 rounded-full bg-brand-charcoal/90 text-brand-paper flex items-center justify-center text-xl border border-brand-paper/30 group-hover:bg-brand-sage group-hover:text-brand-charcoal transition-all duration-300 group-hover:scale-110">
+            <div class="w-12 h-12 rounded-full bg-brand-charcoal/90 text-brand-paper flex items-center justify-center text-lg border border-brand-paper/30 group-hover:bg-brand-sage group-hover:text-brand-charcoal transition-all duration-300 group-hover:scale-110">
               ▶
             </div>
           </div>
@@ -380,42 +531,66 @@
       </div>
 
       <!-- MAIN ARTICLE BODY (BLOCKS RENDERER) -->
-      <div class="prose max-w-none text-brand-charcoal space-y-6">
-        <ng-container *ngFor="let block of getBlocks(selectedArticulo.description)">
-          
+      <div class="prose max-w-none text-brand-charcoal space-y-4">
+        <ng-container *ngFor="let block of getArticleRemainingContent(selectedArticulo.description)">
           <!-- Text block -->
-          <p *ngIf="block.type === 'text'" class="font-sans text-base md:text-lg leading-relaxed whitespace-pre-line text-brand-charcoal/90">
+          <p *ngIf="block.type === 'text'" class="font-sans text-xs md:text-sm leading-relaxed whitespace-pre-line text-brand-charcoal/80">
             {{ block.content }}
           </p>
-
           <!-- Subtitle block -->
-          <h4 *ngIf="block.type === 'subtitle'" class="font-serif text-2xl font-bold uppercase mt-8 mb-4 border-l-4 border-brand-sage pl-4 text-brand-charcoal">
+          <h4 *ngIf="block.type === 'subtitle'" class="font-serif text-sm font-bold uppercase mt-4 mb-2 border-l-4 border-brand-sage pl-3 text-brand-charcoal">
             {{ block.content }}
           </h4>
-
           <!-- Inline image block -->
-          <div *ngIf="block.type === 'image'" class="my-6 border border-brand-charcoal">
+          <div *ngIf="block.type === 'image'" class="my-4 border border-brand-charcoal">
             <img [src]="block.content" class="w-full object-cover">
           </div>
-
-          <!-- Inline video embed block (as preview thumbnail) -->
-          <div *ngIf="block.type === 'video'" class="my-6">
-            <p class="font-mono text-[9px] uppercase font-bold text-brand-charcoal/50 mb-2">Video de la Noticia (Clic para reproducir)</p>
+          <!-- Inline video embed block -->
+          <div *ngIf="block.type === 'video'" class="my-4">
             <div (click)="openVideoModal(block.content)" class="max-w-md mx-auto aspect-video cursor-pointer border-2 border-brand-charcoal relative overflow-hidden group bg-black shadow-md transition-all duration-300">
               <img [src]="getVideoThumbnail(block.content)" alt="Miniatura de video" class="w-full h-full object-cover opacity-70 group-hover:opacity-60 transition-opacity">
               <div class="absolute inset-0 flex items-center justify-center">
-                <div class="w-14 h-14 rounded-full bg-brand-charcoal/90 text-brand-paper flex items-center justify-center text-xl border border-brand-paper/30 group-hover:bg-brand-sage group-hover:text-brand-charcoal transition-all group-hover:scale-110">
+                <div class="w-12 h-12 rounded-full bg-brand-charcoal/90 text-brand-paper flex items-center justify-center text-lg border border-brand-paper/30 group-hover:bg-brand-sage group-hover:text-brand-charcoal transition-all group-hover:scale-110">
                   ▶
                 </div>
               </div>
             </div>
           </div>
-
         </ng-container>
       </div>
 
-      <!-- SOURCE LINK (Fuente de la información) -->
-      <div *ngIf="selectedArticulo.contentUrl && selectedArticulo.contentUrl !== '#' && selectedArticulo.contentUrl !== ''" class="my-6 border-t border-brand-charcoal/10 pt-4">
+      <!-- MULTI-PHOTO CAROUSEL (IF > 1 IMAGE, RENDERED AT THE BOTTOM) -->
+      <div *ngIf="getImages(selectedArticulo.imageUrl).length > 1" class="my-4">
+        <p class="font-mono text-[9px] uppercase font-bold text-brand-charcoal/50 mb-2">Galería de Imágenes</p>
+        <div class="relative group aspect-video bg-[#efeeeb] border border-brand-charcoal overflow-hidden">
+          <!-- Images Wrapper -->
+          <div class="w-full h-full flex items-center justify-center relative">
+            <img [src]="getImages(selectedArticulo.imageUrl)[activeCarouselIndex]" class="max-h-full object-contain w-full h-full">
+          </div>
+
+          <!-- Carousel Navigation Arrows -->
+          <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-4 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button (click)="prevCarousel(getImages(selectedArticulo.imageUrl).length)" class="w-8 h-8 rounded-full bg-brand-charcoal/80 text-brand-paper hover:bg-brand-sage flex items-center justify-center font-bold text-sm cursor-pointer border-0">
+              ◀
+            </button>
+            <button (click)="nextCarousel(getImages(selectedArticulo.imageUrl).length)" class="w-8 h-8 rounded-full bg-brand-charcoal/80 text-brand-paper hover:bg-brand-sage flex items-center justify-center font-bold text-sm cursor-pointer border-0">
+              ▶
+            </button>
+          </div>
+
+          <!-- Carousel Dots Indicators -->
+          <div class="absolute bottom-4 inset-x-0 flex justify-center gap-2">
+            <button *ngFor="let img of getImages(selectedArticulo.imageUrl); let i = index" 
+                    (click)="setCarouselIndex(i)"
+                    [ngClass]="activeCarouselIndex === i ? 'bg-brand-sage w-4' : 'bg-brand-charcoal/40 w-2'" 
+                    class="h-2 rounded-full transition-all duration-300 cursor-pointer border-0">
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SOURCE LINK -->
+      <div *ngIf="selectedArticulo.contentUrl && selectedArticulo.contentUrl !== '#' && selectedArticulo.contentUrl !== ''" class="my-4 border-t border-brand-charcoal/10 pt-4">
         <p class="font-mono text-xs text-brand-charcoal/60">
           Fuente de la información: 
           <a [href]="selectedArticulo.contentUrl" target="_blank" class="font-sans text-xs text-brand-sage hover:underline font-bold ml-1">
@@ -423,80 +598,242 @@
           </a>
         </p>
       </div>
+    </div>
 
-      <!-- RATING, LIKING AND SHARING INTERACTIONS -->
-      <div class="border-t border-b border-brand-charcoal/20 py-6 flex flex-wrap items-center justify-between gap-6 bg-[#f9f8f6] px-6">
-        
-        <!-- Stars rating -->
-        <div class="flex items-center gap-3">
-          <span class="font-mono text-[11px] font-bold uppercase tracking-wider">Valorar:</span>
-          <div class="flex gap-1">
-            <button *ngFor="let star of [1,2,3,4,5]" 
-                    (click)="modalRate(star)" 
-                    class="text-2xl text-brand-charcoal/30 hover:text-brand-red hover:scale-125 transition-all focus:outline-none cursor-pointer">
-              ★
+    <!-- RIGHT PANEL: Comments and Interactions -->
+    <div [class.hidden]="!commentsPanelOpen"
+         [class.md:w-2/5]="commentsPanelOpen"
+         class="w-full flex flex-col justify-between h-full bg-[#fbfbf9] relative overflow-hidden border-l border-brand-charcoal/10 transition-all duration-300">
+
+      <!-- Comments Header: small by default, large+filters+X when focused -->
+      <div class="px-4 pt-2.5 pb-2.5 shrink-0 select-none bg-[#fbfbf9] border-b border-brand-charcoal/5 transition-all">
+        <!-- Default state: small title + count -->
+        <div *ngIf="!commentFocused" class="flex items-center gap-2">
+          <span class="font-mono text-[10px] uppercase tracking-widest font-bold text-brand-charcoal/50">Comentarios</span>
+          <span class="bg-black/8 px-1.5 py-0.5 rounded-full font-mono text-[9px] text-brand-charcoal/50">{{ selectedArticulo.comments?.length || 0 }}</span>
+        </div>
+        <!-- Focused state: title + ✕ same row, then filter pills -->
+        <div *ngIf="commentFocused">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-serif text-base font-bold uppercase tracking-tight text-brand-charcoal">Comentarios</span>
+            <!-- ✕ at title height to close comment mode -->
+            <button (mousedown)="$event.preventDefault()"
+                    (click)="commentFocused = false; commentContent = ''"
+                    class="w-6 h-6 flex items-center justify-center text-brand-charcoal/40 hover:text-brand-red cursor-pointer bg-transparent border-0 focus:outline-none">
+              <svg class="w-3.5 h-3.5 stroke-current fill-none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
             </button>
           </div>
-          <span class="font-mono text-xs font-bold text-brand-charcoal/80 ml-2">({{ selectedArticulo.avgStars || '0.0' }} / 5.0)</span>
+          <div class="flex items-center gap-2">
+            <button (mousedown)="$event.preventDefault()" (click)="commentSortOrder = 'popular'"
+                    [class.bg-brand-charcoal]="commentSortOrder === 'popular'"
+                    [class.text-brand-paper]="commentSortOrder === 'popular'"
+                    [class.bg-black/8]="commentSortOrder !== 'popular'"
+                    [class.text-brand-charcoal]="commentSortOrder !== 'popular'"
+                    class="px-3 py-1.5 rounded-full font-mono text-[10px] font-bold cursor-pointer border-0 transition-all">
+              Más populares
+            </button>
+            <button (mousedown)="$event.preventDefault()" (click)="commentSortOrder = 'recent'"
+                    [class.bg-brand-charcoal]="commentSortOrder === 'recent'"
+                    [class.text-brand-paper]="commentSortOrder === 'recent'"
+                    [class.bg-black/8]="commentSortOrder !== 'recent'"
+                    [class.text-brand-charcoal]="commentSortOrder !== 'recent'"
+                    class="px-3 py-1.5 rounded-full font-mono text-[10px] font-bold cursor-pointer border-0 transition-all">
+              Más recientes
+            </button>
+          </div>
         </div>
-
-        <!-- Buttons group -->
-        <div class="flex flex-wrap items-center gap-3">
-          <!-- Share button -->
-          <button (click)="copyLinkToClipboard()" class="px-5 py-2.5 bg-brand-paper border border-brand-charcoal text-brand-charcoal font-mono text-[11px] font-bold uppercase tracking-widest hover:bg-brand-sage hover:text-brand-charcoal transition-all cursor-pointer">
-            {{ copiedLinkStatus ? '✓ ¡ENLACE COPIADO!' : 'COMPARTIR 🔗' }}
-          </button>
-        </div>
-
       </div>
 
-      <!-- COMMENTS SECTION -->
-      <div class="border-t border-brand-charcoal/10 pt-6 space-y-6">
-        <h3 class="font-serif text-2xl uppercase tracking-tighter text-brand-charcoal border-b border-brand-charcoal/5 pb-2">Comentarios de Lectores</h3>
-
-        <!-- Comment input (only for logged-in users) -->
-        <div *ngIf="currentUser; else notLoggedIn" class="space-y-3 bg-[#f9f8f6] p-6 border border-brand-charcoal/10">
-          <p class="font-mono text-[10px] text-brand-charcoal/60 uppercase">Comentar como: <strong class="text-brand-charcoal">{{ currentUser.user_metadata?.['full_name'] || currentUser.email }}</strong></p>
-          <textarea [(ngModel)]="commentContent" placeholder="Escribe tu comentario respetando las normas de la comunidad..." rows="3" class="w-full bg-brand-paper border border-brand-charcoal p-3 font-sans text-sm focus:outline-none focus:ring-1 focus:ring-brand-sage"></textarea>
-          <button (click)="modalComment()" [disabled]="!commentContent.trim()" class="px-6 py-2.5 bg-brand-charcoal text-brand-paper font-mono text-[10px] uppercase font-bold hover:bg-brand-sage hover:text-brand-charcoal disabled:opacity-50 cursor-pointer">
-            Publicar Comentario
-          </button>
+      <!-- Scrollable Comments Area (Middle section, grows to fill space) -->
+      <div class="flex-grow overflow-y-auto p-4 space-y-4">
+        <div *ngIf="selectedArticulo.loadingComments" class="text-center py-4 font-mono text-xs opacity-60">Cargando comentarios...</div>
+        <div *ngIf="!selectedArticulo.loadingComments && (!selectedArticulo.comments || selectedArticulo.comments.length === 0)"
+             class="text-center py-8 font-sans text-xs italic text-brand-charcoal/40">
+          Aún no hay comentarios. Sé el primero en comentar.
         </div>
-
-        <ng-template #notLoggedIn>
-          <div class="bg-brand-red/5 border border-brand-red/20 p-6 text-center">
-            <p class="font-sans text-sm text-brand-charcoal/70 mb-3">Debes estar registrado e iniciar sesión para dejar comentarios.</p>
-            <a routerLink="/session" (click)="closeArticleModal()" class="inline-block px-6 py-2.5 bg-brand-charcoal text-brand-paper font-mono text-[10px] uppercase font-bold hover:bg-brand-sage hover:text-brand-charcoal transition-all">
-              Iniciar Sesión / Registrarse
-            </a>
-          </div>
-        </ng-template>
-
-        <!-- Comments List -->
-        <div class="space-y-4">
-          <div *ngIf="selectedArticulo.loadingComments" class="text-center py-4 font-mono text-xs opacity-60">
-            Cargando comentarios...
-          </div>
-          
-          <div *ngIf="!selectedArticulo.loadingComments && (!selectedArticulo.comments || selectedArticulo.comments.length === 0)" class="text-center py-6 font-sans text-sm italic text-brand-charcoal/50 bg-[#f9f8f6]">
-            No hay comentarios en este artículo. ¡Sé el primero en compartir tu opinión!
-          </div>
-
-          <div *ngIf="!selectedArticulo.loadingComments && selectedArticulo.comments && selectedArticulo.comments.length > 0" class="space-y-4 max-h-[300px] overflow-y-auto pr-2">
-            <div *ngFor="let comm of selectedArticulo.comments" class="border border-brand-charcoal/10 bg-brand-paper p-4 hover:bg-[#f9f8f6] transition-colors">
-              <div class="flex justify-between items-center mb-2 font-mono text-[9px] uppercase text-brand-charcoal/50">
-                <span class="font-bold text-brand-charcoal">{{ comm.authorName }}</span>
-                <span>{{ comm.createdAt }}</span>
+        <div *ngIf="!selectedArticulo.loadingComments && selectedArticulo.comments && selectedArticulo.comments.length > 0" class="space-y-3">
+          <div *ngFor="let comm of getSortedComments(selectedArticulo.comments)" class="border-b border-brand-charcoal/5 pb-3 flex gap-2.5 items-start relative group">
+            <div (click)="openPublicProfile(comm.authorName)" class="w-7 h-7 rounded-full bg-brand-sage/20 border border-brand-sage/30 flex items-center justify-center font-mono text-[9px] font-bold text-brand-sage shrink-0 cursor-pointer hover:bg-brand-sage/35 transition-colors">
+              {{ comm.authorName ? comm.authorName.substring(0, 2).toUpperCase() : 'U' }}
+            </div>
+            <div class="flex-grow min-w-0">
+              <div class="flex items-start justify-between">
+                <div class="flex items-center gap-1.5 mb-1 font-mono text-[8px] uppercase text-brand-charcoal/50">
+                  <span (click)="openPublicProfile(comm.authorName)" class="font-bold text-brand-charcoal hover:underline cursor-pointer truncate max-w-[100px]">{{ comm.authorName }}</span>
+                  <span>•</span>
+                  <span>{{ comm.createdAt }}</span>
+                </div>
+                <!-- 3 dots vertical button -->
+                <button (click)="openCommentMenu(comm, $event)" 
+                        class="w-5 h-5 flex items-center justify-center rounded-full text-brand-charcoal/40 hover:text-brand-charcoal hover:bg-black/5 cursor-pointer border-0 bg-transparent focus:outline-none shrink-0">
+                  <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                    <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2.9 2-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                  </svg>
+                </button>
               </div>
-              <p class="font-sans text-sm leading-relaxed text-brand-charcoal/80 whitespace-pre-line">{{ comm.content }}</p>
+
+              <!-- Content / Edit mode -->
+              <div *ngIf="editingCommentId === comm.id" class="mt-1 space-y-2">
+                <textarea [(ngModel)]="editingCommentText" 
+                          rows="2" 
+                          class="w-full bg-brand-paper border border-brand-sage px-3 py-1.5 font-sans text-xs focus:outline-none rounded-lg resize-none"></textarea>
+                <div class="flex justify-end gap-2">
+                  <button (click)="cancelEditComment()" class="px-2 py-1 font-mono text-[9px] uppercase border border-brand-charcoal/20 rounded hover:bg-black/5 cursor-pointer">Cancelar</button>
+                  <button (click)="saveEditComment(comm)" class="px-2 py-1 font-mono text-[9px] uppercase bg-brand-charcoal text-brand-paper rounded hover:bg-brand-sage hover:text-brand-charcoal cursor-pointer">Guardar</button>
+                </div>
+              </div>
+              <p *ngIf="editingCommentId !== comm.id" class="font-sans text-xs leading-relaxed text-brand-charcoal/80 whitespace-pre-line">{{ comm.content }}</p>
+
+              <!-- YouTube Comment micro-interactions row -->
+              <div class="flex items-center gap-3 mt-1.5 text-brand-charcoal/50 select-none text-[9px] font-mono">
+                <button class="flex items-center gap-1 hover:text-brand-charcoal cursor-pointer bg-transparent border-0 focus:outline-none">
+                  <svg class="w-3.5 h-3.5 stroke-current fill-none" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"></path></svg>
+                  <span>0</span>
+                </button>
+                <button class="hover:text-brand-charcoal cursor-pointer bg-transparent border-0 focus:outline-none">
+                  <svg class="w-3.5 h-3.5 stroke-current fill-none" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3zm7-13h3a2 2 0 012 2v7a2 2 0 01-2 2h-3"></path></svg>
+                </button>
+                <!-- Dialogue Speech Bubble Icon -->
+                <button (click)="replyToComment(comm.authorName)" class="hover:text-brand-charcoal cursor-pointer bg-transparent border-0 flex items-center justify-center p-1 rounded-full hover:bg-black/5 ml-1 focus:outline-none" title="Responder">
+                  <svg class="w-3.5 h-3.5 stroke-current fill-none" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
         </div>
-
       </div>
 
+      <!-- Comment Input - Fixed at BOTTOM -->
+      <div class="shrink-0 border-t border-brand-charcoal/10 bg-[#fbfbf9] px-3 py-2.5">
+        <div class="flex gap-2 items-start">
+          <!-- Small avatar — always visible at top-left -->
+          <div class="w-6 h-6 rounded-full bg-brand-sage text-brand-paper flex items-center justify-center font-mono text-[8px] font-bold shrink-0 mt-1">
+            {{ currentUser ? (currentUser.user_metadata?.['nickname'] || currentUser.user_metadata?.['full_name'] || currentUser.email).substring(0, 2).toUpperCase() : 'U' }}
+          </div>
+
+          <!-- Input area (logged in user) -->
+          <div class="flex-grow" *ngIf="currentUser">
+            <!-- Collapsed: clickable preview box -->
+            <div *ngIf="!commentFocused"
+                 (click)="commentFocused = true"
+                 class="w-full bg-brand-paper border border-brand-charcoal/15 px-3 py-2 font-sans text-xs rounded-full cursor-pointer flex items-center min-h-[34px] hover:border-brand-charcoal/30 transition-colors">
+              <span *ngIf="!selectedArticulo.comments || selectedArticulo.comments.length === 0"
+                    class="text-brand-charcoal/38 italic truncate">Sé el primero en comentar</span>
+              <span *ngIf="selectedArticulo.comments && selectedArticulo.comments.length > 0"
+                    class="text-brand-charcoal/55 truncate text-[10px] line-clamp-1">
+                {{ selectedArticulo.comments[selectedArticulo.comments.length - 1].content }}
+              </span>
+            </div>
+            <!-- Expanded: just textarea -->
+            <textarea *ngIf="commentFocused"
+                      [(ngModel)]="commentContent"
+                      rows="3"
+                      placeholder="Añade un comentario..."
+                      class="w-full bg-brand-paper border border-brand-sage px-3 py-2 font-sans text-xs focus:outline-none rounded-xl resize-none transition-all"
+                      autofocus></textarea>
+          </div>
+
+          <!-- ✈ send button — right side opposite avatar, visible when focused -->
+          <button *ngIf="commentFocused && currentUser"
+                  (mousedown)="$event.preventDefault()"
+                  (click)="modalComment(); commentFocused = false"
+                  [disabled]="!commentContent.trim()"
+                  class="w-7 h-7 rounded-full bg-brand-charcoal text-brand-paper hover:bg-brand-sage hover:text-brand-charcoal disabled:opacity-30 cursor-pointer border-0 flex items-center justify-center focus:outline-none transition-colors shrink-0 mt-1"
+                  title="Enviar">
+            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            </svg>
+          </button>
+
+          <!-- Guest: login prompt -->
+          <a *ngIf="!currentUser"
+             routerLink="/session"
+             (click)="closeArticleModal()"
+             class="flex-grow px-3 py-2 bg-brand-charcoal text-brand-paper font-mono text-[9px] uppercase font-bold hover:bg-brand-sage hover:text-brand-charcoal rounded-full text-center">
+            Inicia sesión para comentar
+          </a>
+        </div>
+      </div>
+
+      <!-- Bottom Sheet Menu Overlay for Comments (YouTube style) -->
+      <div *ngIf="activeCommentMenu" 
+           class="absolute inset-0 bg-black/40 z-30 transition-opacity flex flex-col justify-end" 
+           (click)="closeCommentMenu()">
+        <div class="bg-brand-paper border-t border-brand-charcoal/20 shadow-2xl rounded-t-xl z-40 p-4 w-full"
+             (click)="$event.stopPropagation()">
+          
+          <div class="w-12 h-1 bg-brand-charcoal/15 rounded-full mx-auto mb-4"></div>
+          
+          <div class="space-y-1">
+            <!-- If it's my comment -->
+            <ng-container *ngIf="isMyComment(activeCommentMenu)">
+              <!-- Modificar -->
+              <button (click)="startEditComment(activeCommentMenu)" 
+                      class="w-full flex items-center gap-3.5 px-4 py-3 text-left font-sans text-xs text-brand-charcoal hover:bg-black/5 rounded-lg border-0 bg-transparent cursor-pointer transition-colors focus:outline-none">
+                <svg class="w-4 h-4 stroke-current fill-none" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                </svg>
+                <span class="font-medium">Modificar</span>
+              </button>
+              
+              <!-- Compartir -->
+              <button (click)="shareComment(activeCommentMenu)" 
+                      class="w-full flex items-center gap-3.5 px-4 py-3 text-left font-sans text-xs text-brand-charcoal hover:bg-black/5 rounded-lg border-0 bg-transparent cursor-pointer transition-colors focus:outline-none">
+                <svg class="w-4 h-4 stroke-current fill-none" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 10.742l4.632-2.316m0 0a3 3 0 10-5.368-2.684 3 3 0 005.368 2.684zm0 9.258l-4.632-2.316m0 0a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                </svg>
+                <span class="font-medium">Compartir</span>
+              </button>
+              
+              <!-- Eliminar / Suprimir -->
+              <button (click)="deleteComment(activeCommentMenu)" 
+                      class="w-full flex items-center gap-3.5 px-4 py-3 text-left font-sans text-xs text-brand-red hover:bg-brand-red/5 rounded-lg border-0 bg-transparent cursor-pointer transition-colors focus:outline-none">
+                <svg class="w-4 h-4 stroke-current fill-none" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+                <span class="font-medium">Suprimir</span>
+              </button>
+            </ng-container>
+            
+            <!-- If it's NOT my comment -->
+            <ng-container *ngIf="!isMyComment(activeCommentMenu)">
+              <!-- Responder -->
+              <button (click)="replyToComment(activeCommentMenu.authorName); closeCommentMenu()" 
+                      class="w-full flex items-center gap-3.5 px-4 py-3 text-left font-sans text-xs text-brand-charcoal hover:bg-black/5 rounded-lg border-0 bg-transparent cursor-pointer transition-colors focus:outline-none">
+                <svg class="w-4 h-4 stroke-current fill-none" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                </svg>
+                <span class="font-medium">Responder</span>
+              </button>
+              
+              <!-- Compartir -->
+              <button (click)="shareComment(activeCommentMenu)" 
+                      class="w-full flex items-center gap-3.5 px-4 py-3 text-left font-sans text-xs text-brand-charcoal hover:bg-black/5 rounded-lg border-0 bg-transparent cursor-pointer transition-colors focus:outline-none">
+                <svg class="w-4 h-4 stroke-current fill-none" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 10.742l4.632-2.316m0 0a3 3 0 10-5.368-2.684 3 3 0 005.368 2.684zm0 9.258l-4.632-2.316m0 0a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                </svg>
+                <span class="font-medium">Compartir</span>
+              </button>
+              
+              <!-- Reportar / Señalar -->
+              <button (click)="reportComment(activeCommentMenu)" 
+                      class="w-full flex items-center gap-3.5 px-4 py-3 text-left font-sans text-xs text-brand-charcoal hover:bg-black/5 rounded-lg border-0 bg-transparent cursor-pointer transition-colors focus:outline-none">
+                <svg class="w-4 h-4 stroke-current fill-none" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <span class="font-medium">Señalar</span>
+              </button>
+            </ng-container>
+          </div>
+        </div>
     </div>
   </div>
+  </div>
+</div>
 </div>
 
 <!-- SHARE OVERLAY MODAL -->
@@ -537,99 +874,431 @@
   </div>
 </div>
 
-<!-- WORLD CUP MATCH DETAIL MODAL (Independent z-[80]) -->
-<div *ngIf="selectedMatch && matchStats" class="fixed inset-0 z-[80] flex items-center justify-center p-4 overflow-y-auto">
-  <div (click)="closeMatchDetail()" class="fixed inset-0 bg-brand-charcoal/60 backdrop-blur-sm"></div>
-  <div class="bg-brand-paper border-2 border-brand-charcoal w-full max-w-md p-6 relative z-10 shadow-2xl text-brand-charcoal max-h-[90vh] overflow-y-auto">
-    <button (click)="closeMatchDetail()" class="absolute top-4 right-4 font-mono text-lg text-brand-charcoal hover:text-brand-red cursor-pointer focus:outline-none border-0 bg-transparent">✕</button>
+<!-- WORLD CUP MATCH DETAIL MODAL (Independent z-[100] Split-Screen Layout) -->
+<div *ngIf="selectedMatch && matchStats" class="fixed inset-0 z-[100] flex items-center justify-center px-4 md:px-24 py-4 bg-brand-charcoal/80 backdrop-blur-sm">
+  <div (click)="closeMatchDetail()" class="fixed inset-0"></div>
+  
+  <!-- Left Match Nav Button -->
+  <button (click)="navigateMatch(-1, $event)" 
+          *ngIf="hasPrevMatch()"
+          class="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-[110] w-8 h-8 md:w-12 md:h-12 rounded-full bg-brand-charcoal text-brand-paper border border-brand-paper/30 flex items-center justify-center hover:bg-brand-sage hover:text-brand-charcoal transition-all cursor-pointer shadow-lg select-none text-lg md:text-2xl font-bold"
+          title="Partido Anterior">
+    ‹
+  </button>
 
-    <div class="text-center font-mono text-[9px] uppercase tracking-wider text-brand-charcoal/50 border-b border-brand-charcoal/10 pb-3 mb-4">
-      {{ selectedMatch.group === 'FINAL' || selectedMatch.group === 'SF' || selectedMatch.group === 'QF' || selectedMatch.group === 'R16' || selectedMatch.group === 'R32' ? 'Fase de Eliminación Directa' : 'Fase de Grupos • Grupo ' + selectedMatch.group }}
-      <br>{{ selectedMatch.local_date }}<br>
-      <span class="text-brand-charcoal/80 font-bold text-[10px]">📍 {{ selectedMatch.stadium_name || 'Estadio ' + selectedMatch.stadium_id }}</span>
+  <!-- Right Match Nav Button -->
+  <button (click)="navigateMatch(1, $event)" 
+          *ngIf="hasNextMatch()"
+          class="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-[110] w-8 h-8 md:w-12 md:h-12 rounded-full bg-brand-charcoal text-brand-paper border border-brand-paper/30 flex items-center justify-center hover:bg-brand-sage hover:text-brand-charcoal transition-all cursor-pointer shadow-lg select-none text-lg md:text-2xl font-bold"
+          title="Partido Siguiente">
+    ›
+  </button>
+
+  <div class="bg-brand-paper border-2 border-brand-charcoal w-full max-w-5xl h-[85vh] overflow-hidden text-brand-charcoal flex flex-col md:flex-row relative z-10 shadow-2xl rounded-2xl">
+    
+    <!-- LEFT PANEL: Match Stats & Info (60% Width) -->
+    <div class="w-full md:w-3/5 overflow-y-auto h-full p-6 md:p-8 flex flex-col gap-4 border-r border-brand-charcoal/10">
+      
+      <!-- Sticky Header Bar inside Left Column with close button -->
+      <div class="flex items-center justify-between gap-3 font-mono text-[9px] uppercase text-brand-charcoal/70 border-b border-brand-charcoal/10 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 bg-brand-sage text-brand-paper font-mono text-[8px] font-bold rounded">COPA MUNDIAL 2026</span>
+          <span class="font-bold">📍 {{ selectedMatch.stadium_name || 'Estadio ' + selectedMatch.stadium_id }}</span>
+        </div>
+        <button (click)="closeMatchDetail()" class="text-xl border-0 bg-transparent text-brand-charcoal hover:text-brand-red cursor-pointer select-none font-bold p-1 leading-none focus:outline-none" aria-label="Cerrar modal">
+          ✕
+        </button>
+      </div>
+
+      <!-- Match Date Header -->
+      <div class="text-center font-mono text-[10px] text-brand-charcoal/50">
+        {{ selectedMatch.group === 'FINAL' || selectedMatch.group === 'SF' || selectedMatch.group === 'QF' || selectedMatch.group === 'R16' || selectedMatch.group === 'R32' ? 'Fase de Eliminación Directa' : 'Fase de Grupos • Grupo ' + selectedMatch.group }}
+        <br>{{ getMatchDateInSwiss(selectedMatch.local_date, selectedMatch.stadium_id) }} {{ getMatchTimeInSwiss(selectedMatch.local_date, selectedMatch.stadium_id) }}
+      </div>
+
+      <!-- Score Row -->
+      <div class="flex items-center justify-between gap-4 py-4 border-b border-brand-charcoal/5">
+        <div class="flex flex-col items-center flex-1 text-center">
+          <img *ngIf="selectedMatch.home_flag" [src]="selectedMatch.home_flag" class="w-16 h-10 object-cover border border-brand-charcoal/20 shadow-sm rounded-sm mb-2">
+          <span class="font-serif text-sm md:text-base font-bold text-brand-charcoal">{{ selectedMatch.home_team_name_en }}</span>
+        </div>
+        <div class="flex flex-col items-center">
+          <span class="font-mono text-4xl font-extrabold tracking-tight">
+            {{ selectedMatch.finished === 'TRUE' || selectedMatch.time_elapsed !== 'notstarted' ? selectedMatch.home_score + ' - ' + selectedMatch.away_score : 'VS' }}
+          </span>
+          <span class="font-mono text-[8px] mt-1.5 uppercase px-2.5 py-0.5 rounded font-bold"
+                [ngClass]="selectedMatch.finished === 'TRUE' ? 'bg-brand-charcoal/10 text-brand-charcoal/70' : 'bg-brand-sage/20 text-brand-sage'">
+            {{ selectedMatch.finished === 'TRUE' ? 'Finalizado' : (selectedMatch.time_elapsed === 'notstarted' ? 'Por Jugar' : 'En Juego') }}
+          </span>
+        </div>
+        <div class="flex flex-col items-center flex-1 text-center">
+          <img *ngIf="selectedMatch.away_flag" [src]="selectedMatch.away_flag" class="w-16 h-10 object-cover border border-brand-charcoal/20 shadow-sm rounded-sm mb-2">
+          <span class="font-serif text-sm md:text-base font-bold text-brand-charcoal">{{ selectedMatch.away_team_name_en }}</span>
+        </div>
+      </div>
+
+      <!-- Scorers Row -->
+      <div *ngIf="parseScorers(selectedMatch.home_scorers).length > 0 || parseScorers(selectedMatch.away_scorers).length > 0"
+           class="grid grid-cols-2 gap-4 text-[10px] font-mono text-brand-charcoal/70 py-3 border-b border-brand-charcoal/10 bg-brand-charcoal/[0.02] px-4 rounded">
+        <div>
+          <div *ngFor="let scorer of parseScorers(selectedMatch.home_scorers)" class="flex items-center gap-1">
+            <span>⚽</span><span class="truncate">{{ scorer }}</span>
+          </div>
+        </div>
+        <div class="text-right">
+          <div *ngFor="let scorer of parseScorers(selectedMatch.away_scorers)" class="flex items-center justify-end gap-1">
+            <span class="truncate">{{ scorer }}</span><span>⚽</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- YouTube Summary Iframe Embed -->
+      <div *ngIf="selectedMatch.finished === 'TRUE'" class="my-3 border border-brand-charcoal/10 rounded-xl overflow-hidden shadow-md bg-black aspect-video select-none relative z-10">
+        <iframe [src]="getMatchYoutubeEmbedUrl(selectedMatch)" 
+                class="w-full h-full border-0" 
+                allowfullscreen 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+        </iframe>
+      </div>
+
+      <!-- Match Tabs Menu -->
+      <div class="flex border-b border-brand-charcoal/10 my-2 text-[9px] font-mono tracking-wider uppercase font-bold justify-between shrink-0">
+        <button (click)="activeMatchTab = 'stats'" [class.border-b-2]="activeMatchTab === 'stats'" [class.border-brand-sage]="activeMatchTab === 'stats'" class="pb-2 bg-transparent border-0 cursor-pointer text-brand-charcoal/60 hover:text-brand-charcoal px-1">STATS</button>
+        <button (click)="activeMatchTab = 'cards'" [class.border-b-2]="activeMatchTab === 'cards'" [class.border-brand-sage]="activeMatchTab === 'cards'" class="pb-2 bg-transparent border-0 cursor-pointer text-brand-charcoal/60 hover:text-brand-charcoal px-1">TARJETAS</button>
+        <button (click)="activeMatchTab = 'threat'" [class.border-b-2]="activeMatchTab === 'threat'" [class.border-brand-sage]="activeMatchTab === 'threat'" class="pb-2 bg-transparent border-0 cursor-pointer text-brand-charcoal/60 hover:text-brand-charcoal px-1">PELIGRO</button>
+        <button (click)="activeMatchTab = 'lineups'" [class.border-b-2]="activeMatchTab === 'lineups'" [class.border-brand-sage]="activeMatchTab === 'lineups'" class="pb-2 bg-transparent border-0 cursor-pointer text-brand-charcoal/60 hover:text-brand-charcoal px-1">ALINEACIONES</button>
+      </div>
+
+      <!-- TAB: STATS -->
+      <div *ngIf="activeMatchTab === 'stats'" class="space-y-4">
+        <!-- If not started -->
+        <div *ngIf="selectedMatch.time_elapsed === 'notstarted'" class="text-center py-10 text-xs font-mono text-brand-charcoal/40 italic">
+          Las estadísticas estarán disponibles en cuanto comience el partido.
+        </div>
+        
+        <!-- If started -->
+        <div *ngIf="selectedMatch.time_elapsed !== 'notstarted'" class="space-y-4">
+          <!-- Possession -->
+          <div class="space-y-1">
+            <div class="flex justify-between text-[10px] font-mono font-bold">
+              <span>{{ matchStats.possession.home }}%</span>
+              <span class="font-bold text-brand-charcoal/60 uppercase text-[9px]">Posesión de Balón</span>
+              <span>{{ matchStats.possession.away }}%</span>
+            </div>
+            <div class="w-full h-2 bg-brand-charcoal/10 flex overflow-hidden rounded-sm">
+              <div class="bg-brand-sage h-full transition-all duration-300" [style.width.%]="matchStats.possession.home"></div>
+              <div class="bg-brand-charcoal/30 h-full transition-all duration-300" [style.width.%]="matchStats.possession.away"></div>
+            </div>
+            <div *ngIf="matchStats.dominantPossessionText" class="text-center font-mono text-[9px] text-brand-charcoal/60 mt-1 italic">{{ matchStats.dominantPossessionText }}</div>
+          </div>
+
+          <!-- Stats Grid (Shots, Passes, Fouls) -->
+          <div class="grid grid-cols-3 items-center text-center gap-y-3 font-mono text-[10px] border-t border-brand-charcoal/5 pt-3">
+            <div class="font-bold text-left">{{ matchStats.shots.home }}</div>
+            <div class="text-brand-charcoal/50 text-[9px] uppercase">REMATES</div>
+            <div class="font-bold text-right">{{ matchStats.shots.away }}</div>
+
+            <div class="font-bold text-left">{{ matchStats.shotsOnTarget.home }}</div>
+            <div class="text-brand-charcoal/50 text-[9px] uppercase">AL ARCO</div>
+            <div class="font-bold text-right">{{ matchStats.shotsOnTarget.away }}</div>
+
+            <div class="font-bold text-left">{{ matchStats.passes.home }}</div>
+            <div class="text-brand-charcoal/50 text-[9px] uppercase">PASES</div>
+            <div class="font-bold text-right">{{ matchStats.passes.away }}</div>
+
+            <div class="font-bold text-left">{{ matchStats.fouls.home }}</div>
+            <div class="text-brand-charcoal/50 text-[9px] uppercase">FALTAS</div>
+            <div class="font-bold text-right">{{ matchStats.fouls.away }}</div>
+
+            <div class="font-bold text-left">{{ matchStats.corners.home }}</div>
+            <div class="text-brand-charcoal/50 text-[9px] uppercase">TIROS DE ESQUINA</div>
+            <div class="font-bold text-right">{{ matchStats.corners.away }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: CARDS -->
+      <div *ngIf="activeMatchTab === 'cards'" class="space-y-4">
+        <h4 class="font-mono text-[10px] uppercase font-bold text-center tracking-wider text-brand-charcoal/50 border-b border-brand-charcoal/10 pb-1.5">Tarjetas del Partido</h4>
+        <!-- If not started -->
+        <div *ngIf="selectedMatch.time_elapsed === 'notstarted'" class="text-center py-10 text-xs font-mono text-brand-charcoal/40 italic">
+          Las tarjetas y amonestaciones se mostrarán en vivo durante el partido.
+        </div>
+        
+        <!-- If started -->
+        <div *ngIf="selectedMatch.time_elapsed !== 'notstarted'">
+          <div class="flex justify-between text-[11px] font-mono mb-2 border-b border-brand-charcoal/5 pb-2">
+            <span class="flex items-center gap-1">🟨 {{ matchStats.cards.homeYellow }} 🟥 {{ matchStats.cards.homeRed }}</span>
+            <span class="font-bold text-brand-charcoal/60 uppercase text-[9px]">Amonestaciones</span>
+            <span class="flex items-center gap-1">🟨 {{ matchStats.cards.awayYellow }} 🟥 {{ matchStats.cards.awayRed }}</span>
+          </div>
+          
+          <div class="space-y-2">
+            <div *ngFor="let c of matchStats.cards.details" 
+                 [class.text-left]="c.team === 'home'" 
+                 [class.text-right]="c.team === 'away'" 
+                 class="font-mono text-xs text-brand-charcoal/80">
+              <span *ngIf="c.team === 'home'">
+                <span class="font-bold">{{ c.player }}</span> ({{ c.min }}) <span [class.text-brand-red]="c.type === 'red'" [class.text-yellow-500]="c.type === 'yellow'">{{ c.type === 'yellow' ? '🟨' : '🟥' }}</span>
+              </span>
+              <span *ngIf="c.team === 'away'">
+                <span [class.text-brand-red]="c.type === 'red'" [class.text-yellow-500]="c.type === 'yellow'">{{ c.type === 'yellow' ? '🟨' : '🟥' }}</span> ({{ c.min }}) <span class="font-bold">{{ c.player }}</span>
+              </span>
+            </div>
+            <div *ngIf="matchStats.cards.details.length === 0" class="text-center text-xs text-brand-charcoal/50 italic py-4">No hubo tarjetas en el encuentro.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: THREAT (Peligro) -->
+      <div *ngIf="activeMatchTab === 'threat'" class="space-y-4">
+        <h4 class="font-mono text-[10px] uppercase font-bold text-center tracking-wider text-brand-charcoal/50 border-b border-brand-charcoal/10 pb-1.5">Peligro de Gol e Intensidad</h4>
+        <!-- If not started -->
+        <div *ngIf="selectedMatch.time_elapsed === 'notstarted'" class="text-center py-10 text-xs font-mono text-brand-charcoal/40 italic">
+          El índice de peligro de gol se calculará en tiempo real durante el partido.
+        </div>
+        
+        <!-- If started -->
+        <div *ngIf="selectedMatch.time_elapsed !== 'notstarted'" class="space-y-4">
+          <div class="space-y-1">
+            <div class="flex justify-between font-mono text-[10px]">
+              <span>{{ matchStats.danger.homeAttacks }}</span>
+              <span class="font-bold text-brand-charcoal/60 uppercase text-[9px]">Ataques Peligrosos</span>
+              <span>{{ matchStats.danger.awayAttacks }}</span>
+            </div>
+            <div class="h-2 w-full flex bg-brand-charcoal/10 rounded-sm overflow-hidden">
+              <div class="bg-brand-sage h-full" [style.width.%]="(matchStats.danger.homeAttacks / (matchStats.danger.homeAttacks + matchStats.danger.awayAttacks || 1)) * 100"></div>
+              <div class="bg-brand-red h-full" [style.width.%]="(matchStats.danger.awayAttacks / (matchStats.danger.homeAttacks + matchStats.danger.awayAttacks || 1)) * 100"></div>
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between font-mono text-[10px] mt-4">
+              <span>{{ matchStats.danger.homeRating }}%</span>
+              <span class="font-bold text-brand-charcoal/60 uppercase text-[9px]">Índice de Peligro de Gol</span>
+              <span>{{ matchStats.danger.awayRating }}%</span>
+            </div>
+            <div class="h-2 w-full flex bg-brand-charcoal/10 rounded-sm overflow-hidden">
+              <div class="bg-brand-sage h-full" [style.width.%]="matchStats.danger.homeRating"></div>
+              <div class="bg-brand-red h-full" [style.width.%]="matchStats.danger.awayRating"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: LINEUPS -->
+      <div *ngIf="activeMatchTab === 'lineups'" class="space-y-4">
+        <div class="flex justify-between font-mono text-[10px] font-bold border-b border-brand-charcoal/10 pb-1.5 mb-2">
+          <span>Formación: {{ matchStats.lineups.homeFormation }}</span>
+          <span>Formación: {{ matchStats.lineups.awayFormation }}</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <!-- Home Team Players -->
+          <div class="space-y-1.5 border-r border-brand-charcoal/10 pr-2">
+            <div *ngFor="let p of matchStats.lineups.homePlayers" class="flex items-center gap-1.5 font-mono text-[10px]">
+              <span class="text-brand-charcoal/50 w-4">{{ p.number }}</span>
+              <span class="font-bold truncate max-w-[120px]">{{ p.name }}</span>
+              <span class="text-[8px] bg-brand-sage/10 text-brand-sage px-1 rounded uppercase shrink-0">{{ p.pos }}</span>
+            </div>
+          </div>
+          <!-- Away Team Players -->
+          <div class="space-y-1.5 pl-2 text-right">
+            <div *ngFor="let p of matchStats.lineups.awayPlayers" class="flex items-center justify-end gap-1.5 font-mono text-[10px]">
+              <span class="text-[8px] bg-brand-red/10 text-brand-red px-1 rounded uppercase shrink-0">{{ p.pos }}</span>
+              <span class="font-bold truncate max-w-[120px]">{{ p.name }}</span>
+              <span class="text-brand-charcoal/50 w-4 text-center">{{ p.number }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <div class="flex items-center justify-between gap-4 py-2">
-      <div class="flex flex-col items-center flex-1 text-center">
-        <img *ngIf="selectedMatch.home_flag" [src]="selectedMatch.home_flag" class="w-12 h-8 object-cover border border-brand-charcoal/20 shadow-sm rounded-sm mb-2">
-        <span class="font-serif text-base font-bold text-brand-charcoal">{{ selectedMatch.home_team_name_en }}</span>
+    <!-- RIGHT PANEL: Match Live Chat / Comments (40% Width) -->
+    <div class="w-full md:w-2/5 flex flex-col h-full bg-brand-paper relative">
+      
+      <!-- Top Interactions Bar (like and dislike counts, views, 3-dots) -->
+      <div class="border-b border-brand-charcoal/10 bg-[#f9f8f6] p-4 shrink-0 relative z-10 transition-all">
+        <div class="flex flex-nowrap items-center gap-1.5 justify-between select-none text-black">
+          
+          <!-- Views count box -->
+          <div class="flex items-center gap-1 px-3 py-1.5 bg-black/5 border border-black/10 rounded-full font-mono text-[10px] text-black/60 shrink-0">
+            <svg class="w-3.5 h-3.5 stroke-black fill-none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="12" cy="12" r="3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            {{ selectedMatch.clicks || 0 }}
+          </div>
+
+          <!-- Like/Dislike group -->
+          <div class="flex items-center bg-black/5 border border-black/10 rounded-full overflow-hidden shrink-0">
+            <button (click)="likeMatch(selectedMatch)" 
+                    [class.bg-black/10]="selectedMatch.userVote === 'like'"
+                    class="flex items-center gap-1.5 px-3 py-1.5 hover:bg-black/10 transition-colors font-mono text-[10px] border-r border-black/10 cursor-pointer bg-transparent border-0 text-black focus:outline-none">
+              <svg class="w-3.5 h-3.5 stroke-black fill-none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"></path></svg>
+              {{ selectedMatch.totalLikes || 0 }}
+            </button>
+            <button (click)="dislikeMatch(selectedMatch)" 
+                    [class.bg-black/10]="selectedMatch.userVote === 'dislike'"
+                    class="flex items-center gap-1.5 px-3 py-1.5 hover:bg-black/10 transition-colors font-mono text-[10px] cursor-pointer bg-transparent border-0 text-black focus:outline-none">
+              <svg class="w-3.5 h-3.5 stroke-black fill-none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3zm7-13h3a2 2 0 012 2v7a2 2 0 01-2 2h-3"></path></svg>
+              {{ selectedMatch.totalDislikes || 0 }}
+            </button>
+          </div>
+
+          <!-- 3-dots Menu Button -->
+          <div class="relative">
+            <button (click)="showMatchMoreActions = !showMatchMoreActions" 
+                    class="flex items-center justify-center w-8 h-8 bg-black/5 border border-black/10 hover:bg-black/10 rounded-full cursor-pointer text-black focus:outline-none">
+              <span class="font-bold text-xs">•••</span>
+            </button>
+            
+            <div *ngIf="showMatchMoreActions" (click)="showMatchMoreActions = false" class="fixed inset-0 z-20 bg-transparent"></div>
+
+            <div *ngIf="showMatchMoreActions" class="absolute right-0 mt-1 z-30 bg-brand-paper border border-brand-charcoal py-1.5 rounded-lg shadow-xl w-32 font-mono text-[9px] uppercase">
+              <button (click)="copyMatchLinkToClipboard(); showMatchMoreActions = false" class="w-full text-left px-3 py-2 hover:bg-black/5 flex items-center gap-1.5 cursor-pointer bg-transparent border-0 text-black">
+                <svg class="w-3.5 h-3.5 stroke-black fill-none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 10.742l4.632-2.316m0 7.148l-4.632-2.316M19 4a3 3 0 11-6 0 3 3 0 016 0zm-6 8a3 3 0 11-6 0 3 3 0 016 0zm6 8a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                Compartir
+              </button>
+            </div>
+          </div>
+
+        </div>
       </div>
-      <div class="flex flex-col items-center">
-        <span class="font-mono text-3xl font-extrabold tracking-tight">
-          {{ selectedMatch.finished === 'TRUE' || selectedMatch.time_elapsed !== 'notstarted' ? selectedMatch.home_score + ' - ' + selectedMatch.away_score : 'VS' }}
-        </span>
-        <span class="font-mono text-[8px] mt-1 uppercase px-2 py-0.5 rounded font-bold"
-              [ngClass]="selectedMatch.finished === 'TRUE' ? 'bg-brand-charcoal/10 text-brand-charcoal/70' : 'bg-brand-sage/20 text-brand-sage'">
-          {{ selectedMatch.finished === 'TRUE' ? 'Finalizado' : (selectedMatch.time_elapsed === 'notstarted' ? 'Por Jugar' : 'En Juego') }}
-        </span>
+
+      <!-- Comments Header (Title + Count) -->
+      <div class="px-4 pt-2.5 pb-2.5 shrink-0 select-none bg-[#fbfbf9] border-b border-brand-charcoal/5 transition-all">
+        <div class="flex items-center gap-2">
+          <span class="font-mono text-[10px] uppercase tracking-widest font-bold text-brand-charcoal/50">Comentarios</span>
+          <span class="bg-black/8 px-1.5 py-0.5 rounded-full font-mono text-[9px] text-brand-charcoal/50 font-bold">
+            {{ selectedMatch.comments?.length || 0 }}
+          </span>
+        </div>
       </div>
-      <div class="flex flex-col items-center flex-1 text-center">
-        <img *ngIf="selectedMatch.away_flag" [src]="selectedMatch.away_flag" class="w-12 h-8 object-cover border border-brand-charcoal/20 shadow-sm rounded-sm mb-2">
-        <span class="font-serif text-base font-bold text-brand-charcoal">{{ selectedMatch.away_team_name_en }}</span>
+
+      <!-- Comments List Area -->
+      <div class="flex-grow overflow-y-auto p-4 space-y-4">
+        <div *ngIf="selectedMatch.loadingComments" class="text-center py-4 font-mono text-xs opacity-60">Cargando comentarios...</div>
+        
+        <div *ngIf="!selectedMatch.loadingComments && (!selectedMatch.comments || selectedMatch.comments.length === 0)"
+             class="text-center py-10 font-sans text-xs italic text-brand-charcoal/40">
+          Aún no hay comentarios sobre este partido. ¡Comienza el debate!
+        </div>
+
+        <div *ngIf="!selectedMatch.loadingComments && selectedMatch.comments && selectedMatch.comments.length > 0" class="space-y-3">
+          <div *ngFor="let comm of getSortedComments(selectedMatch.comments)" class="border-b border-brand-charcoal/5 pb-3 flex gap-2.5 items-start relative group">
+            
+            <div (click)="openPublicProfile(comm.authorName)" class="w-7 h-7 rounded-full bg-brand-sage/20 border border-brand-sage/30 flex items-center justify-center font-mono text-[9px] font-bold text-brand-sage shrink-0 cursor-pointer hover:bg-brand-sage/35 transition-colors">
+              {{ comm.authorName ? comm.authorName.substring(0, 2).toUpperCase() : 'U' }}
+            </div>
+            
+            <div class="flex-grow min-w-0">
+              <div class="flex items-start justify-between">
+                <div class="flex items-center gap-1.5 mb-1 font-mono text-[8px] uppercase text-brand-charcoal/50">
+                  <span (click)="openPublicProfile(comm.authorName)" class="font-bold text-brand-charcoal hover:underline cursor-pointer truncate max-w-[100px]">{{ comm.authorName }}</span>
+                  <span>•</span>
+                  <span>{{ comm.createdAt }}</span>
+                </div>
+                <!-- 3 dots menu -->
+                <button (click)="openCommentMenu(comm, $event)" 
+                        class="w-5 h-5 flex items-center justify-center rounded-full text-brand-charcoal/40 hover:text-brand-charcoal hover:bg-black/5 cursor-pointer border-0 bg-transparent focus:outline-none shrink-0">
+                  <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                    <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2.9 2-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Content / Edit mode -->
+              <div *ngIf="editingCommentId === comm.id" class="mt-1 space-y-2">
+                <textarea [(ngModel)]="editingCommentText" 
+                          rows="2" 
+                          class="w-full bg-brand-paper border border-brand-sage px-3 py-1.5 font-sans text-xs focus:outline-none rounded-lg resize-none"></textarea>
+                <div class="flex justify-end gap-2">
+                  <button (click)="cancelEditComment()" class="px-2 py-1 font-mono text-[9px] uppercase border border-brand-charcoal/20 rounded hover:bg-black/5 cursor-pointer">Cancelar</button>
+                  <button (click)="saveEditComment(comm)" class="px-2 py-1 font-mono text-[9px] uppercase bg-brand-charcoal text-brand-paper rounded hover:bg-brand-sage hover:text-brand-charcoal cursor-pointer">Guardar</button>
+                </div>
+              </div>
+              <p *ngIf="editingCommentId !== comm.id" class="font-sans text-xs leading-relaxed text-brand-charcoal/80 whitespace-pre-line">{{ comm.content }}</p>
+
+              <!-- Interactions -->
+              <div class="flex items-center gap-3 mt-1.5 text-brand-charcoal/50 select-none text-[9px] font-mono">
+                <button class="flex items-center gap-1 hover:text-brand-charcoal cursor-pointer bg-transparent border-0 focus:outline-none">
+                  <svg class="w-3.5 h-3.5 stroke-current fill-none" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"></path></svg>
+                  <span>0</span>
+                </button>
+                <button class="hover:text-brand-charcoal cursor-pointer bg-transparent border-0 focus:outline-none">
+                  <svg class="w-3.5 h-3.5 stroke-current fill-none" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3zm7-13h3a2 2 0 012 2v7a2 2 0 01-2 2h-3"></path></svg>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Comment Menu options (floating overlay) -->
+            <div *ngIf="activeCommentMenu === comm" class="absolute right-6 top-6 z-10 bg-brand-paper border border-brand-charcoal py-1 rounded shadow-lg w-28 font-mono text-[9px] uppercase">
+              <button *ngIf="isMyComment(comm)" (click)="startEditComment(comm)" class="w-full text-left px-2.5 py-1.5 hover:bg-black/5 flex items-center gap-1.5 cursor-pointer bg-transparent border-0 text-black">Editar</button>
+              <button *ngIf="isMyComment(comm)" (click)="deleteComment(comm)" class="w-full text-left px-2.5 py-1.5 hover:bg-red-500/15 hover:text-red-500 flex items-center gap-1.5 cursor-pointer bg-transparent border-0 text-black border-t border-brand-charcoal/5">Eliminar</button>
+              <button (click)="shareComment(comm)" class="w-full text-left px-2.5 py-1.5 hover:bg-black/5 flex items-center gap-1.5 cursor-pointer bg-transparent border-0 text-black border-t border-brand-charcoal/5">Copiar</button>
+              <button (click)="reportComment(comm)" class="w-full text-left px-2.5 py-1.5 hover:bg-red-500/15 hover:text-red-500 flex items-center gap-1.5 cursor-pointer bg-transparent border-0 text-black border-t border-brand-charcoal/5">Reportar</button>
+            </div>
+            
+          </div>
+        </div>
       </div>
+
+      <!-- Comment Input (Bottom bar) - Collapsible round pill layout like News Modal -->
+      <div class="shrink-0 border-t border-brand-charcoal/10 bg-[#fbfbf9] px-3 py-2.5">
+        <div class="flex gap-2 items-start">
+          <!-- Small avatar — always visible at top-left -->
+          <div class="w-6 h-6 rounded-full bg-brand-sage text-brand-paper flex items-center justify-center font-mono text-[8px] font-bold shrink-0 mt-1">
+            {{ currentUser ? (currentUser.user_metadata?.['nickname'] || currentUser.user_metadata?.['full_name'] || currentUser.email).substring(0, 2).toUpperCase() : 'U' }}
+          </div>
+
+          <!-- Input area (logged in user) -->
+          <div class="flex-grow" *ngIf="currentUser">
+            <!-- Collapsed: clickable preview box -->
+            <div *ngIf="!matchCommentFocused"
+                 (click)="matchCommentFocused = true"
+                 class="w-full bg-brand-paper border border-brand-charcoal/15 px-3 py-2 font-sans text-xs rounded-full cursor-pointer flex items-center min-h-[34px] hover:border-brand-charcoal/30 transition-colors">
+              <span *ngIf="!selectedMatch.comments || selectedMatch.comments.length === 0"
+                    class="text-brand-charcoal/38 italic truncate">Sé el primero en comentar</span>
+              <span *ngIf="selectedMatch.comments && selectedMatch.comments.length > 0"
+                    class="text-brand-charcoal/55 truncate text-[10px] line-clamp-1">
+                {{ selectedMatch.comments[selectedMatch.comments.length - 1].content }}
+              </span>
+            </div>
+            <!-- Expanded: just textarea -->
+            <textarea *ngIf="matchCommentFocused"
+                      [(ngModel)]="commentContent"
+                      rows="3"
+                      placeholder="Añade un comentario..."
+                      class="w-full bg-brand-paper border border-brand-sage px-3 py-2 font-sans text-xs focus:outline-none rounded-xl resize-none transition-all"
+                      autofocus></textarea>
+          </div>
+
+          <!-- ✈ send button — right side opposite avatar, visible when focused -->
+          <button *ngIf="matchCommentFocused && currentUser"
+                  (mousedown)="$event.preventDefault()"
+                  (click)="modalMatchComment(); matchCommentFocused = false"
+                  [disabled]="!commentContent.trim()"
+                  class="w-7 h-7 rounded-full bg-brand-charcoal text-brand-paper hover:bg-brand-sage hover:text-brand-charcoal disabled:opacity-30 cursor-pointer border-0 flex items-center justify-center focus:outline-none transition-colors shrink-0 mt-1"
+                  title="Enviar">
+            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            </svg>
+          </button>
+
+          <!-- Guest: login prompt -->
+          <a *ngIf="!currentUser"
+             routerLink="/session"
+             (click)="closeMatchDetail()"
+             class="flex-grow px-3 py-2 bg-brand-charcoal text-brand-paper font-mono text-[9px] uppercase font-bold hover:bg-brand-sage hover:text-brand-charcoal rounded-full text-center">
+             Inicia sesión para comentar
+          </a>
+        </div>
+      </div>
+
     </div>
 
-    <div *ngIf="parseScorers(selectedMatch.home_scorers).length > 0 || parseScorers(selectedMatch.away_scorers).length > 0"
-         class="grid grid-cols-2 gap-4 text-[10px] font-mono text-brand-charcoal/70 py-3 border-t border-b border-brand-charcoal/10 mt-4 bg-brand-charcoal/5 px-3">
-      <div>
-        <div *ngFor="let scorer of parseScorers(selectedMatch.home_scorers)" class="flex items-center gap-1">
-          <span>⚽</span><span class="truncate">{{ scorer }}</span>
-        </div>
-      </div>
-      <div class="text-right">
-        <div *ngFor="let scorer of parseScorers(selectedMatch.away_scorers)" class="flex items-center justify-end gap-1">
-          <span class="truncate">{{ scorer }}</span><span>⚽</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="mt-6 space-y-4">
-      <h4 class="font-mono text-[10px] uppercase font-bold text-center tracking-wider text-brand-charcoal/50 border-b border-brand-charcoal/10 pb-1.5">Estadísticas del Partido</h4>
-      <div class="space-y-1">
-        <div class="flex justify-between font-mono text-[10px]">
-          <span>{{ matchStats.possession.home }}%</span>
-          <span class="font-bold text-brand-charcoal/60 uppercase text-[9px]">Posesión de Balón</span>
-          <span>{{ matchStats.possession.away }}%</span>
-        </div>
-        <div class="h-2 w-full flex bg-brand-charcoal/10 rounded-sm overflow-hidden">
-          <div class="bg-brand-sage h-full" [style.width.%]="matchStats.possession.home"></div>
-          <div class="bg-brand-red h-full" [style.width.%]="matchStats.possession.away"></div>
-        </div>
-        <div *ngIf="matchStats.dominantPossessionText" class="text-center font-mono text-[9px] text-brand-charcoal/60 mt-1 italic">{{ matchStats.dominantPossessionText }}</div>
-      </div>
-      <div class="space-y-1">
-        <div class="flex justify-between font-mono text-[10px]">
-          <span>{{ matchStats.shots.home }}</span>
-          <span class="font-bold text-brand-charcoal/60 uppercase text-[9px]">Remates Totales</span>
-          <span>{{ matchStats.shots.away }}</span>
-        </div>
-        <div class="h-2 w-full flex bg-brand-charcoal/10 rounded-sm overflow-hidden">
-          <div class="bg-brand-charcoal h-full" [style.width.%]="(matchStats.shots.home / (matchStats.shots.home + matchStats.shots.away)) * 100"></div>
-          <div class="bg-brand-charcoal/30 h-full flex-grow"></div>
-        </div>
-      </div>
-      <div class="space-y-1">
-        <div class="flex justify-between font-mono text-[10px]">
-          <span>{{ matchStats.shotsOnTarget.home }}</span>
-          <span class="font-bold text-brand-charcoal/60 uppercase text-[9px]">Remates al Arco</span>
-          <span>{{ matchStats.shotsOnTarget.away }}</span>
-        </div>
-        <div class="h-2 w-full flex bg-brand-charcoal/10 rounded-sm overflow-hidden">
-          <div class="bg-brand-charcoal h-full" [style.width.%]="(matchStats.shotsOnTarget.home / (matchStats.shotsOnTarget.home + matchStats.shots.away || 1)) * 100"></div>
-          <div class="bg-brand-charcoal/30 h-full flex-grow"></div>
-        </div>
-      </div>
-      <div class="flex justify-between font-mono text-[10px]">
-        <span>{{ matchStats.fouls.home }}</span>
-        <span class="font-bold text-brand-charcoal/60 uppercase text-[9px]">Faltas</span>
-        <span>{{ matchStats.fouls.away }}</span>
-      </div>
-      <div class="flex justify-between font-mono text-[10px]">
-        <span>{{ matchStats.corners.home }}</span>
-        <span class="font-bold text-brand-charcoal/60 uppercase text-[9px]">Tiros de Esquina</span>
-        <span>{{ matchStats.corners.away }}</span>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -646,89 +1315,364 @@
     </button>
 
     <!-- Simulated mobile viewport card -->
-    <div [style]="getLandingStyles(selectedPortfolio.landing_config)" class="w-full border border-brand-charcoal rounded-2xl shadow-2xl overflow-hidden flex flex-col min-h-[480px] justify-between relative p-6 select-none">
+    <div [style]="getLandingStyles(selectedPortfolio.landing_config)" 
+         class="w-full border border-brand-charcoal rounded-2xl shadow-2xl overflow-y-auto max-h-[85vh] flex flex-col min-h-[480px] relative p-6 select-text">
       
-      <!-- Cover Banner -->
-      <div class="absolute inset-0 z-0 pointer-events-none opacity-15 overflow-hidden">
-        <img [src]="selectedPortfolio.image_url" class="w-full h-full object-cover">
+      <!-- Overlay oscuro para el fondo -->
+      <div class="absolute inset-0 bg-black pointer-events-none z-0"
+           [style.opacity]="selectedPortfolio.landing_config?.bgOverlayOpacity < 0.35 ? 0.35 : (selectedPortfolio.landing_config?.bgOverlayOpacity ?? 0.35)"></div>
+
+      <!-- Cover background image preset -->
+      <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+        <img *ngIf="selectedPortfolio.landing_config?.landingHeroImage"
+             [src]="selectedPortfolio.landing_config.landingHeroImage"
+             class="w-full h-full object-cover"
+             alt="Background">
       </div>
 
-      <div class="relative z-10 flex flex-col h-full justify-between flex-1">
-        <!-- Top header metadata -->
-        <div class="flex justify-between items-center pb-2 border-b border-white/10" style="border-color: var(--landing-card-border);">
-          <div class="flex items-center gap-1.5">
-            <span class="font-mono text-[9px] uppercase tracking-wider font-bold" style="color: var(--landing-accent);">{{ selectedPortfolio.landing_template }}</span>
-          </div>
-          <div class="flex items-center gap-1 opacity-85" style="color: var(--landing-text);">
-            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
-              <path d="M12 2L2 22h4.5l2.5-5.5h6l2.5 5.5H22L12 2zm1 11.5h-2L12 9l1 4.5z"/>
-            </svg>
-            <span class="font-serif text-[11px] font-bold lowercase tracking-tight">arandu</span>
-          </div>
-        </div>
+      <div class="relative z-10 flex flex-col gap-6 w-full h-full min-h-[430px] justify-between flex-1">
+        
+        <!-- FIXED HEADER (Business name + Navigation menu) -->
+        <ng-container *ngFor="let block of selectedPortfolio.landing_config?.blocks">
+          <div *ngIf="block.type === 'menu'" class="w-full shrink-0 border border-white/10 bg-white/5 backdrop-blur-md px-4 py-3 flex items-center justify-between gap-4 rounded-xl relative">
+            <!-- Left: Business Brand Name -->
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs" style="color: var(--landing-accent);">💼</div>
+              <span class="font-serif font-bold text-sm" style="color: var(--landing-text);">{{ selectedPortfolio.title || 'Mi Negocio' }}</span>
+            </div>
 
-        <!-- Main Business Info (Static upper section) -->
-        <div class="py-4 text-center">
-          <h1 class="italic font-bold text-2xl tracking-tight leading-tight">
-            {{ selectedPortfolio.title }}
-          </h1>
-          <p class="text-[10px] opacity-75 font-mono mt-1.5">
-            Contacto: {{ selectedPortfolio.contact_name }} • Móvil: {{ selectedPortfolio.phone }}<span *ngIf="selectedPortfolio.landing_config?.phoneFijo"> • Fijo: {{ selectedPortfolio.landing_config.phoneFijo }}</span>
-          </p>
-          <p class="text-[10px] opacity-70 font-mono mt-0.5">
-            {{ selectedPortfolio.email }} <span *ngIf="selectedPortfolio.website"> • {{ selectedPortfolio.website }}</span>
-          </p>
-        </div>
+            <!-- Right: Menu links -->
+            <div class="flex items-center gap-2">
+              <!-- Desktop Horizontal Menu -->
+              <div class="hidden sm:flex items-center gap-4 justify-end py-1">
+                <a *ngFor="let link of block.menuLinks" 
+                   href="javascript:void(0)"
+                   (click)="scrollToSection(link.anchor, $event)"
+                   class="text-xs font-bold uppercase tracking-wider font-mono hover:opacity-85 transition-opacity"
+                   style="color: var(--landing-text); text-decoration: none;">
+                  {{ link.label }}
+                </a>
+              </div>
 
-        <!-- CAROUSEL AREA WITH FLOATING SIDE ARROWS -->
-        <div class="relative flex-1 flex items-center my-2">
-          <!-- Left Chevron Arrow -->
-          <button type="button" (click)="prevSlide()"
-                  class="absolute left-1 z-20 w-8 h-8 rounded-full bg-black/30 border border-white/10 flex items-center justify-center text-white hover:bg-black/50 transition-all cursor-pointer focus:outline-none">
-            ‹
-          </button>
-
-          <!-- HORIZONTAL CAROUSEL CONTAINER (Snap scroll list) -->
-          <div class="w-full flex overflow-x-auto snap-x snap-mandatory scroll-smooth hide-scrollbar slides-container py-3 min-h-[160px]"
-               (scroll)="onSlideScroll($event)">
-            
-            <!-- Dynamic Sections slides -->
-            <div *ngFor="let s of selectedPortfolio.landing_config?.sections; let idx = index" 
-                 class="slide-item flex-shrink-0 w-full snap-start px-8 text-left" 
-                 [id]="'modal-slide-' + idx">
-              
-              <!-- Section title -->
-              <span class="font-serif text-base italic block font-bold mb-2 border-b border-white/10 pb-1" style="color: var(--landing-accent); border-color: var(--landing-card-border);">
-                {{ s.title || 'Sección ' + (idx + 1) }}
-              </span>
-              
-              <!-- Section content -->
-              <p class="text-xs leading-relaxed opacity-90 line-clamp-6 whitespace-pre-line font-serif overflow-y-auto max-h-[130px] hide-scrollbar">
-                {{ s.content || 'Sin descripción.' }}
-              </p>
+              <!-- Mobile Hamburger Menu Button -->
+              <div class="flex sm:hidden relative flex-col items-end py-1">
+                <button type="button" (click)="toggleMobileMenu(block.id)"
+                        class="p-1 border-0 bg-transparent cursor-pointer hover:opacity-85 transition-opacity flex items-center justify-center"
+                        style="color: var(--landing-text);">
+                  <svg *ngIf="!isMobileMenuOpen(block.id)" class="w-5 h-5 stroke-current fill-none" viewBox="0 0 24 24" stroke-width="1.8">
+                    <line x1="4" y1="6" x2="20" y2="6" stroke-linecap="round"></line>
+                    <line x1="4" y1="12" x2="20" y2="12" stroke-linecap="round"></line>
+                    <line x1="4" y1="18" x2="20" y2="18" stroke-linecap="round"></line>
+                  </svg>
+                  <svg *ngIf="isMobileMenuOpen(block.id)" class="w-5 h-5 stroke-current fill-none" viewBox="0 0 24 24" stroke-width="1.8">
+                    <line x1="6" y1="6" x2="18" y2="18" stroke-linecap="round"></line>
+                    <line x1="6" y1="18" x2="18" y2="6" stroke-linecap="round"></line>
+                  </svg>
+                </button>
+                
+                <div *ngIf="isMobileMenuOpen(block.id)" 
+                     class="absolute right-0 top-9 w-42 bg-black/85 backdrop-blur-md rounded-xl p-2 border border-white/10 flex flex-col items-center gap-1.5 animate-fade-in z-50 shadow-lg">
+                  <a *ngFor="let link of block.menuLinks"
+                     href="javascript:void(0)"
+                     (click)="scrollToSection(link.anchor, $event); toggleMobileMenu(block.id)"
+                     class="text-[10px] font-bold uppercase tracking-wider font-mono hover:opacity-80 py-1 transition-opacity block w-full text-center text-white"
+                     style="text-decoration: none;">
+                    {{ link.label }}
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
+        </ng-container>
 
-          <!-- Right Chevron Arrow -->
-          <button type="button" (click)="nextSlide()"
-                  class="absolute right-1 z-20 w-8 h-8 rounded-full bg-black/30 border border-white/10 flex items-center justify-center text-white hover:bg-black/50 transition-all cursor-pointer focus:outline-none">
-            ›
-          </button>
+        <!-- DYNAMIC BLOCKS LIST (Exactly matching canvas blocks loop) -->
+        <div class="flex-1 w-full space-y-5 my-2">
+          <ng-container *ngFor="let block of selectedPortfolio.landing_config?.blocks">
+            <div *ngIf="block.type !== 'menu' && block.type !== 'social'"
+                 [id]="getBlockSectionId(block)"
+                 class="w-full">
+              
+              <div [ngSwitch]="block.type">
+                <!-- TEXT BLOCK -->
+                <div *ngSwitchCase="'text'"
+                     [style.font-size]="getFontSizeClass(block.fontSize)"
+                     [style.font-weight]="block.fontWeight || 'normal'"
+                     [style.font-family]="getFontFamilyStyle(block.fontFamily)"
+                     [style.text-align]="block.textAlign || 'left'"
+                     [style.color]="block.textColor || 'inherit'"
+                     class="leading-relaxed whitespace-pre-line py-1"
+                     [innerHTML]="getBlockTextContent(block)"></div>
+
+                <!-- IMAGE BLOCK -->
+                <ng-container *ngSwitchCase="'image'">
+                  <div *ngIf="block.mediaUrl" class="overflow-hidden rounded-xl">
+                    <img [src]="block.mediaUrl" class="w-full max-h-72 object-cover">
+                  </div>
+                </ng-container>
+
+                <!-- VIDEO BLOCK -->
+                <ng-container *ngSwitchCase="'video'">
+                  <div *ngIf="block.mediaUrl" class="aspect-video w-full rounded-xl overflow-hidden border border-white/10">
+                    <iframe [src]="parseVideoUrl(block.mediaUrl) | safeUrl" class="w-full h-full border-0" allowfullscreen></iframe>
+                  </div>
+                </ng-container>
+
+                <!-- COLUMNS BLOCK -->
+                <div *ngSwitchCase="'columns'" class="grid gap-4 w-full"
+                     [style.grid-template-columns]="'repeat(' + (block.layoutCols || 2) + ', minmax(0, 1fr))'">
+                  <div *ngFor="let col of block.columns; let colIdx = index" class="space-y-4">
+                    <div *ngFor="let child of col.blocks" class="relative bg-white/5 border border-white/10 rounded-xl p-4 shadow-sm">
+                      <div [ngSwitch]="child.type">
+                        <!-- Nested Text -->
+                        <div *ngSwitchCase="'text'"
+                             class="text-xs leading-relaxed"
+                             [style.font-size]="getFontSizeClass(child.fontSize)"
+                             [style.font-weight]="child.fontWeight || 'normal'"
+                             [style.font-family]="getFontFamilyStyle(child.fontFamily)"
+                             [style.text-align]="child.textAlign || 'left'"
+                             [style.color]="child.textColor || 'inherit'"
+                             [innerHTML]="child.content"></div>
+                        <!-- Nested Image -->
+                        <ng-container *ngSwitchCase="'image'">
+                          <div *ngIf="child.mediaUrl" class="overflow-hidden rounded-lg">
+                            <img [src]="child.mediaUrl" class="w-full max-h-32 object-cover">
+                          </div>
+                        </ng-container>
+                        <!-- Nested Video -->
+                        <ng-container *ngSwitchCase="'video'">
+                          <div *ngIf="child.mediaUrl" class="aspect-video w-full rounded-lg overflow-hidden border border-white/5">
+                            <iframe [src]="parseVideoUrl(child.mediaUrl) | safeUrl" class="w-full h-full border-0" allowfullscreen></iframe>
+                          </div>
+                        </ng-container>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- SLIDER / CAROUSEL BLOCK -->
+                <div *ngSwitchCase="'slider'" class="relative border border-white/15 rounded-xl overflow-hidden shadow-xs" style="height: 280px;">
+                  <div class="w-full h-full relative flex items-center justify-center bg-black/20">
+                    <img *ngIf="getSlideUrl(block, getActiveSlideIdx(block.id))" 
+                         [src]="getSlideUrl(block, getActiveSlideIdx(block.id))"
+                         class="absolute inset-0 w-full h-full object-cover z-0">
+                    
+                    <div class="absolute inset-0 bg-black/45 z-10"></div>
+                    
+                    <div class="relative z-20 text-center px-6 max-w-md text-white">
+                      <h4 class="font-serif text-sm font-bold italic leading-relaxed">{{ getSlideText(block, getActiveSlideIdx(block.id)) }}</h4>
+                    </div>
+                  </div>
+                  <!-- Slide Dots -->
+                  <div class="absolute bottom-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2">
+                    <button *ngFor="let dot of [0, 1, 2]"
+                            (click)="setActiveSlideIdx(block.id, dot)"
+                            [class.bg-white]="getActiveSlideIdx(block.id) === dot"
+                            [class.bg-white/40]="getActiveSlideIdx(block.id) !== dot"
+                            class="w-2 h-2 rounded-full border-0 cursor-pointer transition-all"
+                            aria-label="Diapositiva"></button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </ng-container>
         </div>
 
-        <!-- Bottom indicators / Page dots tracker & Footer -->
-        <div class="flex items-center justify-between pt-2 border-t border-white/10" style="border-color: var(--landing-card-border);">
-          <span class="font-mono text-[8px] opacity-65">arandu.ch</span>
-          
-          <div class="flex gap-1.5">
-            <div *ngFor="let s of slides; let i = index" 
-                 class="w-1.5 h-1.5 rounded-full transition-all"
-                 [style.background-color]="currentSlideIndex === i ? 'var(--landing-accent)' : 'rgba(255,255,255,0.3)'"></div>
+        <!-- FIXED FOOTER (Social links) -->
+        <ng-container *ngFor="let block of selectedPortfolio.landing_config?.blocks">
+          <div *ngIf="block.type === 'social'" class="w-full shrink-0 border-t pt-3 mt-4 flex flex-col items-center gap-3"
+               style="border-color: var(--landing-card-border);">
+            
+            <div class="flex items-center gap-4 justify-center">
+              <!-- WhatsApp -->
+              <a *ngIf="block.socialLinks?.whatsapp"
+                 [href]="'https://wa.me/' + block.socialLinks?.whatsapp" target="_blank"
+                 class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 flex items-center justify-center transition-all"
+                 style="color: var(--landing-text);" title="WhatsApp">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.73-1.45L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.864-9.864.003-2.637-1.01-5.116-2.853-6.963-1.844-1.848-4.298-2.866-6.944-2.868-5.441 0-9.869 4.42-9.873 9.864-.001 1.77.466 3.498 1.354 5.022L1.936 21.9l5.068-1.332-.357-.215zm11.39-7.234c-.305-.153-1.805-.89-2.083-.99-.279-.101-.482-.152-.684.152-.202.305-.78.99-.957 1.19-.177.202-.356.228-.661.076-.305-.153-1.288-.475-2.454-1.516-.908-.81-1.52-1.81-1.698-2.115-.178-.305-.019-.47.133-.622.137-.137.305-.356.457-.533.153-.178.204-.305.305-.51.101-.203.05-.38-.025-.533-.076-.153-.684-1.65-.938-2.26-.247-.597-.5-.516-.684-.526-.178-.008-.38-.01-.583-.01-.203 0-.533.076-.812.38-.279.305-1.066 1.042-1.066 2.54 0 1.498 1.09 2.946 1.242 3.15.152.202 2.146 3.277 5.198 4.593.726.313 1.293.5 1.734.64.73.23 1.393.197 1.919.12.585-.087 1.805-.738 2.06-1.45.253-.71.253-1.32.177-1.45-.077-.13-.279-.203-.584-.356z"/></svg>
+              </a>
+
+              <!-- LinkedIn -->
+              <a *ngIf="block.socialLinks?.linkedin"
+                 [href]="block.socialLinks?.linkedin" target="_blank"
+                 class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 flex items-center justify-center transition-all"
+                 style="color: var(--landing-text);" title="LinkedIn">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+              </a>
+
+              <!-- Instagram -->
+              <a *ngIf="block.socialLinks?.instagram"
+                 [href]="block.socialLinks?.instagram" target="_blank"
+                 class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 flex items-center justify-center transition-all"
+                 style="color: var(--landing-text);" title="Instagram">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+              </a>
+
+              <!-- Facebook -->
+              <a *ngIf="block.socialLinks?.facebook"
+                 [href]="block.socialLinks?.facebook" target="_blank"
+                 class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 flex items-center justify-center transition-all"
+                 style="color: var(--landing-text);" title="Facebook">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/></svg>
+              </a>
+
+              <!-- X -->
+              <a *ngIf="block.socialLinks?.x"
+                 [href]="block.socialLinks?.x" target="_blank"
+                 class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 flex items-center justify-center transition-all"
+                 style="color: var(--landing-text);" title="X (Twitter)">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              </a>
+            </div>
           </div>
-          
-          <span class="font-mono text-[8px] opacity-65">© Ginebra, Suiza</span>
+        </ng-container>
+
+        <!-- Static branding footer -->
+        <div class="relative z-10 flex items-center justify-center pt-2 border-t"
+             style="border-color: var(--landing-card-border);">
+          <span class="font-mono text-[9px] uppercase tracking-wider font-bold opacity-60" style="color: var(--landing-text);">Creado en Arandu</span>
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- REPORT MODAL DIALOG -->
+<div *ngIf="showReportModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-charcoal/80 backdrop-blur-sm">
+  <div class="bg-brand-paper border-2 border-brand-charcoal w-full max-w-md p-6 relative shadow-2xl text-brand-charcoal">
+    <!-- Close button -->
+    <button (click)="closeReportModal()" class="absolute top-4 right-4 font-mono text-lg text-brand-charcoal hover:text-brand-red cursor-pointer focus:outline-none bg-transparent border-0" aria-label="Cerrar modal">
+      ✕
+    </button>
+    
+    <h3 class="font-serif text-xl font-bold uppercase tracking-tight mb-4 pb-2 border-b border-brand-charcoal/10 flex items-center gap-2">
+      <svg class="w-5 h-5 stroke-current fill-none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21v8h-6l-1-1H5a2 2 0 00-2 2zm0 0h9"></path></svg>
+      Señalar Inconveniente
+    </h3>
+    
+    <div class="space-y-4">
+      <p class="font-sans text-xs text-brand-charcoal/70 leading-relaxed">
+        Ayúdanos a entender qué ocurre con este contenido. Revisamos los reportes las 24 horas del día.
+      </p>
+      
+      <!-- Reason options (Radio list) -->
+      <div class="flex flex-col gap-2 font-mono text-xs">
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="radio" name="reportReason" [(ngModel)]="reportReason" value="Contenido ofensivo, de odio o abusivo" class="accent-brand-sage">
+          Contenido ofensivo, de odio o abusivo
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="radio" name="reportReason" [(ngModel)]="reportReason" value="Contenido violento o explícito" class="accent-brand-sage">
+          Contenido violento o explícito
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="radio" name="reportReason" [(ngModel)]="reportReason" value="Acoso, spam o estafa" class="accent-brand-sage">
+          Acoso, spam o estafa
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="radio" name="reportReason" [(ngModel)]="reportReason" value="Categoría o información incorrecta" class="accent-brand-sage">
+          Categoría o información incorrecta
+        </label>
+      </div>
+      
+      <!-- Description details text area -->
+      <div class="flex flex-col gap-1">
+        <label class="font-serif text-xs italic" for="reportDesc">Detalles adicionales (opcional)</label>
+        <textarea 
+          [(ngModel)]="reportDescription"
+          rows="4" 
+          placeholder="Escribe más información aquí..."
+          class="w-full bg-transparent border border-brand-charcoal/30 p-2 font-sans text-xs focus:outline-none focus:border-brand-sage focus:ring-0"></textarea>
+      </div>
+
+      <!-- Messages -->
+      <p *ngIf="reportSuccessMessage" class="font-mono text-[10px] text-brand-sage uppercase font-bold">{{ reportSuccessMessage }}</p>
+      <p *ngIf="reportErrorMessage" class="font-mono text-[10px] text-brand-red uppercase font-bold">{{ reportErrorMessage }}</p>
+      
+      <!-- Action buttons -->
+      <div class="flex justify-end gap-2 pt-2">
+        <button (click)="closeReportModal()" class="px-4 py-2 border border-brand-charcoal/30 text-brand-charcoal/60 font-mono text-[10px] font-bold uppercase hover:bg-brand-charcoal/5 cursor-pointer bg-transparent">
+          Cancelar
+        </button>
+        <button (click)="submitReport()" [disabled]="!reportReason" class="px-4 py-2 bg-brand-charcoal text-brand-paper font-mono text-[10px] font-bold uppercase hover:bg-brand-sage hover:text-brand-charcoal disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer border-0">
+          Enviar Reporte
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PUBLIC PROFILE USER CARD MODAL (Instagram Style) -->
+<div *ngIf="showPublicProfileModal && publicProfileUser" class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-brand-charcoal/80 backdrop-blur-xs">
+  <div (click)="closePublicProfile()" class="fixed inset-0"></div>
+  <div class="bg-brand-paper border-2 border-brand-charcoal w-full max-w-sm relative z-10 p-6 shadow-2xl rounded-2xl text-brand-charcoal">
+    <!-- Close button -->
+    <button (click)="closePublicProfile()" class="absolute top-4 right-4 font-mono text-lg hover:text-brand-red cursor-pointer focus:outline-none bg-transparent border-0">✕</button>
+
+    <!-- Instagram Header Block -->
+    <div class="flex items-center gap-4 border-b border-brand-charcoal/10 pb-4 mb-4">
+      <div class="w-16 h-16 rounded-full bg-brand-sage/30 border border-brand-sage/40 flex items-center justify-center font-mono text-xl font-bold text-brand-sage uppercase">
+        {{ publicProfileUser.initials }}
+      </div>
+      <div>
+        <h4 class="font-serif text-lg font-bold truncate max-w-[180px]">{{ publicProfileUser.name }}</h4>
+        <span class="font-mono text-[9px] uppercase tracking-wider bg-brand-charcoal/5 px-2 py-0.5 rounded text-brand-charcoal/60">Perfil Público Arandu</span>
+      </div>
+    </div>
+
+    <!-- Instagram Metrics Block -->
+    <div class="grid grid-cols-2 text-center py-2 border-b border-brand-charcoal/10 mb-4 font-mono text-xs">
+      <div class="border-r border-brand-charcoal/10">
+        <span class="block font-bold text-base">{{ publicUserAds.length }}</span>
+        <span class="text-[9px] text-brand-charcoal/50 uppercase">Publicaciones</span>
+      </div>
+      <div>
+        <span class="block font-bold text-base">{{ publicUserFavorites.length }}</span>
+        <span class="text-[9px] text-brand-charcoal/50 uppercase">Favoritos</span>
+      </div>
+    </div>
+
+    <!-- Instagram tabs navigation -->
+    <div class="flex border-b border-brand-charcoal/10 mb-3 font-mono text-[9px]">
+      <button (click)="publicActiveTab = 'publications'"
+              [class.border-b-2]="publicActiveTab === 'publications'"
+              [class.border-brand-charcoal]="publicActiveTab === 'publications'"
+              [class.font-bold]="publicActiveTab === 'publications'"
+              class="flex-1 py-1.5 text-center uppercase tracking-wider cursor-pointer border-0 bg-transparent">
+        Publicaciones
+      </button>
+      <button (click)="publicActiveTab = 'favorites'"
+              [class.border-b-2]="publicActiveTab === 'favorites'"
+              [class.border-brand-charcoal]="publicActiveTab === 'favorites'"
+              [class.font-bold]="publicActiveTab === 'favorites'"
+              class="flex-1 py-1.5 text-center uppercase tracking-wider cursor-pointer border-0 bg-transparent">
+        Favoritos
+      </button>
+    </div>
+
+    <!-- Scrollable Items View -->
+    <div class="max-h-40 overflow-y-auto space-y-2 mb-4 pr-1">
+      <div *ngIf="publicActiveTab === 'publications'">
+        <div *ngFor="let item of publicUserAds" class="border border-brand-charcoal/15 p-2 bg-brand-charcoal/[0.02] flex items-center justify-between gap-2 rounded">
+          <span class="font-sans text-xs font-bold truncate flex-1">{{ item.title }}</span>
+          <span class="font-mono text-[8px] bg-brand-sage/10 text-brand-sage px-1.5 py-0.5 uppercase shrink-0 font-bold">{{ item.category }}</span>
+        </div>
+        <p *ngIf="publicUserAds.length === 0" class="text-center font-mono text-[10px] text-brand-charcoal/40 italic py-4">Sin anuncios publicados</p>
+      </div>
+
+      <div *ngIf="publicActiveTab === 'favorites'">
+        <div *ngFor="let item of publicUserFavorites" class="border border-brand-charcoal/15 p-2 bg-brand-charcoal/[0.02] flex items-center justify-between gap-2 rounded">
+          <span class="font-sans text-xs font-bold truncate flex-1">{{ item.title }}</span>
+          <span class="font-mono text-[8px] bg-brand-charcoal/20 text-brand-charcoal px-1.5 py-0.5 uppercase shrink-0 font-bold">{{ item.category }}</span>
+        </div>
+        <p *ngIf="publicUserFavorites.length === 0" class="text-center font-mono text-[10px] text-brand-charcoal/40 italic py-4">Sin favoritos guardados</p>
+      </div>
+    </div>
+
+    <!-- Send message action button -->
+    <button (click)="sendPublicMessage()" 
+            class="w-full bg-brand-sage text-brand-paper font-mono text-[10px] font-bold uppercase py-2.5 tracking-wider hover:bg-brand-charcoal transition-colors border-0 cursor-pointer rounded-lg">
+      Enviar Mensaje
+    </button>
   </div>
 </div>

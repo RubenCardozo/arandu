@@ -1,0 +1,32 @@
+.messages-container {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(46, 58, 53, 0.2) transparent;
+}
+
+.messages-container::-webkit-scrollbar {
+  width: 5px;
+}
+
+.messages-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.messages-container::-webkit-scrollbar-thumb {
+  background-color: rgba(46, 58, 53, 0.2);
+  border-radius: 10px;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

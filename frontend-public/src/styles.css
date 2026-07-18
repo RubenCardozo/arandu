@@ -44,3 +44,30 @@ body {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* Hide chat widget when any fullscreen modal is open */
+body:has(.fixed.inset-0.z-50) app-chat-widget,
+body:has(.fixed.inset-0.z-\[100\]) app-chat-widget,
+body:has(.fixed.inset-0.z-\[110\]) app-chat-widget {
+  display: none !important;
+}
+
+/* Disable body/html scrolling when any modal overlay is present */
+html:has(.fixed.inset-0[class*="bg-brand-charcoal"]),
+html:has(.fixed.inset-0[class*="bg-black"]),
+html:has(.fixed.inset-0[class*="backdrop-blur"]),
+body:has(.fixed.inset-0[class*="bg-brand-charcoal"]),
+body:has(.fixed.inset-0[class*="bg-black"]),
+body:has(.fixed.inset-0[class*="backdrop-blur"]) {
+  overflow: hidden !important;
+  height: 100% !important;
+}
+
+/* Semi-transparent chat button at rest, full opacity on hover */
+app-chat-widget button {
+  opacity: 0.35;
+  transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+app-chat-widget button:hover {
+  opacity: 1 !important;
+}

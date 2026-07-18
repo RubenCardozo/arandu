@@ -1,8 +1,8 @@
 <ng-container *ngIf="!isEmbedded; else embeddedLayout">
-  <main class="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4 bg-brand-paper">
-    <div class="w-full max-w-2xl bg-brand-paper border-2 border-brand-charcoal relative z-10 transition-all duration-300">
-      <div class="absolute top-0 left-0 w-2 h-full bg-brand-sage"></div>
-      <div class="p-8 md:p-12 pl-10 md:pl-16">
+  <main class="max-w-2xl mx-auto px-4 md:px-8 py-12">
+    <div class="w-full relative z-10 transition-all duration-300">
+      <div class="hidden"></div>
+      <div class="w-full">
         <ng-container *ngTemplateOutlet="formTemplate"></ng-container>
       </div>
     </div>
@@ -10,7 +10,7 @@
 </ng-container>
 
 <ng-template #embeddedLayout>
-  <div class="w-full max-w-2xl mx-auto">
+  <div class="w-full">
     <ng-container *ngTemplateOutlet="formTemplate"></ng-container>
   </div>
 </ng-template>
@@ -292,14 +292,19 @@
   <div (click)="closePreview()" class="fixed inset-0 bg-brand-charcoal/60 backdrop-blur-sm"></div>
 
   <!-- Modal Content Box -->
-  <div class="bg-brand-paper border-2 border-brand-charcoal w-full max-w-2xl max-h-[90vh] overflow-y-auto relative z-10 p-6 md:p-10 shadow-2xl">
-    <!-- Close button -->
-    <button (click)="closePreview()" class="absolute top-4 right-4 font-mono text-xl text-brand-charcoal hover:text-brand-sage transition-colors cursor-pointer focus:outline-none" aria-label="Cerrar previsualización">
-      ✕
-    </button>
-
-    <div class="mb-4 bg-brand-red/10 border border-brand-red/30 p-2.5 text-center text-brand-red font-mono text-[10px] font-bold uppercase tracking-wider">
-      VISTA PREVIA — ASÍ SE VERÁ TU ANUNCIO EN LA PLATAFORMA
+  <div class="bg-brand-paper border-2 border-brand-charcoal w-full max-w-2xl max-h-[90vh] overflow-y-auto relative z-10 p-6 md:p-8 shadow-2xl">
+    
+    <!-- Sticky Header Bar -->
+    <div class="sticky -top-6 md:-top-8 -mx-6 md:-mx-8 px-6 md:px-8 pt-3 pb-3 bg-brand-paper border-b border-brand-charcoal/20 z-30 flex items-center justify-between gap-3 font-mono text-[10px] uppercase text-brand-charcoal/70 shadow-xs mb-6">
+      <div class="flex flex-wrap items-center gap-3">
+        <span class="bg-brand-red/10 text-brand-red px-2 py-0.5 font-bold">VISTA PREVIA — ASÍ SE VERÁ EN LA PLATAFORMA</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <!-- Close Button -->
+        <button (click)="closePreview()" class="text-xl border-0 bg-transparent text-brand-charcoal hover:text-brand-sage cursor-pointer select-none font-bold leading-none" aria-label="Cerrar previsualización">
+          ✕
+        </button>
+      </div>
     </div>
 
     <!-- Modal Category & Date -->
@@ -319,8 +324,19 @@
         <img [alt]="previewAd.title" class="w-full h-full object-cover" [src]="previewAd.imageUrl">
       </ng-container>
       <ng-template #fallbackPreviewImage>
-        <div [ngClass]="getCategoryBgClass(previewAd.category)" class="w-full h-full flex flex-col items-center justify-center p-6">
-          <span class="text-7xl mb-3">{{ getCategoryEmoji(previewAd.category) }}</span>
+        <div [ngClass]="getCategoryBgClass(previewAd.category)" class="w-full h-full flex flex-col items-center justify-center p-6 text-brand-charcoal">
+          <div [ngSwitch]="previewAd.category" class="w-16 h-16 mb-3">
+            <svg *ngSwitchCase="'Electricidad'" class="w-full h-full stroke-current fill-none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            <svg *ngSwitchCase="'Trabajos Casa'" class="w-full h-full stroke-current fill-none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+            <svg *ngSwitchCase="'Servicios'" class="w-full h-full stroke-current fill-none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+            <svg *ngSwitchCase="'Servicios y Reparación'" class="w-full h-full stroke-current fill-none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+            <svg *ngSwitchCase="'Empleo'" class="w-full h-full stroke-current fill-none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+            <svg *ngSwitchCase="'Cursos'" class="w-full h-full stroke-current fill-none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.168.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+            <svg *ngSwitchCase="'Venta y Donaciones'" class="w-full h-full stroke-current fill-none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+            <svg *ngSwitchCase="'Mascotas'" class="w-full h-full stroke-current fill-none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+            <svg *ngSwitchCase="'Vehículos'" class="w-full h-full stroke-current fill-none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+            <svg *ngSwitchDefault class="w-full h-full stroke-current fill-none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+          </div>
           <span class="font-mono text-xs tracking-widest uppercase font-bold text-brand-charcoal/60">{{ previewAd.category }}</span>
         </div>
       </ng-template>

@@ -1,22 +1,26 @@
 <!-- TopAppBar -->
-<header class="bg-brand-paper border-b border-brand-charcoal sticky top-0 z-50">
-  <div class="flex justify-between items-center w-full px-6 md:px-8 py-4 max-w-[1280px] mx-auto">
+<header class="bg-brand-paper border-b border-brand-charcoal sticky top-0 z-50 transition-all duration-300">
+  <div class="flex justify-between items-center w-full transition-all duration-300 max-w-[1280px] mx-auto"
+       [class.px-4]="isScrolled" [class.py-1.5]="isScrolled" [class.px-6]="!isScrolled" [class.md:px-8]="!isScrolled" [class.py-4]="!isScrolled">
     <div class="flex items-center gap-3">
-      <a routerLink="/" (click)="closeMobileMenu()" class="flex items-center gap-3">
-        <img alt="Arandu Logo" class="h-[44px] md:h-[56px] w-auto object-contain" src="/logo.png">
-        <span class="hidden sm:inline font-serif text-[32px] md:text-[42px] font-bold text-brand-sage tracking-tight uppercase leading-none">Arandu</span>
+      <a routerLink="/" (click)="closeMobileMenu()" class="flex items-center gap-2 md:gap-3">
+        <img alt="Arandu Logo" class="w-auto object-contain transition-all duration-300" 
+             [class.h-7]="isScrolled" [class.h-[44px]]="!isScrolled" [class.md:h-[56px]]="!isScrolled" src="/logo.png">
+        <span class="hidden sm:inline-block font-serif text-[32px] md:text-[42px] font-bold text-brand-sage tracking-tight uppercase leading-none transition-all duration-300 overflow-hidden whitespace-nowrap"
+              [class.max-w-0]="isScrolled" [class.opacity-0]="isScrolled" [class.max-w-[200px]]="!isScrolled" [class.opacity-100]="!isScrolled">Arandu</span>
       </a>
     </div>
 
     <!-- Desktop Navigation (hidden on mobile) -->
-    <nav class="hidden md:flex gap-8 items-center">
+    <nav class="hidden md:flex items-center transition-all duration-300"
+         [class.gap-4]="isScrolled" [class.gap-8]="!isScrolled">
       <a routerLink="/" routerLinkActive="border-b-2 border-brand-charcoal font-bold pb-1" [routerLinkActiveOptions]="{exact: true}" class="text-brand-charcoal font-mono tracking-widest text-[11px] hover:text-brand-sage transition-colors flex items-center gap-1.5">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" points="9 22 9 12 15 12 15 22"></polyline></svg>
         INICIO
       </a>
       <a routerLink="/anuncios" routerLinkActive="border-b-2 border-brand-charcoal font-bold pb-1" class="text-brand-charcoal font-mono tracking-widest text-[11px] hover:text-brand-sage transition-colors flex items-center gap-1.5">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M11 5L6 9H2v6h4l5 4V5z"></path><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
-        ANUNCIOS
+        PUBLICACIONES
       </a>
       <a routerLink="/buscar" [queryParams]="{filter: 'PORTFOLIOS'}" routerLinkActive="border-b-2 border-brand-charcoal font-bold pb-1" class="text-brand-charcoal font-mono tracking-widest text-[11px] hover:text-brand-sage transition-colors flex items-center gap-1.5">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10h3m-3-4h3"></path></svg>
@@ -25,19 +29,41 @@
     </nav>
 
     <!-- Desktop Actions (hidden on mobile) -->
-    <div class="hidden md:flex items-center gap-4">
-      <a *ngIf="isLoggedIn" routerLink="/anuncios/nuevo" class="border border-brand-charcoal text-brand-charcoal px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-widest hover:bg-brand-sage hover:text-brand-paper hover:border-brand-sage transition-all duration-150 cursor-pointer">
-        PUBLICAR ANUNCIO
+    <div class="hidden md:flex items-center transition-all duration-300" [class.gap-2.5]="isScrolled" [class.gap-4]="!isScrolled">
+      <a *ngIf="isLoggedIn" routerLink="/session" [queryParams]="{tab: 'publish'}" 
+         class="border border-brand-charcoal text-brand-charcoal font-mono text-[11px] font-bold uppercase tracking-widest hover:bg-brand-sage hover:text-brand-paper hover:border-brand-sage transition-all duration-300 cursor-pointer flex items-center justify-center gap-1.5"
+         [class.px-4]="!isScrolled" [class.py-2]="!isScrolled" [class.p-2]="isScrolled" [class.rounded-full]="isScrolled" title="Publicar Anuncio">
+        <!-- Plus/Publish Icon -->
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+        </svg>
+        <span class="transition-all duration-300 overflow-hidden whitespace-nowrap inline-block"
+              [class.max-w-0]="isScrolled" [class.opacity-0]="isScrolled" [class.max-w-[150px]]="!isScrolled" [class.opacity-100]="!isScrolled">PUBLICAR ANUNCIO</span>
       </a>
-      <a routerLink="/buscar" class="border border-brand-charcoal px-4 py-2 hover:bg-brand-charcoal hover:text-brand-paper transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke-width="2" stroke-linecap="square"></circle><line x1="21" y1="21" x2="16.65" y2="16.65" stroke-width="2" stroke-linecap="square"></line></svg><span class="font-mono text-[11px] font-bold uppercase tracking-widest">BUSCAR</span>
+      
+      <a routerLink="/buscar" 
+         class="border border-brand-charcoal text-brand-charcoal hover:bg-brand-charcoal hover:text-brand-paper transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer"
+         [class.px-4]="!isScrolled" [class.py-2]="!isScrolled" [class.p-2]="isScrolled" [class.rounded-full]="isScrolled" title="Buscar">
+        <!-- Search Icon -->
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8" stroke-width="2" stroke-linecap="square"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65" stroke-width="2" stroke-linecap="square"></line>
+        </svg>
+        <span class="font-mono text-[11px] font-bold uppercase tracking-widest transition-all duration-300 overflow-hidden whitespace-nowrap inline-block"
+              [class.max-w-0]="isScrolled" [class.opacity-0]="isScrolled" [class.max-w-[100px]]="!isScrolled" [class.opacity-100]="!isScrolled">BUSCAR</span>
       </a>
-      <button *ngIf="!isLoggedIn" (click)="openAuthModal()" class="bg-brand-charcoal text-brand-paper px-6 py-2 font-mono text-[11px] font-bold uppercase tracking-widest hover:bg-brand-sage transition-colors cursor-pointer">
+      
+      <button *ngIf="!isLoggedIn" (click)="openAuthModal()" 
+              class="bg-brand-charcoal text-brand-paper font-mono text-[11px] font-bold uppercase tracking-widest hover:bg-brand-sage transition-all duration-300 cursor-pointer"
+              [class.px-6]="!isScrolled" [class.py-2]="!isScrolled" [class.px-3]="isScrolled" [class.py-1.5]="isScrolled">
         ENTRAR
       </button>
+      
       <!-- Desktop Avatar and Dropdown -->
       <div *ngIf="isLoggedIn" class="relative">
-        <button (click)="toggleUserDropdown($event)" class="bg-brand-sage text-brand-paper w-9 h-9 rounded-full flex items-center justify-center font-mono text-xs font-bold hover:bg-brand-charcoal transition-colors border border-brand-charcoal/10 cursor-pointer" title="Opciones de usuario">
+        <button (click)="toggleUserDropdown($event)" class="bg-brand-sage text-brand-paper rounded-full flex items-center justify-center font-mono font-bold hover:bg-brand-charcoal transition-all duration-300 border border-brand-charcoal/10 cursor-pointer"
+                [class.w-9]="!isScrolled" [class.h-9]="!isScrolled" [class.text-xs]="!isScrolled"
+                [class.w-7]="isScrolled" [class.h-7]="isScrolled" [class.text-[10px]]="isScrolled" title="Opciones de usuario">
           {{ userInitials }}
         </button>
         
@@ -55,10 +81,31 @@
     </div>
 
     <!-- Mobile Actions & Hamburger (visible on mobile only) -->
-    <div class="flex md:hidden items-center gap-3">
+    <div class="flex md:hidden items-center transition-all duration-300" [class.gap-2]="isScrolled" [class.gap-3]="!isScrolled">
+      <!-- Search Icon (Mobile) -->
+      <a routerLink="/buscar" 
+         class="border border-brand-charcoal text-brand-charcoal hover:bg-brand-charcoal hover:text-brand-paper transition-all duration-300 flex items-center justify-center rounded-full cursor-pointer shrink-0"
+         [class.p-1.5]="!isScrolled" [class.p-1]="isScrolled" title="Buscar">
+        <svg class="w-3.5 h-3.5 transition-all duration-300" [class.w-3]="isScrolled" [class.h-3]="isScrolled" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8" stroke-width="2" stroke-linecap="square"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65" stroke-width="2" stroke-linecap="square"></line>
+        </svg>
+      </a>
+      
+      <!-- Publish Icon (Mobile, if logged in) -->
+      <a *ngIf="isLoggedIn" routerLink="/session" [queryParams]="{tab: 'publish'}" 
+         class="border border-brand-charcoal text-brand-charcoal hover:bg-brand-sage hover:text-brand-paper hover:border-brand-sage transition-all duration-300 flex items-center justify-center rounded-full cursor-pointer shrink-0"
+         [class.p-1.5]="!isScrolled" [class.p-1]="isScrolled" title="Publicar Anuncio">
+        <svg class="w-3.5 h-3.5 transition-all duration-300" [class.w-3]="isScrolled" [class.h-3]="isScrolled" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+        </svg>
+      </a>
+
       <!-- Mobile Avatar and Dropdown -->
       <div *ngIf="isLoggedIn" class="relative">
-        <button (click)="toggleUserDropdown($event)" class="bg-brand-sage text-brand-paper w-8 h-8 rounded-full flex items-center justify-center font-mono text-[10px] font-bold hover:bg-brand-charcoal transition-colors border border-brand-charcoal/10 cursor-pointer" title="Opciones de usuario">
+        <button (click)="toggleUserDropdown($event)" class="bg-brand-sage text-brand-paper rounded-full flex items-center justify-center font-mono font-bold hover:bg-brand-charcoal transition-all duration-300 border border-brand-charcoal/10 cursor-pointer shrink-0"
+                [class.w-8]="!isScrolled" [class.h-8]="!isScrolled" [class.text-[10px]]="!isScrolled"
+                [class.w-6]="isScrolled" [class.h-6]="isScrolled" [class.text-[8px]]="isScrolled" title="Opciones de usuario">
           {{ userInitials }}
         </button>
         
@@ -73,12 +120,17 @@
           </button>
         </div>
       </div>
-      <button *ngIf="!isLoggedIn" (click)="openAuthModal()" class="bg-brand-charcoal text-brand-paper px-3 py-1.5 font-mono text-[9px] font-bold uppercase tracking-wider hover:bg-brand-sage transition-colors cursor-pointer">
+      <button *ngIf="!isLoggedIn" (click)="openAuthModal()" 
+              class="bg-brand-charcoal text-brand-paper font-mono font-bold uppercase tracking-wider hover:bg-brand-sage transition-all duration-300 cursor-pointer shrink-0"
+              [class.px-3]="!isScrolled" [class.py-1.5]="!isScrolled" [class.text-[9px]]="!isScrolled"
+              [class.px-2]="isScrolled" [class.py-1]="isScrolled" [class.text-[8px]]="isScrolled">
         ENTRAR
       </button>
       
       <!-- Hamburger Button (3 lines) -->
-      <button (click)="toggleMobileMenu()" class="text-brand-charcoal focus:outline-none p-1 flex flex-col justify-between w-6 h-5" aria-label="Menú">
+      <button (click)="toggleMobileMenu()" 
+              class="text-brand-charcoal focus:outline-none p-1 flex flex-col justify-between transition-all duration-300 shrink-0" 
+              [class.w-6]="!isScrolled" [class.h-5]="!isScrolled" [class.w-5]="isScrolled" [class.h-4]="isScrolled" aria-label="Menú">
         <span class="w-full h-[2px] bg-brand-charcoal transition-all duration-300 origin-left" [class.rotate-45]="mobileMenuOpen" [class.translate-y-[2px]]="mobileMenuOpen"></span>
         <span class="w-full h-[2px] bg-brand-charcoal transition-all duration-300" [class.opacity-0]="mobileMenuOpen"></span>
         <span class="w-full h-[2px] bg-brand-charcoal transition-all duration-300 origin-left" [class.-rotate-45]="mobileMenuOpen" [class.-translate-y-[2px]]="mobileMenuOpen"></span>
@@ -92,12 +144,12 @@
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" points="9 22 9 12 15 12 15 22"></polyline></svg> INICIO
     </a>
     <a routerLink="/anuncios" (click)="closeMobileMenu()" routerLinkActive="font-bold text-brand-sage" class="text-brand-charcoal font-mono tracking-widest text-xs py-2 border-b border-brand-charcoal/10 flex items-center gap-2">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M11 5L6 9H2v6h4l5 4V5z"></path><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg> ANUNCIOS
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M11 5L6 9H2v6h4l5 4V5z"></path><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg> PUBLICACIONES
     </a>
     <a routerLink="/buscar" [queryParams]="{filter: 'PORTFOLIOS'}" (click)="closeMobileMenu()" routerLinkActive="font-bold text-brand-sage" class="text-brand-charcoal font-mono tracking-widest text-xs py-2 border-b border-brand-charcoal/10 flex items-center gap-2">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10h3m-3-4h3"></path></svg> PORTFOLIOS
     </a>
-    <a *ngIf="isLoggedIn" routerLink="/anuncios/nuevo" (click)="closeMobileMenu()" routerLinkActive="font-bold text-brand-sage" class="text-brand-charcoal font-mono tracking-widest text-xs py-2 border-b border-brand-charcoal/10">PUBLICAR ANUNCIO</a>
+    <a *ngIf="isLoggedIn" routerLink="/session" [queryParams]="{tab: 'publish'}" (click)="closeMobileMenu()" routerLinkActive="font-bold text-brand-sage" class="text-brand-charcoal font-mono tracking-widest text-xs py-2 border-b border-brand-charcoal/10">PUBLICAR ANUNCIO</a>
     
     <!-- Mobile Search Field -->
     <div class="flex flex-col gap-2 pt-2">
@@ -124,53 +176,107 @@
 
 <!-- Compact Footer -->
 <footer class="bg-brand-charcoal text-brand-paper border-t border-brand-charcoal/20">
-  <div class="max-w-[1280px] mx-auto px-6 md:px-8 py-10">
-    <div class="grid grid-cols-1 md:grid-cols-12 gap-8 mb-8">
+  <div class="max-w-[1280px] mx-auto px-6 md:px-8 py-12">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 mb-10">
       <!-- Brand & Slogan Column -->
-      <div class="md:col-span-4 space-y-3">
+      <div class="md:col-span-5 space-y-4">
         <div class="flex items-center gap-3">
           <img alt="Arandu Icon" class="h-6 w-6 object-contain" src="/logo.png">
           <span class="font-serif text-xl font-bold uppercase tracking-tight" style="color: #fbfaf7;">Arandu</span>
         </div>
-        <p class="font-sans text-xs text-brand-paper/80 leading-relaxed max-w-sm">
-          Ginebra te abre las puertas; Arandu te da las llaves. Tu radar local para vivir, conectarte y florecer en el cantón. Tu ciudad. Tu gente. Tu idioma.
-        </p>
+        <div class="space-y-2 max-w-md">
+          <span class="font-serif text-sm font-semibold italic text-[#fbfaf7] block">
+            Ginebra te abre las puertas; Arandu te da las llaves.
+          </span>
+          <p class="font-sans text-[13px] text-brand-paper/80 leading-relaxed">
+            Tu radar local para vivir, conectarte y florecer en el cantón. Tu ciudad. Tu gente. Tu idioma.
+          </p>
+        </div>
+
+        <!-- Social Media Icons Row -->
+        <div class="flex items-center gap-4 pt-1 text-[#fbfaf7]/60">
+          <a href="https://instagram.com" target="_blank" class="hover:text-brand-sage hover:scale-105 transition-all" title="Instagram">
+            <svg class="w-4 h-4 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+            </svg>
+          </a>
+          <a href="https://twitter.com" target="_blank" class="hover:text-brand-sage hover:scale-105 transition-all" title="Twitter / X">
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+          </a>
+          <a href="https://facebook.com" target="_blank" class="hover:text-brand-sage hover:scale-105 transition-all" title="Facebook">
+            <svg class="w-4 h-4 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+            </svg>
+          </a>
+          <a href="https://linkedin.com" target="_blank" class="hover:text-brand-sage hover:scale-105 transition-all" title="LinkedIn">
+            <svg class="w-4 h-4 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"></path>
+              <circle cx="4" cy="4" r="2"></circle>
+            </svg>
+          </a>
+        </div>
       </div>
-
+ 
       <!-- Links Grid -->
-      <div class="md:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-6">
-        <div class="flex flex-col gap-2.5">
+      <div class="md:col-span-7 grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div class="flex flex-col gap-3.5">
           <span class="font-mono text-[10px] font-bold tracking-widest uppercase text-brand-paper">Explorar</span>
-          <a routerLink="/" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-sage transition-colors">INICIO</a>
-          <a routerLink="/anuncios" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-sage transition-colors">ANUNCIOS</a>
-          <a routerLink="/buscar" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-sage transition-colors">BÚSQUEDA</a>
+          <a routerLink="/" class="font-mono text-xs text-brand-paper/60 hover:text-white hover:underline underline-offset-4 decoration-1 decoration-brand-sage/50 transition-all duration-200">Inicio</a>
+          <a routerLink="/anuncios" class="font-mono text-xs text-brand-paper/60 hover:text-white hover:underline underline-offset-4 decoration-1 decoration-brand-sage/50 transition-all duration-200">Publicaciones</a>
+          <a routerLink="/buscar" class="font-mono text-xs text-brand-paper/60 hover:text-white hover:underline underline-offset-4 decoration-1 decoration-brand-sage/50 transition-all duration-200">Búsqueda</a>
         </div>
-
-        <div class="flex flex-col gap-2.5">
+ 
+        <div class="flex flex-col gap-3.5">
           <span class="font-mono text-[10px] font-bold tracking-widest uppercase text-brand-paper">Institucional</span>
-          <a (click)="openFooterModal('mision', $event)" href="#" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-sage transition-colors">MISIÓN</a>
-          <a (click)="openFooterModal('guarani', $event)" href="#" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-sage transition-colors">EL ORIGEN (GUARANÍ)</a>
-          <a (click)="openFooterModal('fuentes', $event)" href="#" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-sage transition-colors">FUENTES Y PRENSA</a>
+          <a (click)="openFooterModal('mision', $event)" href="#" class="font-mono text-xs text-brand-paper/60 hover:text-white hover:underline underline-offset-4 decoration-1 decoration-brand-sage/50 transition-all duration-200">Misión</a>
+          <a (click)="openFooterModal('guarani', $event)" href="#" class="font-mono text-xs text-brand-paper/60 hover:text-white hover:underline underline-offset-4 decoration-1 decoration-brand-sage/50 transition-all duration-200">El origen (Guaraní)</a>
+          <a (click)="openFooterModal('fuentes', $event)" href="#" class="font-mono text-xs text-brand-paper/60 hover:text-white hover:underline underline-offset-4 decoration-1 decoration-brand-sage/50 transition-all duration-200">Fuentes y prensa</a>
         </div>
-
-        <div class="flex flex-col gap-2.5">
+ 
+        <div class="flex flex-col gap-3.5">
           <span class="font-mono text-[10px] font-bold tracking-widest uppercase text-brand-paper">Contacto</span>
-          <a (click)="openFooterModal('contactar', $event)" href="#" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-sage transition-colors">CONTACTAR</a>
-          <a (click)="openFooterModal('boletin', $event)" href="#" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-sage transition-colors">BOLETÍN</a>
+          <a (click)="openFooterModal('contactar', $event)" href="#" class="font-mono text-xs text-brand-paper/60 hover:text-white hover:underline underline-offset-4 decoration-1 decoration-brand-sage/50 transition-all duration-200">Contactar</a>
+          
+          <!-- Mini subscription form -->
+          <div class="flex flex-col gap-2 mt-2">
+            <span class="font-mono text-[9px] font-bold tracking-widest uppercase text-brand-paper/50">Boletín</span>
+            <form (ngSubmit)="submitFooterNewsletter()" class="flex flex-col gap-1.5" #newsletterForm="ngForm">
+              <div *ngIf="footerNewsletterSubmitted" class="text-[11px] text-brand-sage font-sans py-1 transition-all">
+                ✓ ¡Registrado!
+              </div>
+              <div *ngIf="!footerNewsletterSubmitted" class="flex flex-col gap-1.5">
+                <input type="email" 
+                       name="footerEmail" 
+                       [(ngModel)]="footerNewsletterEmail" 
+                       required 
+                       placeholder="Tu correo electrónico" 
+                       class="bg-white/5 border border-white/20 text-brand-paper placeholder-brand-paper/40 px-2.5 py-1.5 text-xs focus:outline-none focus:border-brand-sage/80 rounded-sm w-full transition-all">
+                <button type="submit" 
+                        [disabled]="!footerNewsletterEmail || footerNewsletterEmail.indexOf('@') === -1"
+                        class="py-1.5 bg-[#fbfaf7] hover:bg-brand-sage text-brand-charcoal hover:text-brand-charcoal font-mono text-[9px] font-bold uppercase tracking-wider rounded-sm transition-colors cursor-pointer w-full text-center border-none select-none">
+                  Suscribirse
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-
-        <div class="flex flex-col gap-2.5">
+ 
+        <div class="flex flex-col gap-3.5">
           <span class="font-mono text-[10px] font-bold tracking-widest uppercase text-brand-paper">Legal</span>
-          <a (click)="openFooterModal('condiciones', $event)" href="#" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-sage transition-colors">CONDICIONES</a>
-          <a (click)="openFooterModal('privacidad', $event)" href="#" class="font-mono text-[10px] text-brand-paper/60 hover:text-brand-sage transition-colors">PRIVACIDAD</a>
+          <a (click)="openFooterModal('condiciones', $event)" href="#" class="font-mono text-xs text-brand-paper/60 hover:text-white hover:underline underline-offset-4 decoration-1 decoration-brand-sage/50 transition-all duration-200">Condiciones</a>
+          <a (click)="openFooterModal('privacidad', $event)" href="#" class="font-mono text-xs text-brand-paper/60 hover:text-white hover:underline underline-offset-4 decoration-1 decoration-brand-sage/50 transition-all duration-200">Privacidad</a>
         </div>
       </div>
     </div>
-
+ 
     <!-- Bottom Bar -->
     <div class="pt-6 border-t border-brand-paper/10 flex flex-col md:flex-row justify-between items-center gap-2">
-      <p class="font-mono text-[10px] text-brand-paper/40">© 2026 Arandu. Todos los derechos reservados.</p>
-      <p class="font-mono text-[9px] text-brand-paper/40 uppercase tracking-widest">Edición Digital — Ginebra, Suiza</p>
+      <p class="font-mono text-xs text-brand-paper/40">© 2026 Arandu. Todos los derechos reservados.</p>
+      <p class="font-mono text-xs text-brand-paper/40 uppercase tracking-widest">Edición Digital — Ginebra, Suiza</p>
     </div>
   </div>
 </footer>
@@ -213,15 +319,15 @@
         <!-- What We Do Cards Grid -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
           <div class="bg-white border border-brand-charcoal/20 p-3.5 hover:border-brand-sage transition-colors rounded">
-            <span class="text-base block mb-1">📰</span>
+            <svg class="w-5 h-5 text-brand-sage fill-none stroke-current mb-1.5" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6m-6 4h3"/></svg>
             <strong class="font-mono text-xs uppercase text-brand-charcoal block mb-1">Te Informamos</strong>
             <p class="font-sans text-[11px] text-brand-charcoal/70 leading-normal">
-              Traducimos la realidad local. Desde la actualidad de Ginebra hasta cómo domar el sistema de impuestos o los permisos de residencia (*permis de séjour*).
+              Traducimos la reality local. Desde la actualidad de Ginebra hasta cómo domar el sistema de impuestos o los permisos de residencia (*permis de séjour*).
             </p>
           </div>
 
           <div class="bg-white border border-brand-charcoal/20 p-3.5 hover:border-brand-sage transition-colors rounded">
-            <span class="text-base block mb-1">🤝</span>
+            <svg class="w-5 h-5 text-brand-sage fill-none stroke-current mb-1.5" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
             <strong class="font-mono text-xs uppercase text-brand-charcoal block mb-1">Te Conectamos</strong>
             <p class="font-sans text-[11px] text-brand-charcoal/70 leading-normal">
               Creamos el espacio para encontrarnos, hacer networking, construir amistades y fortalecer nuestra comunidad en Suiza.
@@ -229,7 +335,7 @@
           </div>
 
           <div class="bg-white border border-brand-charcoal/20 p-3.5 hover:border-brand-sage transition-colors rounded">
-            <span class="text-base block mb-1">🔍</span>
+            <svg class="w-5 h-5 text-brand-sage fill-none stroke-current mb-1.5" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
             <strong class="font-mono text-xs uppercase text-brand-charcoal block mb-1">Encontramos lo que Buscas</strong>
             <p class="font-sans text-[11px] text-brand-charcoal/70 leading-normal">
               Empleo, cultura, vivienda, trámites o ese consejo práctico que solo te da alguien que ya pasó por ahí.
@@ -258,7 +364,7 @@
         <div class="bg-brand-charcoal/5 p-4 border border-brand-charcoal/20 font-mono text-xs space-y-1">
           <p>• <strong>Ara</strong>: significa tiempo, época, universo o cielo.</p>
           <p>• <strong>Ndu</strong>: significa sentir, percibir u oír.</p>
-          <p class="pt-2 text-brand-charcoal font-bold">👉 ARANDU = "Sabiduría, conocimiento profundo y el resplandor de la experiencia compartida."</p>
+          <p class="pt-2 text-brand-charcoal font-bold">ARANDU = "Sabiduría, conocimiento profundo y el resplandor de la experiencia compartida."</p>
         </div>
         <p>
           El <strong>Pueblo Guaraní</strong> ha destacado históricamente por su extraordinaria fuerza espiritual, su resiliencia inquebrantable frente a las adversidades y su profundo sentido comunitarios de fraternidad. 
@@ -384,7 +490,7 @@
 
       <!-- Info Alert Box -->
       <div class="bg-brand-sage/10 border border-brand-sage/30 p-3.5 flex items-start gap-2.5">
-        <span class="text-base">ℹ️</span>
+        <svg class="w-4 h-4 text-brand-charcoal fill-none stroke-current mt-0.5 shrink-0" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         <p class="font-sans text-xs text-brand-charcoal/80">
           <strong>Aviso importante:</strong> Si lo que deseas es <strong>publicar un anuncio clasificado</strong> o interactuar en las noticias, por favor <a (click)="closeFooterModal(); openAuthModal()" class="underline font-bold text-brand-charcoal hover:text-brand-sage cursor-pointer">Inicia Sesión o Regístrate aquí</a>.
         </p>
@@ -427,11 +533,23 @@
 
       <div class="space-y-2.5 font-sans text-xs text-brand-charcoal/80">
         <p>Al suscribirte al boletín de Arandu recibirás:</p>
-        <ul class="space-y-1.5 list-disc pl-5 font-mono text-[11px] text-brand-charcoal/70">
-          <li>📩 Resumen semanal de noticias traducidas y explicadas.</li>
-          <li>🏛️ Alertas sobre cambios en trámites cantonales, permisos e impuestos.</li>
-          <li>💼 Destacados de ofertas laborales en Ginebra y Vaud.</li>
-          <li>🎭 Recomendaciones de eventos culturales y lugares para visitar.</li>
+        <ul class="space-y-1.5 pl-4 font-mono text-[11px] text-brand-charcoal/70 list-none">
+          <li class="flex items-start gap-2">
+            <span class="text-brand-sage font-bold">•</span>
+            <span>Resumen semanal de noticias traducidas y explicadas.</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-brand-sage font-bold">•</span>
+            <span>Alertas sobre cambios en trámites cantonales, permisos e impuestos.</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-brand-sage font-bold">•</span>
+            <span>Destacados de ofertas laborales en Ginebra y Vaud.</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-brand-sage font-bold">•</span>
+            <span>Recomendaciones de eventos culturales y lugares para visitar.</span>
+          </li>
         </ul>
       </div>
 
@@ -702,3 +820,5 @@
     </div>
   </div>
 </div>
+
+<app-chat-widget (openAuth)="openAuthModal()"></app-chat-widget>

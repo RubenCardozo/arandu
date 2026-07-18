@@ -1,14 +1,15 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { RouterOutlet, RouterModule, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule, FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from './services/auth.service';
 import { Subscription } from 'rxjs';
+import { ChatWidgetComponent } from './components/chat-widget/chat-widget.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterModule, CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [RouterOutlet, RouterModule, CommonModule, FormsModule, ReactiveFormsModule, ChatWidgetComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
@@ -19,6 +20,17 @@ export class App implements OnInit, OnDestroy {
   mobileMenuOpen = false;
   searchQuery = '';
   showUserDropdown = false;
+  isScrolled = false;
+
+  @HostListener('window:scroll', [])
+  onWindowScroll() {
+    const scrollY = window.scrollY;
+    if (scrollY > 120) {
+      this.isScrolled = true;
+    } else if (scrollY < 40) {
+      this.isScrolled = false;
+    }
+  }
 
   toggleUserDropdown(event: Event) {
     event.preventDefault();
@@ -112,12 +124,14 @@ export class App implements OnInit, OnDestroy {
     this.loginForm.reset();
     this.registroForm.reset();
     this.closeMobileMenu();
+    this.updateBodyScroll();
   }
 
   closeAuthModal() {
     this.showAuthModal = false;
     this.successMessage = '';
     this.errorMessage = '';
+    this.updateBodyScroll();
   }
 
   toggleAuthMode(loginMode: boolean) {
@@ -257,10 +271,12 @@ export class App implements OnInit, OnDestroy {
     this.footerModalType = type;
     this.contactSubmitted = false;
     this.newsletterSubmitted = false;
+    this.updateBodyScroll();
   }
 
   closeFooterModal() {
     this.footerModalType = null;
+    this.updateBodyScroll();
   }
 
   submitContact() {
@@ -285,6 +301,28 @@ export class App implements OnInit, OnDestroy {
         this.closeFooterModal();
         this.newsletterEmail = '';
       }, 2500);
+    }
+  }
+
+  footerNewsletterEmail = '';
+  footerNewsletterSubmitted = false;
+
+  submitFooterNewsletter() {
+    if (this.footerNewsletterEmail && this.footerNewsletterEmail.trim()) {
+      this.footerNewsletterSubmitted = true;
+      setTimeout(() => {
+        this.footerNewsletterSubmitted = false;
+        this.footerNewsletterEmail = '';
+      }, 3000);
+    }
+  }
+
+  updateBodyScroll() {
+    const isAnyModalOpen = this.showAuthModal || !!this.footerModalType;
+    if (isAnyModalOpen) {
+      document.body.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
     }
   }
 }

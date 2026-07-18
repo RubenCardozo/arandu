@@ -96,6 +96,7 @@ export class AuthService {
   async updateProfile(profileData: {
     firstName: string;
     lastName: string;
+    nickname?: string;
     phone: string;
     address: string;
     locality: string;
@@ -107,6 +108,7 @@ export class AuthService {
         data: {
           first_name: profileData.firstName,
           last_name: profileData.lastName,
+          nickname: profileData.nickname || '',
           full_name: fullName,
           phone: profileData.phone,
           address: profileData.address,

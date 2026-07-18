@@ -92,5 +92,24 @@ export const ratings = pgTable('ratings', {
   entityType: varchar('entity_type', { length: 50 }).notNull(),
   stars: integer('stars'),
   isLike: boolean('is_like').default(false).notNull(),
+  isDislike: boolean('is_dislike').default(false).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const favorites = pgTable('favorites', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull(),
+  entityId: uuid('entity_id').notNull(),
+  entityType: varchar('entity_type', { length: 50 }).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const reports = pgTable('reports', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  reporterId: uuid('reporter_id'),
+  entityId: uuid('entity_id').notNull(),
+  entityType: varchar('entity_type', { length: 50 }).notNull(),
+  reason: varchar('reason', { length: 255 }).notNull(),
+  description: text('description'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });

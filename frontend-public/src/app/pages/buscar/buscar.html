@@ -42,7 +42,7 @@
                 [class.text-brand-paper]="activeCategory === cat"
                 [class.border-brand-sage]="activeCategory === cat"
                 class="border border-brand-charcoal/30 text-brand-charcoal px-3.5 py-1 font-mono text-[10px] font-bold uppercase hover:border-brand-charcoal transition-colors rounded-full cursor-pointer">
-          #{{ cat }}
+          {{ cat }}
         </button>
       </div>
     </div>
@@ -70,6 +70,17 @@
     </div>
   </div>
 
+  <!-- Sort Bar -->
+  <div class="flex items-center gap-2 overflow-x-auto py-1 hide-scrollbar border-t border-brand-charcoal/10 mt-2 pt-4">
+    <span class="font-mono text-[9px] uppercase text-brand-charcoal/40 tracking-widest shrink-0">ORDENAR:</span>
+    <button *ngFor="let s of ['RELEVANCIA','RECIENTES','VALORADAS','VISTAS','COMENTADAS','FAVORITAS']"
+            (click)="setSort(s)"
+            [ngClass]="activeSort === s ? 'bg-brand-charcoal text-brand-paper border-brand-charcoal hover:bg-brand-charcoal hover:text-brand-paper' : 'bg-transparent text-brand-charcoal border-brand-charcoal/20 hover:bg-brand-sage hover:text-brand-paper hover:border-brand-sage'"
+            class="shrink-0 px-3 py-1 font-mono text-[9px] font-bold uppercase border rounded-full transition-all cursor-pointer">
+      {{ s }}
+    </button>
+  </div>
+
   <!-- Loading State -->
   <div *ngIf="loading" class="text-center py-20">
     <span class="font-mono text-xs text-brand-charcoal/60 uppercase animate-pulse">Buscando resultados...</span>
@@ -89,9 +100,30 @@
       
       <!-- Image Header (User photo or category 2D fallback) -->
       <div class="h-36 w-full overflow-hidden border-b border-brand-charcoal bg-brand-charcoal/5 flex flex-col items-center justify-center relative">
-        <ng-container *ngIf="item.imageUrl; else fallbackSearchImage">
-          <img [src]="item.imageUrl" [alt]="item.title" (error)="onImgError(item)" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
-        </ng-container>
+        <!-- Hover Stats Overlay -->
+      <div class="absolute inset-0 bg-brand-charcoal/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-start p-3 pointer-events-none z-10">
+        <div class="flex items-center gap-3 font-mono text-[9px] font-bold text-brand-paper uppercase tracking-wider">
+          <!-- Likes -->
+          <div class="flex items-center gap-1">
+            <svg class="w-3.5 h-3.5 stroke-current fill-none" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"></path></svg>
+            <span>{{ item.totalLikes || 0 }}</span>
+          </div>
+          <!-- Comments -->
+          <div class="flex items-center gap-1">
+            <svg class="w-3.5 h-3.5 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            <span>{{ item.commentCount || 0 }}</span>
+          </div>
+          <!-- Views -->
+          <div class="flex items-center gap-1">
+            <svg class="w-3.5 h-3.5 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            <span>{{ item.viewCount || 0 }}</span>
+          </div>
+        </div>
+      </div>
+
+      <ng-container *ngIf="item.imageUrl; else fallbackSearchImage">
+        <img [src]="item.imageUrl" [alt]="item.title" (error)="onImgError(item)" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+      </ng-container>
         <ng-template #fallbackSearchImage>
           <div class="w-full h-full bg-brand-sage/10 flex flex-col items-center justify-center p-3 transition-all duration-300 group-hover:opacity-90">
             <div class="mb-1.5 text-brand-charcoal">
@@ -145,7 +177,7 @@
         </div>
         <div class="border-t border-brand-charcoal/10 pt-2.5 mt-auto flex justify-between items-center">
           <span class="font-mono text-[9px] text-brand-charcoal/50 uppercase tracking-widest">
-            #{{ item.category }}
+            {{ item.category }}
           </span>
           <span class="font-mono text-[9px] text-brand-sage uppercase font-bold group-hover:underline">Ver más →</span>
         </div>
@@ -173,101 +205,428 @@
   </div>
 </main>
 
-<!-- FULLSCREEN CLIENT PREVIEW MODAL FOR VISITOR -->
-<div *ngIf="selectedPortfolio" class="fixed inset-0 z-[90] flex items-center justify-center p-4">
+<!-- FULLSCREEN CLIENT PREVIEW MODAL -->
+<div *ngIf="selectedPortfolio" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
   <!-- Backdrop -->
   <div (click)="closePortfolio()" class="fixed inset-0 bg-brand-charcoal/80 backdrop-blur-sm"></div>
 
-  <!-- Modal Content Box (Simulates mobile card container centered on computer screen) -->
-  <div class="bg-transparent w-full max-w-lg flex flex-col rounded-2xl overflow-hidden relative z-10 animate-fade-in">
-    <!-- Float Close button -->
-    <button (click)="closePortfolio()" class="absolute top-8 right-8 z-50 font-mono text-xl text-white hover:text-brand-sage bg-black/40 backdrop-blur-sm w-9 h-9 rounded-full flex items-center justify-center border border-white/10 cursor-pointer focus:outline-none" aria-label="Cerrar vista de cliente">
-      ✕
-    </button>
+  <!-- Modal Content Box -->
+  <div class="bg-brand-paper border-2 border-brand-charcoal w-full max-w-lg flex flex-col rounded-2xl relative z-10 animate-fade-in max-h-[90vh] overflow-y-auto p-6 text-brand-charcoal">
 
     <!-- Simulated mobile viewport card -->
-    <div [style]="getLandingStyles(selectedPortfolio.landingConfig)" class="w-full border border-brand-charcoal rounded-2xl shadow-2xl overflow-hidden flex flex-col min-h-[480px] justify-between relative p-6 select-none">
+    <div [style]="getLandingStyles(selectedPortfolio.landingConfig)" 
+         class="w-full border border-brand-charcoal rounded-2xl shadow-md overflow-y-auto max-h-[85vh] flex flex-col min-h-[480px] relative p-6 select-text mb-6">
       
-      <!-- Cover Banner -->
-      <div class="absolute inset-0 z-0 pointer-events-none opacity-15 overflow-hidden">
-        <img [src]="selectedPortfolio.imageUrl" class="w-full h-full object-cover">
+      <!-- Overlay oscuro para el fondo -->
+      <div class="absolute inset-0 bg-black pointer-events-none z-0"
+           [style.opacity]="selectedPortfolio.landingConfig?.bgOverlayOpacity < 0.35 ? 0.35 : (selectedPortfolio.landingConfig?.bgOverlayOpacity ?? 0.35)"></div>
+
+      <!-- Cover background image preset -->
+      <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+        <img *ngIf="selectedPortfolio.landingConfig?.landingHeroImage"
+             [src]="selectedPortfolio.landingConfig.landingHeroImage"
+             class="w-full h-full object-cover"
+             alt="Background">
       </div>
 
-      <div class="relative z-10 flex flex-col h-full justify-between flex-1">
-        <!-- Top header metadata -->
-        <div class="flex justify-between items-center pb-2 border-b border-white/10" style="border-color: var(--landing-card-border);">
-          <div class="flex items-center gap-1.5">
-            <span class="font-mono text-[9px] uppercase tracking-wider font-bold" style="color: var(--landing-accent);">{{ selectedPortfolio.landingTemplate }}</span>
-          </div>
-          <div class="flex items-center gap-1 opacity-85" style="color: var(--landing-text);">
-            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
-              <path d="M12 2L2 22h4.5l2.5-5.5h6l2.5 5.5H22L12 2zm1 11.5h-2L12 9l1 4.5z"/>
-            </svg>
-            <span class="font-serif text-[11px] font-bold lowercase tracking-tight">arandu</span>
-          </div>
-        </div>
+      <div class="relative z-10 flex flex-col gap-6 w-full h-full min-h-[430px] justify-between flex-1">
+        
+        <!-- FIXED HEADER (Business name + Navigation menu) -->
+        <ng-container *ngFor="let block of selectedPortfolio.landingConfig?.blocks">
+          <div *ngIf="block.type === 'menu'" class="w-full shrink-0 border border-white/10 bg-white/5 backdrop-blur-md px-4 py-3 flex items-center justify-between gap-4 rounded-xl relative">
+            <!-- Left: Business Brand Name -->
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs" style="color: var(--landing-accent);">💼</div>
+              <span class="font-serif font-bold text-sm" style="color: var(--landing-text);">{{ selectedPortfolio.title || 'Mi Negocio' }}</span>
+            </div>
 
-        <!-- Main Business Info (Static upper section) -->
-        <div class="py-4 text-center">
-          <h1 class="italic font-bold text-2xl tracking-tight leading-tight">
-            {{ selectedPortfolio.title }}
-          </h1>
-          <p class="text-[10px] opacity-75 font-mono mt-1.5">
-            Contacto: {{ selectedPortfolio.contactName }} • Móvil: {{ selectedPortfolio.contactPhone }}<span *ngIf="selectedPortfolio.landingConfig?.phoneFijo"> • Fijo: {{ selectedPortfolio.landingConfig.phoneFijo }}</span>
-          </p>
-          <p class="text-[10px] opacity-70 font-mono mt-0.5">
-            {{ selectedPortfolio.contactEmail }} <span *ngIf="selectedPortfolio.website"> • {{ selectedPortfolio.website }}</span>
-          </p>
-        </div>
+            <!-- Right: Menu links -->
+            <div class="flex items-center gap-2">
+              <!-- Desktop Horizontal Menu -->
+              <div class="hidden sm:flex items-center gap-4 justify-end py-1">
+                <a *ngFor="let link of block.menuLinks" 
+                   href="javascript:void(0)"
+                   (click)="scrollToSection(link.anchor, $event)"
+                   class="text-xs font-bold uppercase tracking-wider font-mono hover:opacity-85 transition-opacity"
+                   style="color: var(--landing-text); text-decoration: none;">
+                  {{ link.label }}
+                </a>
+              </div>
 
-        <!-- CAROUSEL AREA WITH FLOATING SIDE ARROWS -->
-        <div class="relative flex-1 flex items-center my-2">
-          <!-- Left Chevron Arrow -->
-          <button type="button" (click)="prevSlide()"
-                  class="absolute left-1 z-20 w-8 h-8 rounded-full bg-black/30 border border-white/10 flex items-center justify-center text-white hover:bg-black/50 transition-all cursor-pointer focus:outline-none">
-            ‹
-          </button>
-
-          <!-- HORIZONTAL CAROUSEL CONTAINER (Snap scroll list) -->
-          <div class="w-full flex overflow-x-auto snap-x snap-mandatory scroll-smooth hide-scrollbar slides-container py-3 min-h-[160px]"
-               (scroll)="onSlideScroll($event)">
-            
-            <!-- Dynamic Sections slides -->
-            <div *ngFor="let s of selectedPortfolio.landingConfig?.sections; let idx = index" 
-                 class="slide-item flex-shrink-0 w-full snap-start px-8 text-left" 
-                 [id]="'modal-slide-' + idx">
-              
-              <!-- Section title -->
-              <span class="font-serif text-base italic block font-bold mb-2 border-b border-white/10 pb-1" style="color: var(--landing-accent); border-color: var(--landing-card-border);">
-                {{ s.title || 'Sección ' + (idx + 1) }}
-              </span>
-              
-              <!-- Section content -->
-              <p class="text-xs leading-relaxed opacity-90 line-clamp-6 whitespace-pre-line font-serif overflow-y-auto max-h-[130px] hide-scrollbar">
-                {{ s.content || 'Sin descripción.' }}
-              </p>
+              <!-- Mobile Hamburger Menu Button -->
+              <div class="flex sm:hidden relative flex-col items-end py-1">
+                <button type="button" (click)="toggleMobileMenu(block.id)"
+                        class="p-1 border-0 bg-transparent cursor-pointer hover:opacity-85 transition-opacity flex items-center justify-center"
+                        style="color: var(--landing-text);">
+                  <svg *ngIf="!isMobileMenuOpen(block.id)" class="w-5 h-5 stroke-current fill-none" viewBox="0 0 24 24" stroke-width="1.8">
+                    <line x1="4" y1="6" x2="20" y2="6" stroke-linecap="round"></line>
+                    <line x1="4" y1="12" x2="20" y2="12" stroke-linecap="round"></line>
+                    <line x1="4" y1="18" x2="20" y2="18" stroke-linecap="round"></line>
+                  </svg>
+                  <svg *ngIf="isMobileMenuOpen(block.id)" class="w-5 h-5 stroke-current fill-none" viewBox="0 0 24 24" stroke-width="1.8">
+                    <line x1="6" y1="6" x2="18" y2="18" stroke-linecap="round"></line>
+                    <line x1="6" y1="18" x2="18" y2="6" stroke-linecap="round"></line>
+                  </svg>
+                </button>
+                
+                <div *ngIf="isMobileMenuOpen(block.id)" 
+                     class="absolute right-0 top-9 w-42 bg-black/85 backdrop-blur-md rounded-xl p-2 border border-white/10 flex flex-col items-center gap-1.5 animate-fade-in z-50 shadow-lg">
+                  <a *ngFor="let link of block.menuLinks"
+                     href="javascript:void(0)"
+                     (click)="scrollToSection(link.anchor, $event); toggleMobileMenu(block.id)"
+                     class="text-[10px] font-bold uppercase tracking-wider font-mono hover:opacity-80 py-1 transition-opacity block w-full text-center text-white"
+                     style="text-decoration: none;">
+                    {{ link.label }}
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
+        </ng-container>
 
-          <!-- Right Chevron Arrow -->
-          <button type="button" (click)="nextSlide()"
-                  class="absolute right-1 z-20 w-8 h-8 rounded-full bg-black/30 border border-white/10 flex items-center justify-center text-white hover:bg-black/50 transition-all cursor-pointer focus:outline-none">
-            ›
+        <!-- DYNAMIC BLOCKS LIST (Exactly matching canvas blocks loop) -->
+        <div class="flex-1 w-full space-y-5 my-2">
+          <ng-container *ngFor="let block of selectedPortfolio.landingConfig?.blocks">
+            <div *ngIf="block.type !== 'menu' && block.type !== 'social'"
+                 [id]="getBlockSectionId(block)"
+                 class="w-full">
+              
+              <div [ngSwitch]="block.type">
+                <!-- TEXT BLOCK -->
+                <div *ngSwitchCase="'text'"
+                     [style.font-size]="getFontSizeClass(block.fontSize)"
+                     [style.font-weight]="block.fontWeight || 'normal'"
+                     [style.font-family]="getFontFamilyStyle(block.fontFamily)"
+                     [style.text-align]="block.textAlign || 'left'"
+                     [style.color]="block.textColor || 'inherit'"
+                     class="leading-relaxed whitespace-pre-line py-1"
+                     [innerHTML]="getBlockTextContent(block)"></div>
+
+                <!-- IMAGE BLOCK -->
+                <ng-container *ngSwitchCase="'image'">
+                  <div *ngIf="block.mediaUrl" class="overflow-hidden rounded-xl">
+                    <img [src]="block.mediaUrl" class="w-full max-h-72 object-cover">
+                  </div>
+                </ng-container>
+
+                <!-- VIDEO BLOCK -->
+                <ng-container *ngSwitchCase="'video'">
+                  <div *ngIf="block.mediaUrl" class="aspect-video w-full rounded-xl overflow-hidden border border-white/10">
+                    <iframe [src]="parseVideoUrl(block.mediaUrl) | safeUrl" class="w-full h-full border-0" allowfullscreen></iframe>
+                  </div>
+                </ng-container>
+
+                <!-- COLUMNS BLOCK -->
+                <div *ngSwitchCase="'columns'" class="grid gap-4 w-full"
+                     [style.grid-template-columns]="'repeat(' + (block.layoutCols || 2) + ', minmax(0, 1fr))'">
+                  <div *ngFor="let col of block.columns; let colIdx = index" class="space-y-4">
+                    <div *ngFor="let child of col.blocks" class="relative bg-white/5 border border-white/10 rounded-xl p-4 shadow-sm">
+                      <div [ngSwitch]="child.type">
+                        <!-- Nested Text -->
+                        <div *ngSwitchCase="'text'"
+                             class="text-xs leading-relaxed"
+                             [style.font-size]="getFontSizeClass(child.fontSize)"
+                             [style.font-weight]="child.fontWeight || 'normal'"
+                             [style.font-family]="getFontFamilyStyle(child.fontFamily)"
+                             [style.text-align]="child.textAlign || 'left'"
+                             [style.color]="child.textColor || 'inherit'"
+                             [innerHTML]="child.content"></div>
+                        <!-- Nested Image -->
+                        <ng-container *ngSwitchCase="'image'">
+                          <div *ngIf="child.mediaUrl" class="overflow-hidden rounded-lg">
+                            <img [src]="child.mediaUrl" class="w-full max-h-32 object-cover">
+                          </div>
+                        </ng-container>
+                        <!-- Nested Video -->
+                        <ng-container *ngSwitchCase="'video'">
+                          <div *ngIf="child.mediaUrl" class="aspect-video w-full rounded-lg overflow-hidden border border-white/5">
+                            <iframe [src]="parseVideoUrl(child.mediaUrl) | safeUrl" class="w-full h-full border-0" allowfullscreen></iframe>
+                          </div>
+                        </ng-container>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- SLIDER / CAROUSEL BLOCK -->
+                <div *ngSwitchCase="'slider'" class="relative border border-white/15 rounded-xl overflow-hidden shadow-xs" style="height: 280px;">
+                  <div class="w-full h-full relative flex items-center justify-center bg-black/20">
+                    <img *ngIf="getSlideUrl(block, getActiveSlideIdx(block.id))" 
+                         [src]="getSlideUrl(block, getActiveSlideIdx(block.id))"
+                         class="absolute inset-0 w-full h-full object-cover z-0">
+                    
+                    <div class="absolute inset-0 bg-black/45 z-10"></div>
+                    
+                    <div class="relative z-20 text-center px-6 max-w-md text-white">
+                      <h4 class="font-serif text-sm font-bold italic leading-relaxed">{{ getSlideText(block, getActiveSlideIdx(block.id)) }}</h4>
+                    </div>
+                  </div>
+                  <!-- Slide Dots -->
+                  <div class="absolute bottom-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2">
+                    <button *ngFor="let dot of [0, 1, 2]"
+                            (click)="setActiveSlideIdx(block.id, dot)"
+                            [class.bg-white]="getActiveSlideIdx(block.id) === dot"
+                            [class.bg-white/40]="getActiveSlideIdx(block.id) !== dot"
+                            class="w-2 h-2 rounded-full border-0 cursor-pointer transition-all"
+                            aria-label="Diapositiva"></button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </ng-container>
+        </div>
+
+        <!-- FIXED FOOTER (Social links) -->
+        <ng-container *ngFor="let block of selectedPortfolio.landingConfig?.blocks">
+          <div *ngIf="block.type === 'social'" class="w-full shrink-0 border-t pt-3 mt-4 flex flex-col items-center gap-3"
+               style="border-color: var(--landing-card-border);">
+            
+            <div class="flex items-center gap-4 justify-center">
+              <!-- WhatsApp -->
+              <a *ngIf="block.socialLinks?.whatsapp"
+                 [href]="'https://wa.me/' + block.socialLinks?.whatsapp" target="_blank"
+                 class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 flex items-center justify-center transition-all"
+                 style="color: var(--landing-text);" title="WhatsApp">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.73-1.45L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.864-9.864.003-2.637-1.01-5.116-2.853-6.963-1.844-1.848-4.298-2.866-6.944-2.868-5.441 0-9.869 4.42-9.873 9.864-.001 1.77.466 3.498 1.354 5.022L1.936 21.9l5.068-1.332-.357-.215zm11.39-7.234c-.305-.153-1.805-.89-2.083-.99-.279-.101-.482-.152-.684.152-.202.305-.78.99-.957 1.19-.177.202-.356.228-.661.076-.305-.153-1.288-.475-2.454-1.516-.908-.81-1.52-1.81-1.698-2.115-.178-.305-.019-.47.133-.622.137-.137.305-.356.457-.533.153-.178.204-.305.305-.51.101-.203.05-.38-.025-.533-.076-.153-.684-1.65-.938-2.26-.247-.597-.5-.516-.684-.526-.178-.008-.38-.01-.583-.01-.203 0-.533.076-.812.38-.279.305-1.066 1.042-1.066 2.54 0 1.498 1.09 2.946 1.242 3.15.152.202 2.146 3.277 5.198 4.593.726.313 1.293.5 1.734.64.73.23 1.393.197 1.919.12.585-.087 1.805-.738 2.06-1.45.253-.71.253-1.32.177-1.45-.077-.13-.279-.203-.584-.356z"/></svg>
+              </a>
+
+              <!-- LinkedIn -->
+              <a *ngIf="block.socialLinks?.linkedin"
+                 [href]="block.socialLinks?.linkedin" target="_blank"
+                 class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 flex items-center justify-center transition-all"
+                 style="color: var(--landing-text);" title="LinkedIn">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+              </a>
+
+              <!-- Instagram -->
+              <a *ngIf="block.socialLinks?.instagram"
+                 [href]="block.socialLinks?.instagram" target="_blank"
+                 class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 flex items-center justify-center transition-all"
+                 style="color: var(--landing-text);" title="Instagram">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+              </a>
+
+              <!-- Facebook -->
+              <a *ngIf="block.socialLinks?.facebook"
+                 [href]="block.socialLinks?.facebook" target="_blank"
+                 class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 flex items-center justify-center transition-all"
+                 style="color: var(--landing-text);" title="Facebook">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/></svg>
+              </a>
+
+              <!-- X -->
+              <a *ngIf="block.socialLinks?.x"
+                 [href]="block.socialLinks?.x" target="_blank"
+                 class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 flex items-center justify-center transition-all"
+                 style="color: var(--landing-text);" title="X (Twitter)">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              </a>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- Static branding footer -->
+        <div class="relative z-10 flex items-center justify-center pt-2 border-t"
+             style="border-color: var(--landing-card-border);">
+          <span class="font-mono text-[9px] uppercase tracking-wider font-bold opacity-60" style="color: var(--landing-text);">Creado en Arandu</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comentarios Section -->
+    <div class="border-t border-brand-charcoal/10 pt-6">
+      <h3 class="font-serif italic text-lg font-bold mb-4">Comentarios ({{ portfolioComments.length }})</h3>
+      
+      <!-- Input de comentario -->
+      <div class="space-y-3 mb-6 bg-brand-charcoal/5 p-4 rounded-xl border border-brand-charcoal/10">
+        <span class="font-mono text-[9px] uppercase text-brand-charcoal/50 tracking-wider">Escribir un comentario</span>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <input [(ngModel)]="newCommentAuthor" 
+                 placeholder="Tu nombre (opcional)" 
+                 class="px-3 py-1.5 font-mono text-[11px] bg-brand-paper border border-brand-charcoal/20 focus:border-brand-sage focus:outline-none">
+        </div>
+        <!-- Emoji suggested bar -->
+        <div class="flex gap-1.5 flex-wrap py-1">
+          <button *ngFor="let emoji of suggestedEmojis" 
+                  (click)="addEmojiToComment(emoji)" 
+                  type="button"
+                  class="text-base hover:scale-125 transition-transform cursor-pointer focus:outline-none bg-transparent border-0">
+            {{ emoji }}
           </button>
         </div>
-
-        <!-- Bottom indicators / Page dots tracker & Footer -->
-        <div class="flex items-center justify-between pt-2 border-t border-white/10" style="border-color: var(--landing-card-border);">
-          <span class="font-mono text-[8px] opacity-65">arandu.ch</span>
-          
-          <div class="flex gap-1.5">
-            <div *ngFor="let s of slides; let i = index" 
-                 class="w-1.5 h-1.5 rounded-full transition-all"
-                 [style.background-color]="currentSlideIndex === i ? 'var(--landing-accent)' : 'rgba(255,255,255,0.3)'"></div>
-          </div>
-          
-          <span class="font-mono text-[8px] opacity-65">© Ginebra, Suiza</span>
+        <textarea [(ngModel)]="newCommentText" 
+                  rows="2" 
+                  placeholder="Escribe tu opinión sobre este comercio..." 
+                  class="w-full p-3 font-sans text-xs bg-brand-paper border border-brand-charcoal/20 focus:border-brand-sage focus:outline-none resize-none"></textarea>
+        <div class="flex justify-end">
+          <button (click)="addPortfolioComment()" 
+                  [disabled]="!newCommentText.trim()"
+                  class="bg-brand-charcoal text-brand-paper px-4 py-1.5 font-mono text-[10px] font-bold uppercase tracking-widest hover:bg-brand-sage hover:text-brand-charcoal disabled:opacity-40 disabled:hover:bg-brand-charcoal disabled:hover:text-brand-paper transition-all cursor-pointer border-0">
+            Enviar Comentario
+          </button>
         </div>
+      </div>
+
+      <!-- Lista de comentarios -->
+      <div class="space-y-4 max-h-60 overflow-y-auto pr-1">
+        <div *ngFor="let comment of portfolioComments" class="border-b border-brand-charcoal/10 pb-4 last:border-0 flex gap-3 items-start">
+          <!-- User initials 2D default logo (Instagram style) -->
+          <div (click)="openPublicProfile(comment.authorName)" 
+               class="w-8 h-8 rounded-full bg-brand-sage/20 border border-brand-sage/30 flex items-center justify-center font-mono text-[10px] font-bold text-brand-sage shrink-0 cursor-pointer hover:bg-brand-sage/35 transition-colors">
+            {{ comment.authorName ? comment.authorName.substring(0, 2).toUpperCase() : 'U' }}
+          </div>
+          <div class="flex-grow">
+            <div class="flex justify-between items-center mb-1">
+              <span (click)="openPublicProfile(comment.authorName)" class="font-mono text-xs font-bold text-brand-charcoal hover:underline cursor-pointer">{{ comment.authorName }}</span>
+              <span class="font-mono text-[9px] text-brand-charcoal/50">{{ comment.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            <p class="font-sans text-xs text-brand-charcoal/90 leading-relaxed">{{ comment.content }}</p>
+          </div>
+        </div>
+        <div *ngIf="portfolioComments.length === 0" class="text-center py-6 text-xs font-mono text-brand-charcoal/50 italic">
+          No hay comentarios aún. ¡Sé el primero en opinar!
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PUBLIC PROFILE USER CARD MODAL (Instagram Style) -->
+<div *ngIf="showPublicProfileModal && publicProfileUser" class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-brand-charcoal/80 backdrop-blur-xs">
+  <div (click)="closePublicProfile()" class="fixed inset-0"></div>
+  <div class="bg-brand-paper border-2 border-brand-charcoal w-full max-w-sm relative z-10 p-6 shadow-2xl rounded-2xl text-brand-charcoal">
+    <!-- Close button -->
+    <button (click)="closePublicProfile()" class="absolute top-4 right-4 font-mono text-lg hover:text-brand-red cursor-pointer focus:outline-none bg-transparent border-0">✕</button>
+
+    <!-- Instagram Header Block -->
+    <div class="flex items-center gap-4 border-b border-brand-charcoal/10 pb-4 mb-4">
+      <div class="w-16 h-16 rounded-full bg-brand-sage/30 border border-brand-sage/40 flex items-center justify-center font-mono text-xl font-bold text-brand-sage uppercase">
+        {{ publicProfileUser.initials }}
+      </div>
+      <div>
+        <h4 class="font-serif text-lg font-bold truncate max-w-[180px]">{{ publicProfileUser.name }}</h4>
+        <span class="font-mono text-[9px] uppercase tracking-wider bg-brand-charcoal/5 px-2 py-0.5 rounded text-brand-charcoal/60">Perfil Público Arandu</span>
+      </div>
+    </div>
+
+    <!-- Instagram Metrics Block -->
+    <div class="grid grid-cols-2 text-center py-2 border-b border-brand-charcoal/10 mb-4 font-mono text-xs">
+      <div class="border-r border-brand-charcoal/10">
+        <span class="block font-bold text-base">{{ publicUserAds.length }}</span>
+        <span class="text-[9px] text-brand-charcoal/50 uppercase">Publicaciones</span>
+      </div>
+      <div>
+        <span class="block font-bold text-base">{{ publicUserFavorites.length }}</span>
+        <span class="text-[9px] text-brand-charcoal/50 uppercase">Favoritos</span>
+      </div>
+    </div>
+
+    <!-- Instagram tabs navigation -->
+    <div class="flex border-b border-brand-charcoal/10 mb-3 font-mono text-[9px]">
+      <button (click)="publicActiveTab = 'publications'"
+              [class.border-b-2]="publicActiveTab === 'publications'"
+              [class.border-brand-charcoal]="publicActiveTab === 'publications'"
+              [class.font-bold]="publicActiveTab === 'publications'"
+              class="flex-1 py-1.5 text-center uppercase tracking-wider cursor-pointer border-0 bg-transparent">
+        Publicaciones
+      </button>
+      <button (click)="publicActiveTab = 'favorites'"
+              [class.border-b-2]="publicActiveTab === 'favorites'"
+              [class.border-brand-charcoal]="publicActiveTab === 'favorites'"
+              [class.font-bold]="publicActiveTab === 'favorites'"
+              class="flex-1 py-1.5 text-center uppercase tracking-wider cursor-pointer border-0 bg-transparent">
+        Favoritos
+      </button>
+    </div>
+
+    <!-- Scrollable Items View -->
+    <div class="max-h-40 overflow-y-auto space-y-2 mb-4 pr-1">
+      <div *ngIf="publicActiveTab === 'publications'">
+        <div *ngFor="let item of publicUserAds" class="border border-brand-charcoal/15 p-2 bg-brand-charcoal/[0.02] flex items-center justify-between gap-2 rounded">
+          <span class="font-sans text-xs font-bold truncate flex-1">{{ item.title }}</span>
+          <span class="font-mono text-[8px] bg-brand-sage/10 text-brand-sage px-1.5 py-0.5 uppercase shrink-0 font-bold">{{ item.category }}</span>
+        </div>
+        <p *ngIf="publicUserAds.length === 0" class="text-center font-mono text-[10px] text-brand-charcoal/40 italic py-4">Sin anuncios publicados</p>
+      </div>
+
+      <div *ngIf="publicActiveTab === 'favorites'">
+        <div *ngFor="let item of publicUserFavorites" class="border border-brand-charcoal/15 p-2 bg-brand-charcoal/[0.02] flex items-center justify-between gap-2 rounded">
+          <span class="font-sans text-xs font-bold truncate flex-1">{{ item.title }}</span>
+          <span class="font-mono text-[8px] bg-brand-charcoal/20 text-brand-charcoal px-1.5 py-0.5 uppercase shrink-0 font-bold">{{ item.type }}</span>
+        </div>
+        <p *ngIf="publicUserFavorites.length === 0" class="text-center font-mono text-[10px] text-brand-charcoal/40 italic py-4">Sin favoritos guardados</p>
+      </div>
+    </div>
+
+    <!-- Send message action button -->
+    <button (click)="sendPublicMessage()" 
+            class="w-full bg-brand-sage text-brand-paper font-mono text-[10px] font-bold uppercase py-2.5 tracking-wider hover:bg-brand-charcoal transition-colors border-0 cursor-pointer rounded-lg">
+      Enviar Mensaje
+    </button>
+  </div>
+</div>
+
+<!-- REPORT MODAL DIALOG -->
+<div *ngIf="showReportModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-charcoal/80 backdrop-blur-sm">
+  <div class="bg-brand-paper border-2 border-brand-charcoal w-full max-w-md p-6 relative shadow-2xl text-brand-charcoal">
+    <!-- Close button -->
+    <button (click)="closeReportModal()" class="absolute top-4 right-4 font-mono text-lg text-brand-charcoal hover:text-brand-red cursor-pointer focus:outline-none bg-transparent border-0" aria-label="Cerrar modal">
+      ✕
+    </button>
+    
+    <h3 class="font-serif text-xl font-bold uppercase tracking-tight mb-4 pb-2 border-b border-brand-charcoal/10 flex items-center gap-2">
+      <svg class="w-5 h-5 stroke-current fill-none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21v8h-6l-1-1H5a2 2 0 00-2 2zm0 0h9"></path></svg>
+      Señalar Inconveniente
+    </h3>
+    
+    <div class="space-y-4">
+      <p class="font-sans text-xs text-brand-charcoal/70 leading-relaxed">
+        Ayúdanos a entender qué ocurre con este contenido. Revisamos los reportes las 24 horas del día.
+      </p>
+      
+      <!-- Reason options (Radio list) -->
+      <div class="flex flex-col gap-2 font-mono text-xs">
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="radio" name="reportReason" [(ngModel)]="reportReason" value="Contenido ofensivo, de odio o abusivo" class="accent-brand-sage">
+          Contenido ofensivo, de odio o abusivo
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="radio" name="reportReason" [(ngModel)]="reportReason" value="Contenido violento o explícito" class="accent-brand-sage">
+          Contenido violento o explícito
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="radio" name="reportReason" [(ngModel)]="reportReason" value="Acoso, spam o estafa" class="accent-brand-sage">
+          Acoso, spam o estafa
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="radio" name="reportReason" [(ngModel)]="reportReason" value="Categoría o información incorrecta" class="accent-brand-sage">
+          Categoría o información incorrecta
+        </label>
+      </div>
+      
+      <!-- Description details text area -->
+      <div class="flex flex-col gap-1">
+        <label class="font-serif text-xs italic" for="reportDesc">Detalles adicionales (opcional)</label>
+        <textarea 
+          [(ngModel)]="reportDescription"
+          rows="4" 
+          placeholder="Escribe más información aquí..."
+          class="w-full bg-transparent border border-brand-charcoal/30 p-2 font-sans text-xs focus:outline-none focus:border-brand-sage focus:ring-0"></textarea>
+      </div>
+
+      <!-- Messages -->
+      <p *ngIf="reportSuccessMessage" class="font-mono text-[10px] text-brand-sage uppercase font-bold">{{ reportSuccessMessage }}</p>
+      <p *ngIf="reportErrorMessage" class="font-mono text-[10px] text-brand-red uppercase font-bold">{{ reportErrorMessage }}</p>
+      
+      <!-- Action buttons -->
+      <div class="flex justify-end gap-2 pt-2">
+        <button (click)="closeReportModal()" class="px-4 py-2 border border-brand-charcoal/30 text-brand-charcoal/60 font-mono text-[10px] font-bold uppercase hover:bg-brand-charcoal/5 cursor-pointer bg-transparent">
+          Cancelar
+        </button>
+        <button (click)="submitReport()" [disabled]="!reportReason" class="px-4 py-2 bg-brand-charcoal text-brand-paper font-mono text-[10px] font-bold uppercase hover:bg-brand-sage hover:text-brand-charcoal disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer border-0">
+          Enviar Reporte
+        </button>
       </div>
     </div>
   </div>
