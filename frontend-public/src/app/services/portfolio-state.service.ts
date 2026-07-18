@@ -1,54 +1,6 @@
 import { Injectable, signal, computed } from '@angular/core';
-
-export interface PortfolioSection {
-  title: string;
-  content: string;
-}
-
-export interface PortfolioBlock {
-  id: string;
-  type: 'text' | 'video' | 'image' | 'layouts' | 'social' | 'menu' | 'slider' | 'columns';
-  content?: string;
-  fontSize?: 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
-  fontWeight?: 'normal' | 'medium' | 'semibold' | 'bold';
-  fontFamily?: 'serif' | 'sans' | 'mono' | 'geometric' | 'elegant';
-  textAlign?: 'left' | 'center' | 'right';
-  textColor?: string;
-  mediaUrl?: string; // YouTube/Vimeo URLs or image ObjectURLs/publicUrls
-  mediaType?: 'youtube' | 'vimeo' | 'image';
-  layoutCols?: number; // 2, 3, 4 columns
-  columns?: {
-    blocks: PortfolioBlock[];
-  }[];
-  menuLinks?: {
-    label: string;
-    anchor: string;
-  }[];
-  sliderSlides?: {
-    url: string;
-    text: string;
-  }[];
-  socialLinks?: {
-    whatsapp?: string;
-    email?: string;
-    website?: string;
-    instagram?: string;
-    linkedin?: string;
-    facebook?: string;
-    x?: string;
-    youtube?: string;
-  };
-}
-
-export interface PortfolioConfig {
-  palette: string;
-  font: string;
-  heroImage: string;
-  sections?: PortfolioSection[];
-  blocks?: PortfolioBlock[];
-  phoneFijo?: string;
-  bgOverlayOpacity?: number;
-}
+import { PortfolioSection, PortfolioBlock, PortfolioConfig } from '@arandu/types';
+export type { PortfolioSection, PortfolioBlock, PortfolioConfig } from '@arandu/types';
 
 @Injectable({
   providedIn: 'root'
@@ -57,8 +9,8 @@ export class PortfolioStateService {
   // Stepper State (backward compatibility wizard steps)
   currentStep = signal<number>(1);
 
-  // Responsive Mode State ('desktop' | 'tablet' | 'mobile')
-  responsiveMode = signal<'desktop' | 'tablet' | 'mobile'>('desktop');
+  // Responsive Mode State ('desktop' | 'tablet' | 'mobile' | 'mobile-landscape')
+  responsiveMode = signal<'desktop' | 'tablet' | 'mobile' | 'mobile-landscape'>('desktop');
 
   // Control visibility of full-screen builder modal
   showVisualBuilder = signal<boolean>(false);
@@ -78,6 +30,7 @@ export class PortfolioStateService {
   landingHeroImage = signal<string>('');
   bgOverlayOpacity = signal<number>(0.4);
   isDirty = signal<boolean>(false);
+  isSaved = computed(() => !this.isDirty());
   previewMode = signal<boolean>(false);
 
   // Blocks List Signal (Visual Builder)
@@ -235,8 +188,16 @@ export class PortfolioStateService {
     this.currentStep.set(step);
   }
 
-  setResponsiveMode(mode: 'desktop' | 'tablet' | 'mobile') {
+  setResponsiveMode(mode: 'desktop' | 'tablet' | 'mobile' | 'mobile-landscape') {
     this.responsiveMode.set(mode);
+  }
+
+  markDirty() {
+    this.isDirty.set(true);
+  }
+
+  markSaved() {
+    this.isDirty.set(false);
   }
 
   // Reorder sections (used for legacy components)

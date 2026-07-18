@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { DbModule } from './db/db.module';
 import { CommonModule } from './common/common.module';
 import { RedirectModule } from './modules/redirect/redirect.module';
+import { InteractionsModule } from './modules/interactions/interactions.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 
@@ -19,6 +20,7 @@ import { APP_GUARD } from '@nestjs/core';
     DbModule,
     CommonModule,
     RedirectModule,
+    InteractionsModule,
   ],
   controllers: [AppController],
   providers: [

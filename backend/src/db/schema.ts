@@ -93,6 +93,7 @@ export const ratings = pgTable('ratings', {
   stars: integer('stars'),
   isLike: boolean('is_like').default(false).notNull(),
   isDislike: boolean('is_dislike').default(false).notNull(),
+  voterId: varchar('voter_id', { length: 255 }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 

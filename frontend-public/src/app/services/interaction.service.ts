@@ -1,14 +1,8 @@
 import { Injectable } from '@angular/core';
 import { SupabaseService } from './supabase.service';
-
-export interface CommentItem {
-  id: string;
-  entityId: string;
-  entityType: string;
-  authorName: string;
-  content: string;
-  createdAt: string;
-}
+import { CommentItem } from '@arandu/types';
+export type { CommentItem } from '@arandu/types';
+import { environment } from '../../environments/environment';
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -77,16 +71,21 @@ export class InteractionService {
       return;
     }
     try {
-      const { error } = await this.supabase.client
-        .from('comments')
-        .insert([{
-          entity_id: entityId,
-          entity_type: entityType,
-          author_name: authorName,
-          content: content
-        }]);
-
-      if (error) throw error;
+      const response = await fetch(`${environment.apiUrl}/api/interactions/comments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          entityId,
+          entityType,
+          authorName,
+          content
+        })
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
     } catch (err) {
       console.error('InteractionService.addComment – error:', err);
       throw err;
@@ -205,17 +204,24 @@ export class InteractionService {
       return;
     }
     try {
-      const { error } = await this.supabase.client
-        .from('ratings')
-        .insert([{
-          entity_id: entityId,
-          entity_type: entityType,
-          stars: stars,
-          is_like: false,
-          is_dislike: false
-        }]);
-
-      if (error) throw error;
+      const voterId = this.getVoterId();
+      const response = await fetch(`${environment.apiUrl}/api/interactions/ratings`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          entityId,
+          entityType,
+          voterId,
+          stars,
+          isLike: false,
+          isDislike: false
+        })
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
     } catch (err) {
       console.error('InteractionService.rate – error:', err);
       throw err;
@@ -233,25 +239,29 @@ export class InteractionService {
     try {
       const voterId = this.getVoterId();
       if (voteType === null) {
-        const { error } = await this.supabase.client
-          .from('ratings')
-          .delete()
-          .eq('entity_id', entityId)
-          .eq('voter_id', voterId);
-        if (error) throw error;
+        const response = await fetch(`${environment.apiUrl}/api/interactions/ratings/${entityId}/${voterId}`, {
+          method: 'DELETE'
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
       } else {
-        const { error } = await this.supabase.client
-          .from('ratings')
-          .upsert({
-            entity_id: entityId,
-            entity_type: entityType,
-            voter_id: voterId,
-            is_like: voteType === 'like',
-            is_dislike: voteType === 'dislike'
-          }, {
-            onConflict: 'entity_id,voter_id'
-          });
-        if (error) throw error;
+        const response = await fetch(`${environment.apiUrl}/api/interactions/ratings`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            entityId,
+            entityType,
+            voterId,
+            isLike: voteType === 'like',
+            isDislike: voteType === 'dislike'
+          })
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
       }
     } catch (err) {
       console.error('InteractionService.vote – error:', err);

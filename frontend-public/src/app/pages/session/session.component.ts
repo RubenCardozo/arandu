@@ -55,6 +55,23 @@ export class SessionComponent implements OnInit, OnDestroy {
   currentSlideIndex = 0;
   portfolioEditorMobileTab: 'edit' | 'preview' = 'edit';
 
+  // WYSIWYG & Layout States
+  autoplayTimer: any = null;
+  selectedBlockId = signal<string | null>(null);
+  activeResizeHandle = signal<string | null>(null);
+  isDraggingBlock = signal<boolean>(false);
+  isResizingBlock = signal<boolean>(false);
+  draggedMenuIndex = signal<number | null>(null);
+  sidebarCollapsed = signal(false);
+
+  // Drag state variables
+  dragStartMouseX = 0;
+  dragStartMouseY = 0;
+  dragStartBlockX = 0;
+  dragStartBlockY = 0;
+  resizeStartWidth = 0;
+  resizeStartHeight = 0;
+
   isModalOpen(): boolean {
     return this.portfolioState.showVisualBuilder() || 
            this.showLandingPreviewModal || 
@@ -216,6 +233,9 @@ export class SessionComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     if (this.authSubscription) {
       this.authSubscription.unsubscribe();
+    }
+    if (this.autoplayTimer) {
+      clearInterval(this.autoplayTimer);
     }
   }
 
