@@ -1,0 +1,96 @@
+              <!-- PREVISUALIZACIÓN HORIZONTAL NATIVA AL 100% -->
+              <div class="space-y-4 pt-4 border-t border-brand-charcoal/20">
+                <div class="flex items-center justify-between">
+                  <h3 class="font-serif text-base italic font-bold text-brand-charcoal">Previsualización en tiempo real (Mobile-First)</h3>
+                </div>
+
+                <p class="font-sans text-[10px] text-brand-charcoal/60">
+                  Usa las flechas a los lados o desliza (Swipe) sobre la tarjeta para navegar por las secciones del Sitio Comercial.
+                </p>
+
+                <!-- CARD WRAPPER WITH CUSTOM STYLES -->
+                <div [style]="getLandingStyles(getPreviewConfig())" class="relative overflow-hidden w-full select-none max-w-lg mx-auto">
+                  
+                  <!-- Cover Banner (Background absolute image with opacity) -->
+                  <div class="absolute inset-0 z-0 pointer-events-none opacity-15 overflow-hidden">
+                    <img *ngIf="portfolioForm.get('landingHeroImage')?.value" [src]="portfolioForm.get('landingHeroImage')?.value" class="w-full h-full object-cover">
+                  </div>
+
+                  <!-- INNER VIEWPORT: HORIZONTAL ONLY -->
+                  <div class="relative z-10 flex flex-col h-full min-h-[360px] justify-between">
+                    
+                    <!-- Top header metadata -->
+                    <div class="flex justify-between items-center pb-2 border-b border-white/10" style="border-color: var(--landing-card-border);">
+                      <div class="flex items-center gap-1.5">
+                        <span class="font-mono text-[9px] uppercase tracking-wider font-bold" style="color: var(--landing-accent);">{{ portfolioForm.get('landingTemplate')?.value }}</span>
+                      </div>
+                      <span class="font-mono text-[8px] opacity-60">ARANDU SITES</span>
+                    </div>
+
+                    <!-- Main Business Info (Static upper section) -->
+                    <div class="py-3 text-center">
+                      <h4 class="italic font-bold text-2xl tracking-tight leading-tight">
+                        {{ portfolioForm.get('title')?.value || 'Mi Negocio' }}
+                      </h4>
+                      <p class="text-[10px] opacity-75 font-mono mt-1">
+                        Contacto: {{ portfolioForm.get('contactName')?.value }} • Tlf: {{ portfolioForm.get('phone')?.value }}
+                      </p>
+                    </div>
+
+                    <!-- CAROUSEL AREA WITH FLOATING SIDE ARROWS -->
+                    <div class="relative flex-1 flex items-center">
+                      <!-- Left Chevron Arrow -->
+                      <button *ngIf="currentSlideIndex > 0" type="button" (click)="prevSlide()"
+                              class="absolute left-1 z-20 w-8 h-8 rounded-full bg-black/30 border border-white/10 flex items-center justify-center text-white hover:bg-black/50 transition-all cursor-pointer focus:outline-none">
+                        ‹
+                      </button>
+
+                      <!-- HORIZONTAL CAROUSEL CONTAINER (Snap scroll list) -->
+                      <div class="w-full flex overflow-x-auto snap-x snap-mandatory scroll-smooth hide-scrollbar slides-container py-3 min-h-[160px]"
+                           (scroll)="onSlideScroll($event)">
+                        
+                        <!-- Dynamic Sections slides -->
+                        <div *ngFor="let s of getPreviewConfig().sections; let idx = index" 
+                             class="slide-item flex-shrink-0 w-full snap-start px-8 text-left" 
+                             [id]="'slide-' + idx">
+                          
+                          <!-- Section title -->
+                          <span class="font-serif text-base italic block font-bold mb-2 border-b border-white/10 pb-1" style="color: var(--landing-accent); border-color: var(--landing-card-border);">
+                            {{ s.title || 'Sección ' + (idx + 1) }}
+                          </span>
+                          
+                          <!-- Section content -->
+                          <p class="text-xs leading-relaxed opacity-90 line-clamp-5 whitespace-pre-line font-serif overflow-y-auto max-h-[120px] hide-scrollbar">
+                            {{ s.content || 'Sin descripción.' }}
+                          </p>
+                        </div>
+                      </div>
+
+                      <!-- Right Chevron Arrow -->
+                      <button *ngIf="currentSlideIndex < slides.length - 1" type="button" (click)="nextSlide()"
+                              class="absolute right-1 z-20 w-8 h-8 rounded-full bg-black/30 border border-white/10 flex items-center justify-center text-white hover:bg-black/50 transition-all cursor-pointer focus:outline-none">
+                        ›
+                      </button>
+                    </div>
+
+                    <!-- Bottom indicators / Page dots tracker -->
+                    <div class="flex items-center justify-center gap-1.5 py-2 border-t border-white/10" style="border-color: var(--landing-card-border);">
+                      <div *ngFor="let s of slides; let i = index" 
+                           class="w-1.5 h-1.5 rounded-full transition-all"
+                           [style.background-color]="currentSlideIndex === i ? 'var(--landing-accent)' : 'rgba(255,255,255,0.3)'"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- BOTONES DE ACCIÓN AL FINAL DEL FORMULARIO -->
+              <div class="pt-6 border-t border-brand-charcoal/20 flex flex-wrap items-center justify-end gap-4">
+                <button type="button" (click)="openLandingPreviewModal()"
+                        class="px-8 py-3 border border-brand-charcoal text-brand-charcoal hover:bg-brand-charcoal hover:text-brand-paper font-mono text-[11px] font-bold uppercase tracking-widest transition-all duration-150 cursor-pointer">
+                  PREVISUALIZAR
+                </button>
+                <button type="submit" [disabled]="portfolioSubmitting"
+                        class="px-8 py-3 bg-brand-sage text-brand-paper font-mono text-[11px] font-bold uppercase tracking-widest hover:bg-brand-charcoal hover:text-brand-paper transition-all duration-150 cursor-pointer disabled:opacity-50">
+                  {{ portfolioSubmitting ? 'GUARDANDO...' : 'GUARDAR SITIO COMERCIAL' }}
+                </button>
+              </div>

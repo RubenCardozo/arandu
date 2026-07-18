@@ -1,0 +1,187 @@
+              <!-- PREVISUALIZACIÓN HORIZONTAL NATIVA AL 100% -->
+              <div class="space-y-4 pt-4 border-t border-brand-charcoal/20">
+                <div class="flex items-center justify-between">
+                  <h3 class="font-serif text-base italic font-bold text-brand-charcoal">Previsualización en tiempo real (Mobile-First)</h3>
+                  <button type="button" (click)="openLandingPreviewModal()" 
+                          class="px-4.5 py-1.5 border border-brand-charcoal bg-brand-charcoal text-brand-paper hover:bg-brand-sage hover:text-brand-paper hover:border-brand-sage transition-all font-mono text-[9px] uppercase font-bold tracking-wider cursor-pointer">
+                    Pantalla Completa ⚡
+                  </button>
+                </div>
+
+                <p class="font-sans text-[10px] text-brand-charcoal/60">
+                  Usa los botones <span class="font-bold">Anterior</span> y <span class="font-bold">Siguiente</span> o desliza (Swipe) sobre la tarjeta para cambiar de menú de forma horizontal.
+                </p>
+
+                <!-- CARD WRAPPER WITH CUSTOM STYLES -->
+                <div [style]="getLandingStyles(getPreviewConfig())" class="relative overflow-hidden w-full select-none max-w-lg mx-auto">
+                  
+                  <!-- Cover Banner (Background absolute image with opacity) -->
+                  <div class="absolute inset-0 z-0 pointer-events-none opacity-15 overflow-hidden">
+                    <img *ngIf="portfolioForm.get('landingHeroImage')?.value" [src]="portfolioForm.get('landingHeroImage')?.value" class="w-full h-full object-cover">
+                  </div>
+
+                  <!-- INNER VIEWPORT: HORIZONTAL ONLY -->
+                  <div class="relative z-10 flex flex-col h-full min-h-[380px] justify-between">
+                    
+                    <!-- Top header metadata -->
+                    <div class="flex justify-between items-center pb-2 border-b border-white/10" style="border-color: var(--landing-card-border);">
+                      <div class="flex items-center gap-1.5">
+                        <span class="font-mono text-[9px] uppercase tracking-wider font-bold" style="color: var(--landing-accent);">{{ portfolioForm.get('landingTemplate')?.value }}</span>
+                      </div>
+                      <span class="font-mono text-[8px] opacity-60">ARANDU SITES</span>
+                    </div>
+
+                    <!-- Main Business Info (Static upper section) -->
+                    <div class="py-4 text-center">
+                      <h4 class="italic font-bold text-2xl tracking-tight leading-tight">
+                        {{ portfolioForm.get('title')?.value || 'Mi Negocio' }}
+                      </h4>
+                      <p class="text-[10px] opacity-75 font-mono mt-1">
+                        Contacto: {{ portfolioForm.get('contactName')?.value }} • Tlf: {{ portfolioForm.get('phone')?.value }}
+                      </p>
+                    </div>
+
+                    <!-- Slide tabs indicator / titles -->
+                    <div class="flex justify-center gap-1.5 py-1.5 border-b border-white/5 overflow-x-auto" style="border-color: var(--landing-card-border);">
+                      <span *ngFor="let s of slides; let i = index" 
+                             (click)="selectPreviewTab(s)"
+                             [style.background-color]="activePreviewTab === s ? 'var(--landing-accent)' : 'transparent'"
+                             [style.color]="activePreviewTab === s ? '#fff' : 'var(--landing-text)'"
+                             class="px-2.5 py-1 text-[9px] font-mono uppercase tracking-wider rounded font-bold cursor-pointer transition-all">
+                        {{ s === 'presentacion' ? 'Inicio' : s === 'servicios' ? 'Detalles' : s === 'contacto' ? 'Contacto' : 'Oferta' }}
+                      </span>
+                    </div>
+
+                    <!-- HORIZONTAL CAROUSEL CONTAINER (Snap scroll list) -->
+                    <div class="flex-1 flex overflow-x-auto snap-x snap-mandatory scroll-smooth hide-scrollbar slides-container py-4 min-h-[160px]"
+                         (scroll)="onSlideScroll($event)">
+                      
+                      <!-- Slide 1: Presentación -->
+                      <div class="slide-item flex-shrink-0 w-full snap-start px-2 text-left" id="slide-presentacion">
+                        <span class="font-mono text-[8px] uppercase block font-bold opacity-60 mb-1">Sobre Nosotros</span>
+                        <p class="text-xs leading-relaxed opacity-90 line-clamp-6 whitespace-pre-line font-serif">
+                          {{ portfolioForm.get('description')?.value || 'Presentación detallada de los servicios, experiencia y propuesta de valor de tu negocio...' }}
+                        </p>
+                      </div>
+
+                      <!-- Slide 2: Detalles / Servicios dinámicos -->
+                      <div class="slide-item flex-shrink-0 w-full snap-start px-2 text-left" id="slide-servicios">
+                        <span class="font-mono text-[8px] uppercase block font-bold opacity-60 mb-2">Detalles del Servicio</span>
+                        <div class="space-y-1.5 text-xs">
+                          <!-- Horario -->
+                          <div *ngIf="portfolioForm.get('landingHorario')?.value" class="p-2 rounded" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
+                            <span class="font-mono text-[8px] uppercase block opacity-60">Horario de Atención</span>
+                            <span class="font-bold">{{ portfolioForm.get('landingHorario')?.value }}</span>
+                          </div>
+                          <!-- Cobertura -->
+                          <div *ngIf="portfolioForm.get('landingCobertura')?.value" class="p-2 rounded" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
+                            <span class="font-mono text-[8px] uppercase block opacity-60">Área de Cobertura</span>
+                            <span class="font-bold">{{ portfolioForm.get('landingCobertura')?.value }}</span>
+                          </div>
+                          <!-- Experiencia -->
+                          <div *ngIf="portfolioForm.get('landingExperiencia')?.value" class="p-2 rounded" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
+                            <span class="font-mono text-[8px] uppercase block opacity-60">Experiencia</span>
+                            <span class="font-bold">{{ portfolioForm.get('landingExperiencia')?.value }}</span>
+                          </div>
+                          <!-- Consulta -->
+                          <div *ngIf="portfolioForm.get('landingConsulta')?.value && (portfolioForm.get('landingTemplate')?.value === 'particulares' || portfolioForm.get('landingTemplate')?.value === 'educacion')" class="p-2 rounded" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
+                            <span class="font-mono text-[8px] uppercase block opacity-60">Modalidad</span>
+                            <span class="font-bold">{{ portfolioForm.get('landingConsulta')?.value }}</span>
+                          </div>
+                          <!-- Seguro -->
+                          <div *ngIf="portfolioForm.get('landingTemplate')?.value === 'particulares'" class="p-2 rounded" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
+                            <span class="font-mono text-[8px] uppercase block opacity-60">Seguro de Salud Mutual (LaMal)</span>
+                            <span class="font-bold">{{ portfolioForm.get('landingSeguro')?.value }}</span>
+                          </div>
+                          <!-- Especialidad -->
+                          <div *ngIf="portfolioForm.get('landingEspecialidad')?.value" class="p-2 rounded" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
+                            <span class="font-mono text-[8px] uppercase block opacity-60">Especialidad</span>
+                            <span class="font-bold">{{ portfolioForm.get('landingEspecialidad')?.value }}</span>
+                          </div>
+                          <!-- Menu/Comida -->
+                          <div *ngIf="portfolioForm.get('landingMenu')?.value" class="p-2 rounded" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
+                            <span class="font-mono text-[8px] uppercase block opacity-60">Carta / Menú</span>
+                            <span class="font-bold">{{ portfolioForm.get('landingMenu')?.value }}</span>
+                          </div>
+                          <!-- Servicios -->
+                          <div *ngIf="portfolioForm.get('landingServicios')?.value" class="p-2 rounded" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
+                            <span class="font-mono text-[8px] uppercase block opacity-60">Servicios Ofrecidos</span>
+                            <span class="font-bold">{{ portfolioForm.get('landingServicios')?.value }}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Slide 3: Contacto completo -->
+                      <div class="slide-item flex-shrink-0 w-full snap-start px-2 text-left" id="slide-contacto">
+                        <span class="font-mono text-[8px] uppercase block font-bold opacity-60 mb-2">Información de Contacto</span>
+                        <div class="p-3.5 rounded text-xs space-y-2" style="background-color: var(--landing-card-bg); border: 1px solid var(--landing-card-border);">
+                          <div>
+                            <span class="opacity-60 block text-[8px] uppercase font-mono">Representante</span>
+                            <strong>{{ portfolioForm.get('contactName')?.value }}</strong>
+                          </div>
+                          <div>
+                            <span class="opacity-60 block text-[8px] uppercase font-mono">Teléfono Móvil</span>
+                            <strong class="text-sm font-mono" style="color: var(--landing-accent);">{{ portfolioForm.get('phone')?.value }}</strong>
+                          </div>
+                          <div>
+                            <span class="opacity-60 block text-[8px] uppercase font-mono">Correo de Contacto</span>
+                            <span class="underline">{{ portfolioForm.get('email')?.value }}</span>
+                          </div>
+                          <div *ngIf="portfolioForm.get('website')?.value">
+                            <span class="opacity-60 block text-[8px] uppercase font-mono">Sitio Web</span>
+                            <span class="underline opacity-95">{{ portfolioForm.get('website')?.value }}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Slide 4: Ofertas / Promociones -->
+                      <div class="slide-item flex-shrink-0 w-full snap-start px-2 text-left" id="slide-promocion">
+                        <span class="font-mono text-[8px] uppercase block font-bold opacity-60 mb-2">Oferta Especial</span>
+                        <div *ngIf="portfolioForm.get('landingOfertaTitulo')?.value; else noOferta" 
+                             class="p-4 rounded border text-xs text-center" style="background-color: var(--landing-card-bg); border-color: var(--landing-accent);">
+                          <h5 class="italic font-bold text-sm" style="color: var(--landing-accent);">
+                            {{ portfolioForm.get('landingOfertaTitulo')?.value }}
+                          </h5>
+                          <p class="mt-1 opacity-80 text-[11px] leading-relaxed">{{ portfolioForm.get('landingOfertaDesc')?.value }}</p>
+                          <div *ngIf="portfolioForm.get('landingOfertaPrecio')?.value" class="mt-2.5 pt-2 border-t border-dashed" style="border-color: var(--landing-card-border);">
+                            <span class="font-mono text-xs font-bold" style="color: var(--landing-accent);">{{ portfolioForm.get('landingOfertaPrecio')?.value }}</span>
+                          </div>
+                        </div>
+                        <ng-template #noOferta>
+                          <div class="flex items-center justify-center h-28 text-center text-xs opacity-50">
+                            No has activado ninguna oferta especial. Escríbela arriba en la sección 5.
+                          </div>
+                        </ng-template>
+                      </div>
+
+                    </div>
+
+                    <!-- Slide arrows controls navigation -->
+                    <div class="flex items-center justify-between border-t border-white/10 pt-2" style="border-color: var(--landing-card-border);">
+                      <button type="button" (click)="prevSlide()" 
+                              class="text-[10px] uppercase font-mono py-1.5 px-3 border border-white/20 bg-black/10 rounded cursor-pointer text-white hover:bg-black/30 transition-all focus:outline-none">
+                        ← Anterior
+                      </button>
+
+                      <div class="flex gap-1.5">
+                        <div *ngFor="let s of slides; let i = index" 
+                             class="w-1.5 h-1.5 rounded-full transition-all"
+                             [style.background-color]="currentSlideIndex === i ? 'var(--landing-accent)' : 'rgba(255,255,255,0.3)'"></div>
+                      </div>
+
+                      <button type="button" (click)="nextSlide()" 
+                              class="text-[10px] uppercase font-mono py-1.5 px-3 border border-white/20 bg-black/10 rounded cursor-pointer text-white hover:bg-black/30 transition-all focus:outline-none">
+                        Siguiente →
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- BOTÓN GUARDAR -->
+              <div class="pt-6 border-t border-brand-charcoal flex justify-end">
+                <button type="submit" [disabled]="portfolioSubmitting"
+                        class="px-8 py-3 bg-brand-sage text-brand-paper font-mono text-[11px] font-bold uppercase tracking-widest hover:bg-brand-charcoal hover:text-brand-paper transition-all duration-150 cursor-pointer disabled:opacity-50">
+                  {{ portfolioSubmitting ? 'GUARDANDO...' : 'GUARDAR SITIO COMERCIAL' }}
+                </button>
+              </div>

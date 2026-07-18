@@ -1,0 +1,26 @@
+- `[x]` Database Setup (Supabase SQL)
+  - `[x]` Alter `ratings` table to add `is_dislike` column
+  - `[x]` Create `favorites` table with indexes and RLS policies
+  - `[x]` Create `reports` table with RLS policies
+- `[x]` Extend Backend schema (NestJS Drizzle schema)
+  - `[x]` Update `backend/src/db/schema.ts` with `isDislike`, `favorites`, and `reports`
+- `[x]` Extend Frontend Interaction Service
+  - `[x]` Update `interaction.service.ts` to support like/dislike, favorites, and reports API
+- `[x]` Fix Preview Modals Close button (Sticky Header)
+  - `[x]` Refactor preview modal in `anuncios-nuevo.component.html`
+  - `[x]` Refactor client preview modal in `session.component.html`
+- `[x]` Eliminate Emojis & 3D Icons
+  - `[x]` Replace emojis with flat SVGs in `session.component.html`
+  - `[x]` Replace category emojis with flat SVGs in `anuncios.component.html`
+  - `[x]` Replace category emojis with flat SVGs in `anuncios-nuevo.component.html`
+- `[x]` Implement YouTube-like Action Bar
+  - `[x]` Implement action bar in Article Detail Modal (`inicio.component.html` & `editorial.component.html`)
+  - `[x]` Implement action bar in Ad Detail Modal (`anuncios.component.html` & `session.component.html`)
+  - `[x]` Implement action bar in Portfolio Detail Modal (`buscar.html` / `buscar.ts`)
+  - `[x]` Add report modal dialog logic to component TS files
+- `[x]` Implement Favoritos Tab in My Account
+  - `[x]` Add tab UI to `session.component.html`
+  - `[x]` Fetch, group and order favorites by News/Ads/Portfolios in `session.component.ts`
+- `[x]` Build & Verify
+  - `[x]` Run production build `npm run build`
+  - `[x]` Update `walkthrough.md`

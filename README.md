@@ -11,17 +11,12 @@
 ## 📖 Table of Contents
 1. [For Non-Technical Readers (Overview)](#-for-non-technical-readers-overview)
 2. [For Technical Readers (Architecture Overview)](#-for-technical-readers-architecture-overview)
-3. [Platform Architecture Diagram](#-platform-architecture-diagram)
-4. [How It Works Under the Hood](#-how-it-works-under-the-hood)
-   - [Frictionless User Interactions](#frictionless-user-interactions)
-   - [Administrative Security Isolation](#administrative-security-isolation)
-5. [Project Directory Structure](#-project-directory-structure)
-6. [Getting Started & Local Installation](#-getting-started--local-installation)
-   - [Prerequisites](#prerequisites)
-   - [Backend API Setup](#1-backend-api-setup)
-   - [Public Frontend Setup](#2-public-frontend-setup)
-   - [Admin Frontend Setup](#3-admin-frontend-setup)
-7. [Running Tests](#-running-tests)
+3. [Development Methodology & SDD Constraints](#-development-methodology--sdd-constraints)
+4. [Platform Architecture Diagram](#-platform-architecture-diagram)
+5. [How It Works Under the Hood](#-how-it-works-under-the-hood)
+6. [Project Directory Structure](#-project-directory-structure)
+7. [Getting Started & Local Installation](#-getting-started--local-installation)
+8. [Running Tests](#-running-tests)
 
 ---
 
@@ -43,10 +38,23 @@ Arandu bridges the gap between local journalism and neighborhood commerce. It is
 
 Arandu uses a decoupled, scalable, modern stack:
 
-* **Frontend Framework**: **Angular 21** with **Standalone Components**, utilizing Tailwind CSS v4 for clean typography, sage green accents, and a dynamic, retro-newspaper layout.
-* **Architecture Pattern**: **Model-View-ViewModel (MVVM)**. All direct communications with external providers (such as Supabase) are abstracted into specialized services (e.g., `InteractionService`, `MediaService`), keeping the components slim and declarative.
-* **Backend Layer**: **NestJS** coupled with **Drizzle ORM** for offline schema generation, database migrations, and structural database typing.
+* **Frontend Framework**: **Angular 18** (implemented with Standalone Components and Angular Signals).
+* **Styling Engine**: **TailwindCSS** for clean, modern layouts and visual consistency.
+* **Maps & Geolocation**: **Leaflet.js** for listing map views and geolocation features.
+* **Backend Layer**: **NestJS** coupled with **Drizzle ORM** for database mapping, migration management, and structural typing.
 * **Database & Auth Provider**: **Supabase (PostgreSQL)**. Supabase Auth handles identity tokens, and the database stores articles, ads, user comments, and ratings.
+
+---
+
+## 📐 Development Methodology & SDD Constraints
+
+The Arandu codebase is governed by a **Spec-Driven Development (SDD)** framework via **OpenSpec** (mapped inside `.openspec/`). This enforces strict architectural, coding, and design standards:
+
+1. **Angular 18 Signals**: Component states are strictly reactive, managed exclusively through Angular Signals (`signal`, `computed`, `effect`).
+2. **Strict WYSIWYG Parity**: The DOM layout of the public viewports mathematically mirrors the editor canvas. No discrepancies in component trees are allowed.
+3. **Scroll Discipline**: Nested scrollbars are forbidden. The primary interface utilizes `overflow-x-hidden`, and scroll logic is handled gracefully at the top-level backdrop wrapper.
+4. **TailwindCSS Only**: Styling is handled exclusively through Tailwind utility classes and theme configuration. No custom ad-hoc CSS stylesheets.
+5. **Floating Toolbars (In-Place Editor)**: Global design/configuration buttons are avoided. Layout formatting (such as font family, font weight, and color selection) is done in-place via floating context menus positioned absolutely (`z-index: 50`) above active elements.
 
 ---
 
@@ -56,7 +64,7 @@ The diagram below outlines how the components interact across the frontend, serv
 
 ```mermaid
 graph TD
-    subgraph Frontend Applications (Angular 21)
+    subgraph Frontend Applications (Angular)
         PublicApp[frontend-public: Public Site]
         AdminApp[frontend-admin: Admin Panel]
     end
@@ -141,6 +149,9 @@ To prevent regular users from accessing administrative tools, security check poi
 │   └── src/app/
 │       ├── guards/             # Auth Guard role validations
 │       └── pages/login/        # Login component with admin rejection
+├── .openspec/                  # OpenSpec SDD baseline configuration
+├── agents.md                   # Core architectural constraints file
+├── design.md                   # Design system visual restrictions file
 └── package.json                # Root package configuration
 ```
 
