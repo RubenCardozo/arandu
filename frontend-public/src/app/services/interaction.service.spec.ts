@@ -82,15 +82,16 @@ describe('InteractionService', () => {
 
   describe('addComment', () => {
     it('should insert comment into supabase', async () => {
-      insertSpy.mockResolvedValue({ error: null });
-      await service.addComment('entity-123', 'media', 'Juan', 'Nice job!');
-      expect(fromSpy).toHaveBeenCalledWith('comments');
-      expect(insertSpy).toHaveBeenCalledWith([{
-        entity_id: 'entity-123',
-        entity_type: 'media',
-        author_name: 'Juan',
-        content: 'Nice job!'
-      }]);
+      const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+        ok: true,
+        json: async () => ({})
+      } as Response);
+      await service.addComment('550e8400-e29b-41d4-a716-446655440000', 'media', 'Juan', 'Nice job!');
+      expect(fetchSpy).toHaveBeenCalledWith(
+        expect.stringContaining('/api/interactions/comments'),
+        expect.objectContaining({ method: 'POST' })
+      );
+      fetchSpy.mockRestore();
     });
   });
 
@@ -108,7 +109,7 @@ describe('InteractionService', () => {
       const stats = await service.getRatingStats('entity-123');
 
       expect(fromSpy).toHaveBeenCalledWith('ratings');
-      expect(selectSpy).toHaveBeenCalledWith('stars, is_like');
+      expect(selectSpy).toHaveBeenCalledWith('stars, is_like, is_dislike, voter_id');
       expect(eqSpy).toHaveBeenCalledWith('entity_id', 'entity-123');
       expect(stats.avgStars).toBe(4.5);
       expect(stats.totalLikes).toBe(2);
@@ -116,29 +117,32 @@ describe('InteractionService', () => {
   });
 
   describe('rate', () => {
-    it('should insert rating stars into supabase', async () => {
-      insertSpy.mockResolvedValue({ error: null });
-      await service.rate('entity-123', 'media', 5);
-      expect(fromSpy).toHaveBeenCalledWith('ratings');
-      expect(insertSpy).toHaveBeenCalledWith([{
-        entity_id: 'entity-123',
-        entity_type: 'media',
-        stars: 5,
-        is_like: false
-      }]);
+    it('should post rating stars via API', async () => {
+      const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+        ok: true,
+        json: async () => ({})
+      } as Response);
+      await service.rate('550e8400-e29b-41d4-a716-446655440000', 'media', 5);
+      expect(fetchSpy).toHaveBeenCalledWith(
+        expect.stringContaining('/api/interactions/ratings'),
+        expect.objectContaining({ method: 'POST' })
+      );
+      fetchSpy.mockRestore();
     });
   });
 
   describe('like', () => {
-    it('should insert like into supabase', async () => {
-      insertSpy.mockResolvedValue({ error: null });
-      await service.like('entity-123', 'media');
-      expect(fromSpy).toHaveBeenCalledWith('ratings');
-      expect(insertSpy).toHaveBeenCalledWith([{
-        entity_id: 'entity-123',
-        entity_type: 'media',
-        is_like: true
-      }]);
+    it('should post like vote via API', async () => {
+      const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+        ok: true,
+        json: async () => ({})
+      } as Response);
+      await service.like('550e8400-e29b-41d4-a716-446655440000', 'media');
+      expect(fetchSpy).toHaveBeenCalledWith(
+        expect.stringContaining('/api/interactions/ratings'),
+        expect.objectContaining({ method: 'POST' })
+      );
+      fetchSpy.mockRestore();
     });
   });
 });

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, signal, computed, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, signal, computed, effect, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -63,6 +63,8 @@ export class SessionComponent implements OnInit, OnDestroy {
   isResizingBlock = signal<boolean>(false);
   draggedMenuIndex = signal<number | null>(null);
   sidebarCollapsed = signal(false);
+  isSaved = computed(() => !this.portfolioState.isDirty());
+  isScrolled = signal<boolean>(false);
 
   // Drag state variables
   dragStartMouseX = 0;
@@ -97,7 +99,12 @@ export class SessionComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute,
     public portfolioState: PortfolioStateService
-  ) {}
+  ) {
+    effect(() => {
+      const blocks = this.portfolioState.blocks();
+      this.startAutoplayTimer(blocks);
+    });
+  }
 
   ngOnInit() {
     const visitKey = 'arandu_session_visits';
@@ -2530,6 +2537,246 @@ export class SessionComponent implements OnInit, OnDestroy {
         this.activeSectionLabel.set(label);
       }
     }
+  }
+
+  @HostListener('window:scroll', [])
+  onWindowScroll() {
+    const scrollOffset = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+    this.isScrolled.set(scrollOffset > 50);
+  }
+
+  onPortfolioScroll(event: Event) {
+    const target = event.target as HTMLElement;
+    if (target) {
+      this.isScrolled.set(target.scrollTop > 50);
+    }
+  }
+
+  // HTML5 Drag & Drop sorting for menu links
+  onMenuDragStart(index: number, event: DragEvent) {
+    this.draggedMenuIndex.set(index);
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+    }
+  }
+  
+  onMenuDragOver(index: number, event: DragEvent) {
+    event.preventDefault();
+  }
+  
+  onMenuDrop(index: number, event: DragEvent) {
+    event.preventDefault();
+    const sourceIdx = this.draggedMenuIndex();
+    if (sourceIdx === null || sourceIdx === index) return;
+    
+    // Perform re-ordering
+    const blocks = [...this.portfolioState.blocks()];
+    const menuBlockIdx = blocks.findIndex(b => b.type === 'menu');
+    if (menuBlockIdx === -1) return;
+    
+    const menuBlock = { ...blocks[menuBlockIdx] };
+    if (!menuBlock.menuLinks) return;
+    
+    const links = [...menuBlock.menuLinks];
+    const [movedLink] = links.splice(sourceIdx, 1);
+    links.splice(index, 0, movedLink);
+    
+    menuBlock.menuLinks = links;
+    blocks[menuBlockIdx] = menuBlock;
+    
+    // Sync slide sequence automatically
+    this.syncSlidesWithMenuOrder(blocks, links);
+    this.portfolioState.blocks.set(blocks);
+    this.portfolioState.markDirty();
+    this.draggedMenuIndex.set(null);
+  }
+  
+  syncSlidesWithMenuOrder(blocks: PortfolioBlock[], links: any[]) {
+    const sliderBlockIdx = blocks.findIndex(b => b.type === 'slider');
+    if (sliderBlockIdx === -1) return;
+    
+    const sliderBlock = { ...blocks[sliderBlockIdx] };
+    if (!sliderBlock.sliderSlides) return;
+    
+    // Sort slides matching the sequence of labels in menu links
+    const sortedSlides = [...sliderBlock.sliderSlides].sort((a, b) => {
+      const idxA = links.findIndex(l => l.label === a.text);
+      const idxB = links.findIndex(l => l.label === b.text);
+      return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
+    });
+    
+    sliderBlock.sliderSlides = sortedSlides;
+    blocks[sliderBlockIdx] = sliderBlock;
+  }
+
+  // Autoplay Timer logic for Carousels
+  startAutoplayTimer(blocks: PortfolioBlock[]) {
+    if (this.autoplayTimer) {
+      clearInterval(this.autoplayTimer);
+      this.autoplayTimer = null;
+    }
+    const sliderBlock = blocks.find(b => b.type === 'slider');
+    if (sliderBlock && sliderBlock.sliderAutoplayInterval && sliderBlock.sliderAutoplayInterval > 0) {
+      this.autoplayTimer = setInterval(() => {
+        const slideCount = sliderBlock.sliderSlides?.length || 3;
+        const currentIdx = this.getActiveSlideIdx(sliderBlock.id);
+        const nextIdx = (currentIdx + 1) % slideCount;
+        this.setActiveSlideIdx(sliderBlock.id, nextIdx);
+      }, sliderBlock.sliderAutoplayInterval * 1000);
+    }
+  }
+
+  updateSliderAutoplayInterval(block: PortfolioBlock, val: any) {
+    const blocks = [...this.portfolioState.blocks()];
+    const idx = blocks.findIndex(b => b.id === block.id);
+    if (idx !== -1) {
+      blocks[idx] = { ...blocks[idx], sliderAutoplayInterval: parseInt(val, 10) };
+      this.portfolioState.blocks.set(blocks);
+      this.portfolioState.markDirty();
+      this.cdr.detectChanges();
+    }
+  }
+
+  // Free-form Drag & Drop & Resize Mouse Listeners
+  onBlockMouseDown(block: PortfolioBlock, event: MouseEvent) {
+    if (this.isResizingBlock()) return;
+    
+    this.selectedBlockId.set(block.id);
+    this.isDraggingBlock.set(true);
+    this.dragStartMouseX = event.clientX;
+    this.dragStartMouseY = event.clientY;
+    
+    // Initialize coordinate positions if not present
+    if (block.positionX === undefined || block.positionY === undefined) {
+      const element = document.getElementById(block.id);
+      if (element) {
+        block.positionX = element.offsetLeft;
+        block.positionY = element.offsetTop;
+        block.width = element.clientWidth;
+        block.height = element.clientHeight;
+      } else {
+        block.positionX = 0;
+        block.positionY = 0;
+        block.width = 300;
+        block.height = 150;
+      }
+    }
+    
+    this.dragStartBlockX = block.positionX;
+    this.dragStartBlockY = block.positionY;
+    
+    event.stopPropagation();
+  }
+
+  onResizeHandleMouseDown(block: PortfolioBlock, handle: string, event: MouseEvent) {
+    this.selectedBlockId.set(block.id);
+    this.activeResizeHandle.set(handle);
+    this.isResizingBlock.set(true);
+    this.dragStartMouseX = event.clientX;
+    this.dragStartMouseY = event.clientY;
+    
+    if (block.positionX === undefined || block.positionY === undefined) {
+      const element = document.getElementById(block.id);
+      if (element) {
+        block.positionX = element.offsetLeft;
+        block.positionY = element.offsetTop;
+        block.width = element.clientWidth;
+        block.height = element.clientHeight;
+      } else {
+        block.positionX = 0;
+        block.positionY = 0;
+        block.width = 300;
+        block.height = 150;
+      }
+    }
+    
+    this.dragStartBlockX = block.positionX;
+    this.dragStartBlockY = block.positionY;
+    this.resizeStartWidth = block.width || 300;
+    this.resizeStartHeight = block.height || 150;
+    
+    event.stopPropagation();
+    event.preventDefault();
+  }
+
+  @HostListener('document:mousemove', ['$event'])
+  onDocumentMouseMove(event: MouseEvent) {
+    const activeId = this.selectedBlockId();
+    if (!activeId) return;
+    
+    const deltaX = event.clientX - this.dragStartMouseX;
+    const deltaY = event.clientY - this.dragStartMouseY;
+    
+    const blocks = [...this.portfolioState.blocks()];
+    const blockIdx = blocks.findIndex(b => b.id === activeId);
+    if (blockIdx === -1) return;
+    const block = { ...blocks[blockIdx] };
+
+    if (this.isDraggingBlock()) {
+      block.positionX = Math.max(0, this.dragStartBlockX + deltaX);
+      block.positionY = Math.max(0, this.dragStartBlockY + deltaY);
+      blocks[blockIdx] = block;
+      this.portfolioState.blocks.set(blocks);
+      this.portfolioState.markDirty();
+      this.cdr.detectChanges();
+    } else if (this.isResizingBlock() && this.activeResizeHandle()) {
+      const handle = this.activeResizeHandle();
+      
+      if (handle === 'right' || handle === 'bottom-right' || handle === 'top-right') {
+        block.width = Math.max(80, this.resizeStartWidth + deltaX);
+      }
+      if (handle === 'bottom' || handle === 'bottom-right' || handle === 'bottom-left') {
+        block.height = Math.max(50, this.resizeStartHeight + deltaY);
+      }
+      if (handle === 'left' || handle === 'bottom-left' || handle === 'top-left') {
+        const potentialWidth = this.resizeStartWidth - deltaX;
+        if (potentialWidth >= 80) {
+          block.width = potentialWidth;
+          block.positionX = Math.max(0, this.dragStartBlockX + deltaX);
+        }
+      }
+      if (handle === 'top' || handle === 'top-right' || handle === 'top-left') {
+        const potentialHeight = this.resizeStartHeight - deltaY;
+        if (potentialHeight >= 50) {
+          block.height = potentialHeight;
+          block.positionY = Math.max(0, this.dragStartBlockY + deltaY);
+        }
+      }
+      
+      blocks[blockIdx] = block;
+      this.portfolioState.blocks.set(blocks);
+      this.portfolioState.markDirty();
+      this.cdr.detectChanges();
+    }
+  }
+
+  @HostListener('document:mouseup')
+  onDocumentMouseUp() {
+    this.isDraggingBlock.set(false);
+    this.isResizingBlock.set(false);
+    this.activeResizeHandle.set(null);
+  }
+
+  // Word-style floating text toolbar formatting helpers
+  updateTextBlockProp(block: PortfolioBlock, prop: keyof PortfolioBlock, value: any) {
+    const blocks = [...this.portfolioState.blocks()];
+    const idx = blocks.findIndex(b => b.id === block.id);
+    if (idx !== -1) {
+      blocks[idx] = { ...blocks[idx], [prop]: value };
+      this.portfolioState.blocks.set(blocks);
+      this.portfolioState.markDirty();
+      this.cdr.detectChanges();
+    }
+  }
+
+  toggleTextBlockWeight(block: PortfolioBlock) {
+    const newWeight = block.fontWeight === 'bold' ? 'normal' : 'bold';
+    this.updateTextBlockProp(block, 'fontWeight', newWeight);
+  }
+
+  toggleTextBlockStyle(block: PortfolioBlock) {
+    const newStyle = block.fontStyle === 'italic' ? 'normal' : 'italic';
+    this.updateTextBlockProp(block, 'fontStyle', newStyle);
   }
 
   onCanvasScroll(event: Event) {

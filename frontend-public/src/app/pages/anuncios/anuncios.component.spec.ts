@@ -71,7 +71,9 @@ describe('AnunciosComponent', () => {
       getComments: vi.fn().mockResolvedValue([{ id: 'c1', author: 'Anon', content: 'Good service' }]),
       like: vi.fn().mockResolvedValue({}),
       rate: vi.fn().mockResolvedValue({}),
-      addComment: vi.fn().mockResolvedValue({})
+      addComment: vi.fn().mockResolvedValue({}),
+      isFavorite: vi.fn().mockResolvedValue(false),
+      vote: vi.fn().mockResolvedValue({})
     };
 
     authServiceMock = {
@@ -131,7 +133,7 @@ describe('AnunciosComponent', () => {
       const ad = component.anuncios.find(a => a.id === 's1')!;
       component.openAdModal(ad);
 
-      expect(component.showModal).toBe(true);
+      expect(component.showAdModal).toBe(true);
       expect(component.selectedAd).toBeDefined();
       expect(component.selectedAd!.id).toBe('s1');
       expect(interactionServiceMock.incrementClicks).toHaveBeenCalledWith('s1', 'service', 4);
@@ -145,22 +147,23 @@ describe('AnunciosComponent', () => {
   });
 
   describe('Ad like action', () => {
-    it('should register a like only once per session', async () => {
+    it('should register a like and toggle it on second click', async () => {
       await waitForInit();
 
       const ad = component.anuncios.find(a => a.id === 'j1')!;
       component.selectedAd = ad;
 
       await component.likeAd(ad);
-      expect(component.likedAds.has('j1')).toBe(true);
-      expect(interactionServiceMock.like).toHaveBeenCalledWith('j1', 'job');
+      expect(ad.userVote).toBe('like');
+      expect(interactionServiceMock.vote).toHaveBeenCalledWith('j1', 'job', 'like');
 
       // Reset mock
-      interactionServiceMock.like.mockClear();
+      interactionServiceMock.vote.mockClear();
 
-      // Trigger second like - should be ignored
+      // Trigger second like - should undo (toggle to null)
       await component.likeAd(ad);
-      expect(interactionServiceMock.like).not.toHaveBeenCalled();
+      expect(ad.userVote).toBeNull();
+      expect(interactionServiceMock.vote).toHaveBeenCalledWith('j1', 'job', null);
     });
   });
 

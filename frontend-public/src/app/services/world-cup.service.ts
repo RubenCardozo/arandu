@@ -107,6 +107,9 @@ export class WorldCupService {
   constructor() {}
 
   async getTeams(): Promise<WorldCupTeam[]> {
+    if (this.teamsCache && this.teamsCache.length > 0) {
+      return this.teamsCache;
+    }
     try {
       const res = await fetchWithTimeout(`https://worldcup26.ir/get/teams?t=${Date.now()}`);
       const data = await res.json();

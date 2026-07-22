@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, signal, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -62,6 +62,8 @@ export class BuscarComponent implements OnInit {
 
   // Portfolio viewer properties
   selectedPortfolio: any = null;
+  isScrolled = signal(false);
+  autoplayTimer: any = null;
   activePreviewTab = 'presentacion';
   currentSlideIndex = 0;
   get slides(): string[] {
@@ -503,6 +505,7 @@ export class BuscarComponent implements OnInit {
     this.currentSlideIndex = 0;
     this.portfolioComments = [];
     this.newCommentText = '';
+    this.startAutoplayTimer();
 
     // Load stats
     this.interactionService.getRatingStats(portfolio.id)
@@ -566,6 +569,7 @@ export class BuscarComponent implements OnInit {
 
   closePortfolio() {
     this.selectedPortfolio = null;
+    this.stopAutoplayTimer();
     this.cdr.detectChanges();
   }
 
@@ -995,5 +999,41 @@ export class BuscarComponent implements OnInit {
       return anchor ? anchor.replace('#', '') : '';
     }
     return '';
+  }
+
+  @HostListener('window:scroll', [])
+  onWindowScroll() {
+    const scrollOffset = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+    this.isScrolled.set(scrollOffset > 50);
+  }
+
+  onPortfolioScroll(event: Event) {
+    const target = event.target as HTMLElement;
+    if (target) {
+      this.isScrolled.set(target.scrollTop > 50);
+    }
+  }
+
+  startAutoplayTimer() {
+    this.stopAutoplayTimer();
+    if (!this.selectedPortfolio) return;
+    const config = this.selectedPortfolio.landingConfig || {};
+    const blocks = config.blocks || [];
+    const sliderBlock = blocks.find((b: any) => b.type === 'slider');
+    if (sliderBlock && sliderBlock.sliderAutoplayInterval && sliderBlock.sliderAutoplayInterval > 0) {
+      this.autoplayTimer = setInterval(() => {
+        const slideCount = sliderBlock.sliderSlides?.length || 3;
+        const currentIdx = this.getActiveSlideIdx(sliderBlock.id);
+        const nextIdx = (currentIdx + 1) % slideCount;
+        this.setActiveSlideIdx(sliderBlock.id, nextIdx);
+      }, sliderBlock.sliderAutoplayInterval * 1000);
+    }
+  }
+
+  stopAutoplayTimer() {
+    if (this.autoplayTimer) {
+      clearInterval(this.autoplayTimer);
+      this.autoplayTimer = null;
+    }
   }
 }

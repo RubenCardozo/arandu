@@ -1316,11 +1316,12 @@
 
     <!-- Simulated mobile viewport card -->
     <div [style]="getLandingStyles(selectedPortfolio.landing_config)" 
+         (scroll)="onPortfolioScroll($event)"
          class="w-full border border-brand-charcoal rounded-2xl shadow-2xl overflow-y-auto max-h-[85vh] flex flex-col min-h-[480px] relative p-6 select-text">
       
       <!-- Overlay oscuro para el fondo -->
-      <div class="absolute inset-0 bg-black pointer-events-none z-0"
-           [style.opacity]="selectedPortfolio.landing_config?.bgOverlayOpacity < 0.35 ? 0.35 : (selectedPortfolio.landing_config?.bgOverlayOpacity ?? 0.35)"></div>
+      <div class="absolute inset-0 pointer-events-none z-0"
+           [style.backgroundColor]="'rgba(0, 0, 0, ' + (selectedPortfolio.landing_config?.bgOverlayOpacity < 0.35 ? 0.35 : (selectedPortfolio.landing_config?.bgOverlayOpacity ?? 0.35)) + ')'"></div>
 
       <!-- Cover background image preset -->
       <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
@@ -1334,7 +1335,12 @@
         
         <!-- FIXED HEADER (Business name + Navigation menu) -->
         <ng-container *ngFor="let block of selectedPortfolio.landing_config?.blocks">
-          <div *ngIf="block.type === 'menu'" class="w-full shrink-0 border border-white/10 bg-white/5 backdrop-blur-md px-4 py-3 flex items-center justify-between gap-4 rounded-xl relative">
+          <div *ngIf="block.type === 'menu'" 
+               [class.py-3]="!isScrolled()"
+               [class.py-1.5]="isScrolled()"
+               [class.bg-white/5]="!isScrolled()"
+               [class.bg-white/15]="isScrolled()"
+               class="w-full shrink-0 sticky top-0 z-40 transition-all duration-300 border border-white/10 backdrop-blur-md px-4 flex items-center justify-between gap-4 rounded-xl">
             <!-- Left: Business Brand Name -->
             <div class="flex items-center gap-2">
               <div class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs" style="color: var(--landing-accent);">💼</div>
@@ -1480,7 +1486,7 @@
 
         <!-- FIXED FOOTER (Social links) -->
         <ng-container *ngFor="let block of selectedPortfolio.landing_config?.blocks">
-          <div *ngIf="block.type === 'social'" class="w-full shrink-0 border-t pt-3 mt-4 flex flex-col items-center gap-3"
+          <div *ngIf="block.type === 'social'" class="w-full shrink-0 border-t pt-3 mt-auto sticky bottom-0 z-40 bg-white/5 backdrop-blur-md flex flex-col items-center gap-3"
                style="border-color: var(--landing-card-border);">
             
             <div class="flex items-center gap-4 justify-center">

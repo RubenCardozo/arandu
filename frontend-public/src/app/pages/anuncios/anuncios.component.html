@@ -1,11 +1,25 @@
 <main class="max-w-[1280px] mx-auto px-4 md:px-8 py-12">
   <!-- Header Section -->
-  <header class="mb-12 border-b-4 border-brand-charcoal pb-4 flex justify-between items-end">
-    <div>
-      <h1 class="font-serif text-3xl md:text-4xl font-bold uppercase tracking-tight">Anuncios</h1>
-      <p class="font-mono text-xs text-brand-charcoal/60 uppercase mt-2">
-        Edición Digital — Arandu — El Mercado de Proximidad
-      </p>
+  <header class="sticky top-0 z-30 bg-brand-paper/95 backdrop-blur-sm transition-all duration-300"
+          [class.border-b-4]="!isScrolled()"
+          [class.border-b]="isScrolled()"
+          [class.border-brand-charcoal]="true"
+          [class.pb-4]="!isScrolled()"
+          [class.pb-2]="isScrolled()"
+          [class.mb-12]="!isScrolled()"
+          [class.mb-6]="isScrolled()"
+          [class.pt-4]="isScrolled()">
+    <div class="flex justify-between items-end">
+      <div>
+        <h1 class="font-serif font-bold uppercase tracking-tight transition-all duration-300"
+            [class.text-3xl]="isScrolled()"
+            [class.md:text-4xl]="!isScrolled()"
+            [class.text-4xl]="!isScrolled()">Anuncios</h1>
+        <p class="font-mono text-xs text-brand-charcoal/60 uppercase mt-2 transition-all duration-300"
+           [class.hidden]="isScrolled()">
+          Edición Digital — Arandu — El Mercado de Proximidad
+        </p>
+      </div>
     </div>
   </header>
 
@@ -750,11 +764,12 @@
 
     <!-- Simulated mobile viewport card -->
     <div [style]="getLandingStyles(selectedPortfolio.landingConfig)" 
+         (scroll)="onPortfolioScroll($event)"
          class="w-full border border-brand-charcoal rounded-2xl shadow-2xl overflow-y-auto max-h-[85vh] flex flex-col min-h-[480px] relative p-6 select-text">
       
       <!-- Overlay oscuro para el fondo -->
-      <div class="absolute inset-0 bg-black pointer-events-none z-0"
-           [style.opacity]="selectedPortfolio.landingConfig?.bgOverlayOpacity < 0.35 ? 0.35 : (selectedPortfolio.landingConfig?.bgOverlayOpacity ?? 0.35)"></div>
+      <div class="absolute inset-0 pointer-events-none z-0"
+           [style.backgroundColor]="'rgba(0, 0, 0, ' + (selectedPortfolio.landingConfig?.bgOverlayOpacity < 0.35 ? 0.35 : (selectedPortfolio.landingConfig?.bgOverlayOpacity ?? 0.35)) + ')'"></div>
 
       <!-- Cover background image preset -->
       <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
@@ -768,7 +783,12 @@
         
         <!-- FIXED HEADER (Business name + Navigation menu) -->
         <ng-container *ngFor="let block of selectedPortfolio.landingConfig?.blocks">
-          <div *ngIf="block.type === 'menu'" class="w-full shrink-0 border border-white/10 bg-white/5 backdrop-blur-md px-4 py-3 flex items-center justify-between gap-4 rounded-xl relative">
+          <div *ngIf="block.type === 'menu'" 
+               [class.py-3]="!isScrolled()"
+               [class.py-1.5]="isScrolled()"
+               [class.bg-white/5]="!isScrolled()"
+               [class.bg-white/15]="isScrolled()"
+               class="w-full shrink-0 sticky top-0 z-40 transition-all duration-300 border border-white/10 backdrop-blur-md px-4 flex items-center justify-between gap-4 rounded-xl">
             <!-- Left: Business Brand Name -->
             <div class="flex items-center gap-2">
               <div class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs" style="color: var(--landing-accent);">💼</div>
@@ -914,7 +934,7 @@
 
         <!-- FIXED FOOTER (Social links) -->
         <ng-container *ngFor="let block of selectedPortfolio.landingConfig?.blocks">
-          <div *ngIf="block.type === 'social'" class="w-full shrink-0 border-t pt-3 mt-4 flex flex-col items-center gap-3"
+          <div *ngIf="block.type === 'social'" class="w-full shrink-0 border-t pt-3 mt-auto sticky bottom-0 z-40 bg-white/5 backdrop-blur-md flex flex-col items-center gap-3"
                style="border-color: var(--landing-card-border);">
             
             <div class="flex items-center gap-4 justify-center">

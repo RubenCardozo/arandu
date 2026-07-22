@@ -53,7 +53,8 @@ describe('EditorialComponent', () => {
       getComments: vi.fn().mockResolvedValue([{ id: 'c1', author: 'User', content: 'Nice!' }]),
       like: vi.fn().mockResolvedValue({}),
       rate: vi.fn().mockResolvedValue({}),
-      addComment: vi.fn().mockResolvedValue({})
+      addComment: vi.fn().mockResolvedValue({}),
+      isFavorite: vi.fn().mockResolvedValue(false)
     };
 
     authServiceMock = {

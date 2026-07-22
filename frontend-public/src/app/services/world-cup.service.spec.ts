@@ -78,7 +78,7 @@ describe('WorldCupService', () => {
       );
 
       const teams = await service.getTeams();
-      expect(fetchSpy).toHaveBeenCalledWith('https://worldcup26.ir/get/teams', expect.any(Object));
+      expect(fetchSpy).toHaveBeenCalledWith(expect.stringContaining('https://worldcup26.ir/get/teams'), expect.any(Object));
       expect(teams.length).toBe(3);
       expect(teams[0].name_en).toBe('Argentina');
 

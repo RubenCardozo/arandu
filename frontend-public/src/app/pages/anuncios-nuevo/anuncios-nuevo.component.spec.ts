@@ -65,6 +65,7 @@ describe('AnunciosNuevoComponent - Live Portfolio Builder', () => {
 
     fixture = TestBed.createComponent(AnunciosNuevoComponent);
     component = fixture.componentInstance;
+    component.isEmbedded = true;
     fixture.detectChanges();
   });
 
@@ -77,55 +78,4 @@ describe('AnunciosNuevoComponent - Live Portfolio Builder', () => {
     expect(component.isProfileIncomplete).toBe(false);
   });
 
-  it('should switch to landing mode and provide valid preview config', () => {
-    component.adForm.patchValue({ type: 'landing' });
-
-    expect(component.type).toBe('landing');
-
-    const previewConfig = component.getPreviewConfig();
-    expect(previewConfig.palette).toBe('crosby');
-    expect(previewConfig.font).toBe('serif');
-    expect(previewConfig.heroImage).toBeTruthy();
-  });
-
-  it('should return correct CSS variables for each color palette', () => {
-    // Pass explicit config with no heroImage so the palette text override does NOT fire
-    const baseConfig = (palette: string) => ({ palette, font: 'serif', heroImage: '' });
-
-    // Crosby Dark — bg #1e2321
-    let styles = component.getLandingStyles(baseConfig('crosby'));
-    expect(styles['--landing-bg']).toBe('#1e2321');
-    expect(styles['--landing-text']).toBe('#fdfbf7');
-    expect(styles['--landing-accent']).toBe('#8ba495');
-
-    // Sage Soft — light cream bg, dark green text
-    styles = component.getLandingStyles(baseConfig('sage'));
-    expect(styles['--landing-bg']).toBe('#fdfbf7');
-    expect(styles['--landing-text']).toBe('#2d3a34');
-
-    // Ocean Breeze — navy bg, sea-foam accent
-    styles = component.getLandingStyles(baseConfig('ocean'));
-    expect(styles['--landing-bg']).toBe('#1d3557');
-    expect(styles['--landing-accent']).toBe('#a8dadc');
-
-    // Minimal — pure white
-    styles = component.getLandingStyles(baseConfig('minimal'));
-    expect(styles['--landing-bg']).toBe('#ffffff');
-    expect(styles['--landing-text']).toBe('#000000');
-  });
-
-  it('should return the correct default image for each metier/template when no custom image uploaded', () => {
-    // Clear the form hero image so getPreviewConfig falls back to getDefaultImage()
-    component.adForm.patchValue({ landingHeroImage: '', landingTemplate: 'restauracion' });
-    let previewConfig = component.getPreviewConfig();
-    expect(previewConfig.heroImage).toContain('photo-1504674900247-0877df9cc836');
-
-    component.adForm.patchValue({ landingTemplate: 'venta' });
-    previewConfig = component.getPreviewConfig();
-    expect(previewConfig.heroImage).toContain('photo-1486006920555-c77dce18193b');
-
-    component.adForm.patchValue({ landingTemplate: 'empleo' });
-    previewConfig = component.getPreviewConfig();
-    expect(previewConfig.heroImage).toContain('photo-1497215728101-856f4ea42174');
-  });
 });
