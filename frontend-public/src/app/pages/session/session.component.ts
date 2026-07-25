@@ -62,9 +62,147 @@ export class SessionComponent implements OnInit, OnDestroy {
   isDraggingBlock = signal<boolean>(false);
   isResizingBlock = signal<boolean>(false);
   draggedMenuIndex = signal<number | null>(null);
-  sidebarCollapsed = signal(false);
+  sidebarCollapsed = signal(true);
+  sidebarWidth = signal<number>(320);
+  activeSidebarTab = signal<'none' | 'elements' | 'backgrounds'>('none');
+  showClearCanvasModal = signal<boolean>(false);
+  isResizingSidebar = signal<boolean>(false);
+  elementsCollapsed = signal<boolean>(false);
+  backgroundsCollapsed = signal<boolean>(false);
   isSaved = computed(() => !this.portfolioState.isDirty());
+  hasUnsavedChanges = computed(() => this.portfolioState.isDirty());
   isScrolled = signal<boolean>(false);
+
+  onToolboxDragStart() {
+    this.activeSidebarTab.set('none');
+    this.sidebarCollapsed.set(true);
+    this.cdr.detectChanges();
+  }
+
+  toggleSidebarTab(tab: 'elements' | 'backgrounds') {
+    if (this.activeSidebarTab() === tab) {
+      this.activeSidebarTab.set('none');
+    } else {
+      this.activeSidebarTab.set(tab);
+    }
+    this.cdr.detectChanges();
+  }
+
+  getUserDefaultData() {
+    const u: any = (this as any).user || {};
+    const meta = u.user_metadata || {};
+    const emailStr: string = u.email || '';
+    const emailName = emailStr ? emailStr.split('@')[0] : 'Usuario';
+    return {
+      name: meta['full_name'] || meta['first_name'] || emailName,
+      whatsapp: meta['whatsapp'] || meta['phone'] || '+41 79 000 0000',
+      phone: meta['phone'] || '+41 22 000 0000',
+      email: emailStr || 'usuario@arandu.ch'
+    };
+  }
+
+  async deletePublication() {
+    if (!confirm('¿Estás seguro de que deseas eliminar esta publicación?')) {
+      return;
+    }
+    try {
+      this.portfolioSubmitting = true;
+      if (this.portfolioAd && this.portfolioAd.id) {
+        await this.supabase.client
+          .from('services')
+          .delete()
+          .eq('id', this.portfolioAd.id);
+      }
+      console.log('Publicación eliminada');
+      this.portfolioState.clearAllState();
+      this.selectedBlockId.set(null);
+      this.portfolioAd = null;
+      this.editingAd = null;
+      this.showClearCanvasModal.set(false);
+      
+      // Forcefully purge form and reset UI signals to their default empty states
+      await this.loadOrCreatePortfolio();
+      // Refresh the list of ads
+      await this.loadMyAnuncios();
+      
+      this.successMessage = 'El sitio ha sido eliminado y el canvas purgado.';
+      this.cdr.detectChanges();
+    } catch (err: any) {
+      console.error('Error deleting publication:', err);
+    } finally {
+      this.portfolioSubmitting = false;
+    }
+  }
+
+  openClearCanvasModal() {
+    this.showClearCanvasModal.set(true);
+  }
+
+  async confirmClearCanvas() {
+    try {
+      if (this.portfolioAd && this.portfolioAd.id) {
+        await this.supabase.client
+          .from('services')
+          .delete()
+          .eq('id', this.portfolioAd.id);
+        this.portfolioAd = null;
+      }
+      this.portfolioState.clearAllState();
+      this.selectedBlockId.set(null);
+      this.editingAd = null;
+      this.showClearCanvasModal.set(false);
+      
+      // Forcefully purge form and reset UI signals to their default empty states
+      await this.loadOrCreatePortfolio();
+      // Refresh the list of ads
+      await this.loadMyAnuncios();
+      
+      this.successMessage = 'El sitio ha sido eliminado y el canvas purgado.';
+      this.cdr.detectChanges();
+    } catch (err: any) {
+      console.error('Error deleting portfolio from database:', err);
+      this.portfolioState.clearAllState();
+      this.selectedBlockId.set(null);
+      this.showClearCanvasModal.set(false);
+    } finally {
+      this.cdr.detectChanges();
+    }
+  }
+
+  startSidebarResize(event: MouseEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isResizingSidebar.set(true);
+
+    const startX = event.clientX;
+    const startWidth = this.sidebarWidth();
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      if (!this.isResizingSidebar()) return;
+      const deltaX = moveEvent.clientX - startX;
+      let newWidth = startWidth + deltaX;
+
+      if (newWidth < 100) {
+        newWidth = 64;
+        this.sidebarCollapsed.set(true);
+      } else {
+        if (newWidth > 420) newWidth = 420;
+        this.sidebarCollapsed.set(false);
+      }
+      this.sidebarWidth.set(newWidth);
+      this.cdr.detectChanges();
+    };
+
+    const onMouseUp = () => {
+      this.isResizingSidebar.set(false);
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+      this.cdr.detectChanges();
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  }
 
   // Drag state variables
   dragStartMouseX = 0;
@@ -1460,6 +1598,13 @@ export class SessionComponent implements OnInit, OnDestroy {
       if (portfolio) {
         this.portfolioAd = portfolio;
         const config = this.portfolioAd.landing_config || {};
+        const draft = config.draft || {};
+
+        const savedBlocks = draft.blocks || config.blocks || null;
+        const savedHeroImage = draft.heroImage || config.heroImage || config.landingHeroImage || '';
+        const savedOpacity = draft.bgOverlayOpacity ?? config.bgOverlayOpacity ?? 0.4;
+        const savedPalette = draft.palette || config.palette || 'minimal';
+        const savedFont = draft.font || config.font || 'serif';
 
         // Clear sections FormArray
         while (this.sections.length !== 0) {
@@ -1478,19 +1623,28 @@ export class SessionComponent implements OnInit, OnDestroy {
         }
 
         this.portfolioForm.patchValue({
-          title: this.portfolioAd.title || '',
-          description: this.portfolioAd.description || '',
+          title: draft.title || this.portfolioAd.title || '',
+          description: draft.description || this.portfolioAd.description || '',
           category: this.portfolioAd.category || 'Servicios y Reparación',
           contactName: this.portfolioAd.contact_name || '',
           email: this.portfolioAd.email || '',
           phone: this.portfolioAd.phone || '',
           website: this.portfolioAd.website || '',
           landingTemplate: this.portfolioAd.landing_template || 'servicios',
-          landingPalette: config.palette || 'minimal',
-          landingFont: config.font || 'serif',
-          landingHeroImage: config.heroImage || '',
+          landingPalette: savedPalette,
+          landingFont: savedFont,
+          landingHeroImage: savedHeroImage,
           phoneFijo: config.phoneFijo || ''
         });
+
+        // Sync loaded form state AND saved blocks to portfolioState signals
+        this.portfolioState.updateFromForm({
+          ...this.portfolioForm.value,
+          blocks: savedBlocks,
+          bgOverlayOpacity: savedOpacity,
+          landingHeroImage: savedHeroImage
+        });
+        this.portfolioState.bgOverlayOpacity.set(savedOpacity);
       } else {
         // Pre-fill user contact info
         const metadata = this.user.user_metadata;
@@ -1517,10 +1671,8 @@ export class SessionComponent implements OnInit, OnDestroy {
           landingHeroImage: this.getDefaultImage('servicios')
         });
         this.portfolioAd = null;
+        this.portfolioState.updateFromForm(this.portfolioForm.value);
       }
-
-      // Sync loaded form state to signals
-      this.portfolioState.updateFromForm(this.portfolioForm.value);
     } catch (err: any) {
       console.error('Error loading portfolio:', err);
       this.errorMessage = 'No se pudo cargar la información de tu Sitio Comercial.';
@@ -2311,7 +2463,13 @@ export class SessionComponent implements OnInit, OnDestroy {
   setBackgroundPreset(imageUrl: string) {
     this.portfolioState.landingHeroImage.set(imageUrl);
     this.portfolioForm.patchValue({ landingHeroImage: imageUrl });
-    this.portfolioForm.markAsDirty();
+    this.portfolioState.markDirty();
+  }
+
+  setOverlayOpacity(val: any) {
+    const num = typeof val === 'number' ? val : parseFloat(val);
+    this.portfolioState.bgOverlayOpacity.set(isNaN(num) ? 0.4 : num);
+    this.portfolioState.markDirty();
   }
 
   async saveDraft(publish: boolean) {
@@ -2352,6 +2510,7 @@ export class SessionComponent implements OnInit, OnDestroy {
         palette: draftState.palette,
         font: draftState.font,
         heroImage: draftState.heroImage,
+        landingHeroImage: draftState.heroImage,
         blocks: draftState.blocks,
         bgOverlayOpacity: draftState.bgOverlayOpacity,
         sections: this.mapBlocksToSections(blocks)
@@ -2378,6 +2537,12 @@ export class SessionComponent implements OnInit, OnDestroy {
       payload = {
         landing_config: {
           ...config,
+          palette: draftState.palette,
+          font: draftState.font,
+          heroImage: draftState.heroImage,
+          landingHeroImage: draftState.heroImage,
+          blocks: draftState.blocks,
+          bgOverlayOpacity: draftState.bgOverlayOpacity,
           draft: draftState
         }
       };
@@ -2525,18 +2690,29 @@ export class SessionComponent implements OnInit, OnDestroy {
     return '';
   }
 
-  scrollToSection(anchor: string, event: Event) {
-    event.preventDefault();
+  scrollToSection(anchor: string, event?: Event) {
+    if (event) event.preventDefault();
     if (!anchor) return;
-    const id = anchor.startsWith('#') ? anchor.substring(1) : anchor;
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
-      const label = (event.target as HTMLElement)?.innerText;
-      if (label) {
-        this.activeSectionLabel.set(label);
-      }
+    const cleanId = anchor.startsWith('#') ? anchor.substring(1) : anchor;
+    this.activeSectionLabel.set(cleanId);
+
+    // 1. Find element by ID or section anchor
+    let element = document.getElementById(cleanId) || document.getElementById('section_' + cleanId);
+
+    // 2. Fallback: find canvas block element containing matching section name
+    if (!element) {
+      const blocks = document.querySelectorAll('.canvas-block');
+      blocks.forEach((el: any) => {
+        if (el.id === cleanId || (el.innerText && el.innerText.toLowerCase().includes(cleanId.toLowerCase()))) {
+          element = el;
+        }
+      });
     }
+
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+    }
+    this.cdr.detectChanges();
   }
 
   @HostListener('window:scroll', [])

@@ -6,4 +6,4 @@ import { dbConnectionProvider } from './index';
   providers: [dbConnectionProvider],
   exports: [dbConnectionProvider],
 })
-export class DbModule {}
+export class DatabaseModule {}

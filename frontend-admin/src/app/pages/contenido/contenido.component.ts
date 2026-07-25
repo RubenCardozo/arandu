@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -32,6 +32,12 @@ export class ContenidoComponent implements OnInit {
   contentForm!: FormGroup;
   editorialForm!: FormGroup;
 
+  // Angular 18 Signals for Canvas State Management
+  canvasElements = signal<EditorBlock[]>([]);
+  activePublicationId = signal<string | null>(null);
+  selectedElement = signal<EditorBlock | null>(null);
+  currentBackground = signal<string | null>(null);
+
   // Editor blocks list (Wix-style)
   blocks: EditorBlock[] = [
     { type: 'text', content: '' }
@@ -60,6 +66,35 @@ export class ContenidoComponent implements OnInit {
     'Guía Local y Latinos'
   ];
 
+  userData: { name: string; whatsapp: string; phone: string; email: string } = {
+    name: 'Rubén Cardozo',
+    whatsapp: '+41 79 000 0000',
+    phone: '+41 22 000 0000',
+    email: 'admin@arandu.ch'
+  };
+
+  getDefaultUserBlock(): EditorBlock {
+    const name = this.userData?.name || this.adminName || 'Rubén Cardozo';
+    const whatsapp = this.userData?.whatsapp || '+41 79 000 0000';
+    const phone = this.userData?.phone || '+41 22 000 0000';
+    const email = this.userData?.email || 'admin@arandu.ch';
+
+    return {
+      type: 'text',
+      content: `👤 ${name}\n💬 WhatsApp: ${whatsapp}\n📞 Teléfono: ${phone}\n✉️ Email: ${email}\n🔗 Redes Sociales: •••`,
+      bold: true,
+      align: 'left'
+    };
+  }
+
+  scrollToSection(section: 'editorial' | 'directory') {
+    this.activeSection = section;
+    const targetElement = document.getElementById(section + '-section');
+    if (targetElement) {
+      targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
   constructor(
     private fb: FormBuilder,
     private mediaService: MediaService,
@@ -68,13 +103,18 @@ export class ContenidoComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    // Get Admin session details for sidebar display
+    // Get Admin session details for sidebar & default user block display
     const session = await this.authService.getSession();
     if (session && session.user) {
-      const metadata = session.user.user_metadata;
-      if (metadata && (metadata['first_name'] || metadata['last_name'])) {
-        this.adminName = `${metadata['first_name'] || ''} ${metadata['last_name'] || ''}`.trim();
-      }
+      const metadata = session.user.user_metadata || {};
+      const name = metadata['full_name'] || `${metadata['first_name'] || ''} ${metadata['last_name'] || ''}`.trim() || session.user.email?.split('@')[0] || 'Rubén Cardozo';
+      this.adminName = name;
+      this.userData = {
+        name,
+        whatsapp: metadata['whatsapp'] || metadata['phone'] || '+41 79 000 0000',
+        phone: metadata['phone'] || '+41 22 000 0000',
+        email: session.user.email || 'admin@arandu.ch'
+      };
     }
 
     // Initialize Directory / Commerce Form
@@ -97,6 +137,7 @@ export class ContenidoComponent implements OnInit {
       publishLocation: ['primera_plana', [Validators.required]]
     });
 
+    this.purgeCanvasState();
     await this.loadArticles();
   }
 
@@ -260,20 +301,57 @@ export class ContenidoComponent implements OnInit {
       this.blocks = [{ type: 'text', content: art.description }];
     }
     
+    this.activePublicationId.set(art.id);
+    this.canvasElements.set(this.blocks);
+    
     // Smooth scroll to top of editor form
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  cancelEdit() {
+  purgeCanvasState() {
+    // Reset Angular Signals to completely empty blank canvas
+    this.canvasElements.set([]);
+    this.activePublicationId.set(null);
+    this.selectedElement.set(null);
+    this.currentBackground.set(null);
+
+    // Reset local component state
+    this.blocks = [];
     this.editingArticleId = null;
-    this.editorialForm.reset({
-      title: '',
-      category: 'Cultura',
-      contentUrl: 'https://arandu.ch',
-      author: this.adminName,
-      publishLocation: 'primera_plana'
-    });
-    this.blocks = [{ type: 'text', content: '', bold: false, italic: false, align: 'left' }];
+    this.selectedFile = null;
+
+    // Force clear localStorage states
+    try {
+      localStorage.removeItem('arandu_canvas_draft');
+      localStorage.removeItem('arandu_admin_editor_state');
+      localStorage.removeItem('arandu_editorial_draft');
+    } catch (e) {}
+
+    if (this.editorialForm) {
+      this.editorialForm.reset({
+        title: '',
+        category: 'Cultura',
+        contentUrl: 'https://arandu.ch',
+        author: this.adminName,
+        publishLocation: 'primera_plana'
+      });
+    }
+
+    if (this.contentForm) {
+      this.contentForm.reset({
+        name: '',
+        description: '',
+        address: '',
+        neighborhood: 'Plainpalais',
+        phone: '',
+        website: '',
+        instagram: ''
+      });
+    }
+  }
+
+  cancelEdit() {
+    this.purgeCanvasState();
   }
 
   async deleteArticle(id: string) {
@@ -284,10 +362,33 @@ export class ContenidoComponent implements OnInit {
     try {
       this.loading = true;
       await this.mediaService.delete(id);
+      this.purgeCanvasState();
       this.successMessage = 'Artículo eliminado con éxito.';
       await this.loadArticles();
     } catch (err: any) {
       this.errorMessage = err.message || 'Error al eliminar el artículo.';
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  async deletePublication() {
+    if (!confirm('¿Estás seguro de que deseas eliminar esta publicación?')) {
+      return;
+    }
+
+    try {
+      this.loading = true;
+      const targetId = this.editingArticleId || this.activePublicationId();
+      if (targetId) {
+        await this.mediaService.delete(targetId);
+      }
+      console.log('Publicación eliminada');
+      this.purgeCanvasState();
+      this.successMessage = 'Publicación eliminada y memoria de Signals purgada con éxito.';
+      await this.loadArticles();
+    } catch (err: any) {
+      this.errorMessage = err.message || 'Error al eliminar la publicación.';
     } finally {
       this.loading = false;
     }
@@ -340,7 +441,7 @@ export class ContenidoComponent implements OnInit {
           .map(b => b.imageUrl || b.content)
           .filter(url => url && url.startsWith('http'));
 
-        // Serialize block contents as description (with formatting metadata)
+        // Serialize block contents as description
         const blocksPayload = this.blocks.map(b => ({
           type: b.type,
           content: b.type === 'image' ? (b.imageUrl || b.content) : b.content,
@@ -354,14 +455,13 @@ export class ContenidoComponent implements OnInit {
         const videoBlock = this.blocks.find(b => b.type === 'video');
         const embedUrl = videoBlock ? videoBlock.content : '';
 
-        // Publish location — store it inside the category field with a pipe separator
-        // e.g. 'Cultura|primera_plana' so the public frontend can route it correctly
+        // Publish location
         const publishLocation = this.editorialForm.value.publishLocation || 'primera_plana';
         const categoryWithLocation = `${this.editorialForm.value.category}|${publishLocation}`;
 
         const mediaPayload: NewMedia = {
           title: this.editorialForm.value.title,
-          type: 'article',  // always 'article' so public frontend recognizes it
+          type: 'article',
           category: categoryWithLocation,
           description: descriptionStr,
           contentUrl: this.editorialForm.value.contentUrl || 'https://arandu.ch',
@@ -370,21 +470,15 @@ export class ContenidoComponent implements OnInit {
           imageUrl: JSON.stringify(imageUrls)
         };
 
-        if (this.editingArticleId) {
-          await this.mediaService.update(this.editingArticleId, mediaPayload);
+        const targetId = this.editingArticleId || this.activePublicationId();
+        if (targetId) {
+          await this.mediaService.update(targetId, mediaPayload);
           this.successMessage = '¡Artículo modificado y actualizado con éxito!';
-          this.cancelEdit();
+          this.purgeCanvasState();
         } else {
           await this.mediaService.create(mediaPayload);
           this.successMessage = '¡Artículo publicado con éxito!';
-          this.editorialForm.reset({
-            title: '',
-            category: 'Cultura',
-            contentUrl: 'https://arandu.ch',
-            author: this.adminName,
-            publishLocation: 'primera_plana'
-          });
-          this.blocks = [{ type: 'text', content: '', bold: false, italic: false, align: 'left' }];
+          this.purgeCanvasState();
         }
 
         await this.loadArticles();

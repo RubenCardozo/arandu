@@ -1,5 +1,5 @@
-import { Pool } from 'pg';
-import { drizzle } from 'drizzle-orm/node-postgres';
+import postgres from 'postgres';
+import { drizzle } from 'drizzle-orm/postgres-js';
 import * as schema from './schema';
 
 export const DATABASE_CONNECTION = 'DATABASE_CONNECTION';
@@ -11,9 +11,7 @@ export const dbConnectionProvider = {
     if (!connectionString) {
       throw new Error('DATABASE_URL environment variable is missing.');
     }
-    const pool = new Pool({
-      connectionString,
-    });
-    return drizzle(pool, { schema });
+    const queryClient = postgres(connectionString);
+    return drizzle(queryClient, { schema });
   },
 };

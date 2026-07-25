@@ -1,14 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { DATABASE_CONNECTION } from '../../db';
-import * as schema from '../../db/schema';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { DATABASE_CONNECTION } from '../../database';
+import * as schema from '../../database/schema';
+import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { eq, sql } from 'drizzle-orm';
 
 @Injectable()
 export class RedirectService {
   constructor(
     @Inject(DATABASE_CONNECTION)
-    private db: NodePgDatabase<typeof schema>,
+    private db: PostgresJsDatabase<typeof schema>,
   ) {}
 
   async registerClick(id: string, type: string) {

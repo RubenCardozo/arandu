@@ -2,12 +2,14 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { DbModule } from './db/db.module';
+import { DatabaseModule } from './database/database.module';
 import { CommonModule } from './common/common.module';
 import { RedirectModule } from './modules/redirect/redirect.module';
 import { InteractionsModule } from './modules/interactions/interactions.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ScheduleModule } from '@nestjs/schedule';
 import { APP_GUARD } from '@nestjs/core';
+import { RssModule } from './modules/rss/rss.module';
 
 @Module({
   imports: [
@@ -17,10 +19,12 @@ import { APP_GUARD } from '@nestjs/core';
       ttl: 60000, // Time to live in milliseconds (1 minute)
       limit: 120, // Max number of requests within the ttl duration
     }]),
-    DbModule,
+    DatabaseModule,
     CommonModule,
     RedirectModule,
     InteractionsModule,
+    RssModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [

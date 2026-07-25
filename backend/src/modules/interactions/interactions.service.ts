@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { DATABASE_CONNECTION } from '../../db';
-import * as schema from '../../db/schema';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { DATABASE_CONNECTION } from '../../database';
+import * as schema from '../../database/schema';
+import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { and, eq } from 'drizzle-orm';
 import { CreateCommentDto, CreateRatingDto } from './dto';
 
@@ -9,7 +9,7 @@ import { CreateCommentDto, CreateRatingDto } from './dto';
 export class InteractionsService {
   constructor(
     @Inject(DATABASE_CONNECTION)
-    private db: NodePgDatabase<typeof schema>,
+    private db: PostgresJsDatabase<typeof schema>,
   ) {}
 
   async createComment(dto: CreateCommentDto) {

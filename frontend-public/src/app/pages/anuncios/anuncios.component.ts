@@ -1054,6 +1054,63 @@ export class AnunciosComponent implements OnInit, OnDestroy {
   openPortfolio(portfolio: any) {
     this.selectedPortfolio = portfolio;
     const config = portfolio.landingConfig || {};
+    
+    // Ensure background image is assigned
+    if (!config.landingHeroImage && !config.heroImage) {
+      config.landingHeroImage = portfolio.imageUrl || 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&auto=format&fit=crop&q=80';
+      config.heroImage = config.landingHeroImage;
+    } else if (!config.landingHeroImage) {
+      config.landingHeroImage = config.heroImage;
+    }
+
+    if (config.bgOverlayOpacity === undefined) {
+      config.bgOverlayOpacity = 0.4;
+    }
+
+    // Ensure blocks array exists with menu, content, and footer
+    if (!config.blocks || !Array.isArray(config.blocks) || config.blocks.length === 0) {
+      config.blocks = [
+        {
+          id: 'block_menu_pub',
+          type: 'menu',
+          menuLinks: [
+            { label: 'Inicio', anchor: '#inicio' },
+            { label: 'Servicios', anchor: '#servicios' },
+            { label: 'Contacto', anchor: '#contacto' }
+          ]
+        },
+        {
+          id: 'inicio',
+          type: 'text',
+          content: portfolio.title || 'Mi Sitio Comercial',
+          fontSize: '3xl',
+          fontWeight: 'bold',
+          fontFamily: 'serif'
+        },
+        {
+          id: 'servicios',
+          type: 'text',
+          content: portfolio.description || 'Presentación de nuestros servicios y experiencia comercial.',
+          fontSize: 'base',
+          fontWeight: 'normal',
+          fontFamily: 'sans'
+        },
+        {
+          id: 'contacto',
+          type: 'social',
+          socialLinks: {
+            whatsapp: portfolio.contactPhone || portfolio.phone || '',
+            email: portfolio.contactEmail || portfolio.email || '',
+            website: portfolio.website || '',
+            facebook: '',
+            instagram: '',
+            linkedin: ''
+          }
+        }
+      ];
+    }
+    this.selectedPortfolio.landingConfig = config;
+
     const firstSection = config.sections && config.sections.length > 0 ? config.sections[0].title : 'Inicio';
     this.activePreviewTab = firstSection;
     this.currentSlideIndex = 0;

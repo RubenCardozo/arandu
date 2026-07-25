@@ -208,4 +208,29 @@ export class PortfolioStateService {
     this.sections.set(currentSections);
     return currentSections;
   }
+
+  clearBlocks() {
+    this.blocks.set([]);
+    this.isDirty.set(true);
+  }
+
+  clearAllState() {
+    this.blocks.set([]);
+    this.sections.set([]);
+    this.title.set('');
+    this.description.set('');
+    this.contactName.set('');
+    this.email.set('');
+    this.phone.set('');
+    this.phoneFijo.set('');
+    this.website.set('');
+    this.landingHeroImage.set('');
+    this.isDirty.set(false);
+
+    try {
+      localStorage.removeItem('arandu_portfolio_draft');
+      localStorage.removeItem('arandu_session_visits');
+      localStorage.removeItem('arandu_canvas_draft');
+    } catch (e) {}
+  }
 }

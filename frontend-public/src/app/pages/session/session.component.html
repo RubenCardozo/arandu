@@ -17,7 +17,7 @@
 
     <!-- Modal preview card -->
     <div [style]="getLandingStyles(getPreviewConfig())"
-         class="w-full rounded-2xl overflow-hidden flex flex-col justify-between relative p-6 select-none min-h-[520px]">
+         class="w-full rounded-2xl overflow-hidden flex flex-col justify-between relative p-8 select-none min-h-[520px]">
 
       <!-- Background image overlay -->
       <div class="absolute inset-0 z-0 pointer-events-none opacity-15 overflow-hidden">
@@ -1199,9 +1199,17 @@
                     </button>
                     <button type="button"
                             (click)="saveDraft(true)"
-                            [disabled]="portfolioSubmitting || isSaved()"
+                            [disabled]="portfolioSubmitting || hasUnsavedChanges()"
+                            [title]="hasUnsavedChanges() ? 'Guarda los cambios antes de publicar' : 'Publicar sitio en Arandu'"
                             class="px-3.5 py-1.5 bg-brand-sage text-brand-paper font-mono text-[9px] uppercase tracking-widest font-bold rounded-lg hover:bg-brand-charcoal transition-all cursor-pointer border-0 shadow-sm disabled:opacity-40 disabled:cursor-not-allowed">
                       {{ portfolioSubmitting ? '...' : 'Publicar ✓' }}
+                    </button>
+                    <button type="button"
+                            (click)="deletePublication()"
+                            [disabled]="portfolioSubmitting"
+                            title="Eliminar publicación y limpiar canvas"
+                            class="px-3.5 py-1.5 border border-brand-red/50 text-brand-red font-mono text-[9px] uppercase tracking-widest font-bold rounded-lg hover:bg-brand-red hover:text-white cursor-pointer bg-transparent transition-all">
+                      {{ portfolioSubmitting ? '...' : 'Eliminar 🗑️' }}
                     </button>
                     <div class="w-px h-5 bg-brand-charcoal/15"></div>
                     <button type="button"
