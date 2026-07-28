@@ -27,15 +27,15 @@ export class RssService implements OnApplicationBootstrap {
   }
 
   async onApplicationBootstrap() {
-    this.logger.log('RssService initialized. Hourly aggregation schedule is active.');
+    this.logger.log('RssService initialized. Bi-hourly aggregation schedule is active.');
     if (this.feedUrls.length === 0) {
       this.logger.warn('No RSS feeds configured. Please set RSS_FEEDS in your .env file.');
     }
   }
 
-  @Cron(CronExpression.EVERY_HOUR)
+  @Cron(CronExpression.EVERY_2_HOURS)
   async handleCron() {
-    this.logger.log('Starting hourly RSS aggregation...');
+    this.logger.log('Starting bi-hourly RSS aggregation...');
     
     if (this.feedUrls.length === 0) {
       this.logger.warn('No feeds to process. Exiting cron job.');
