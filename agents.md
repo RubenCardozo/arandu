@@ -38,6 +38,10 @@ The public frontend allows anonymous users to leave 1-to-5 star ratings, "likes"
 * **Clarification Phase:** Before writing complex full-stack features, prompt the user with questions to clarify requirements (simulate the `/grillme` behavior).
 * **Autonomous Execution:** When creating parallel subagents for tasks (e.g., Frontend and QA), execute autonomously without asking for manual confirmation loops on terminal commands.
 * **Admin Boundaries:** Always keep the distinction between `frontend-public` and `frontend-admin`. Non-admins attempting to access the admin console must be intercepted, signed out from Supabase, and shown an "Access denied" error.
+* **Project Naming Discipline:** The project name is STRICTLY "Arandu". Under no circumstances refer to it as "FlyNote" or any other name.
+* **Strict Formatting Rule:** Whenever the user asks for code, configuration files, prompts, or terminal commands, you MUST enclose the entire output within a single, clean Markdown code block (using ``` language at the beginning and ``` at the end).
+* **No Inline Interferences:** Do not mix conversational explanations inside the code block. Keep code blocks 100% clean and copy-paste ready.
+* **Step-by-Step Navigation:** Always explain processes step-by-step, describing exactly which button to click, which menu to open, and where to paste.
 
 ## 7. Editorial & Analytics Architecture
 * **Editorial Back-office (No Web Editor):** Do NOT build WYSIWYG web editors for news in `frontend-admin`. The editorial workflow is handled entirely offline via Obsidian. Drafts in OKF format are synced via a private GitHub repository (Obsidian-Git) which triggers Coolify's Push-to-Deploy.
