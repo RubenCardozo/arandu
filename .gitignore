@@ -29,3 +29,5 @@ yarn-error.log*
 Thumbs.db
 db.sqlite
 .DS_Store
+
+raw/
