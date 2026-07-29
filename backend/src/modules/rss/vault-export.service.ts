@@ -2,7 +2,6 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { OkfFormat } from './interfaces/okf.interface';
 
 @Injectable()
 export class VaultExportService implements OnModuleInit {
@@ -30,10 +29,9 @@ export class VaultExportService implements OnModuleInit {
     }
   }
 
-  async saveArticle(filename: string, okfData: OkfFormat): Promise<void> {
+  async saveArticle(filename: string, markdownContent: string): Promise<void> {
     try {
       const filePath = path.join(this.sourcesBasePath, filename);
-      const markdownContent = this.generateMarkdown(okfData);
       await fs.writeFile(filePath, markdownContent, 'utf-8');
       this.logger.log(`Saved processed article to ${filePath}`);
     } catch (error) {
@@ -50,36 +48,5 @@ export class VaultExportService implements OnModuleInit {
     } catch {
       return false;
     }
-  }
-
-  private generateMarkdown(data: OkfFormat): string {
-    let md = '---\n';
-    md += `type: "${data.type || 'article'}"\n`;
-    md += `procedencia: "${data.procedencia || ''}"\n`;
-    
-    if (data.metadatos) {
-      for (const [key, value] of Object.entries(data.metadatos)) {
-        if (typeof value === 'object' && value !== null) {
-          md += `${key}:\n`;
-          for (const [subKey, subValue] of Object.entries(value)) {
-             md += `  ${subKey}: "${String(subValue).replace(/"/g, '\\"')}"\n`;
-          }
-        } else {
-          md += `${key}: "${String(value).replace(/"/g, '\\"')}"\n`;
-        }
-      }
-    }
-
-    if (data.entidades && data.entidades.length > 0) {
-      md += 'entidades:\n';
-      for (const entity of data.entidades) {
-        md += `  - "${entity.name}"\n`;
-      }
-    }
-    
-    md += '---\n\n';
-    md += data.contenido || '';
-    
-    return md;
   }
 }
