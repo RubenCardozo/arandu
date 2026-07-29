@@ -62,65 +62,79 @@ export class RssService implements OnApplicationBootstrap {
     }
 
     for (const url of this.feedUrls) {
+      if (url.includes('letemps.ch')) {
+        this.logger.warn(`Skipping feed URL (letemps.ch bypass): ${url}`);
+        continue;
+      }
+
       try {
         const feed = await this.parser.parseURL(url);
         this.logger.log(`Fetched feed: ${feed.title}. Items: ${feed.items.length}`);
 
         for (const item of feed.items) {
-          const safeTitle = (item.title || 'untitled').replace(/[^a-z0-9]/gi, '_').toLowerCase();
-          const filename = `${safeTitle}.md`;
-
-          const exists = await this.vaultExportService.hasArticle(filename);
-          if (exists) {
-            this.logger.debug(`Article already processed, skipping: ${filename}`);
-            continue;
-          }
-
-          this.logger.log(`Processing new article: ${item.title}`);
-          
-          const originalTitle = item.title || 'Untitled';
-          const originalDescription = item.contentSnippet || item.content || '';
-          
-          const searchTitle = originalTitle.toLowerCase();
-          const searchDescription = originalDescription.toLowerCase();
-          
-          const hasKeyword = this.allowedKeywords.some(keyword => {
-            const kw = keyword.toLowerCase();
-            return searchTitle.includes(kw) || searchDescription.includes(kw);
-          });
-
-          if (!hasKeyword) {
-            const logPath = require('path').join(process.cwd(), '..', 'sources', 'discarded-news.log');
-            const logEntry = `[${new Date().toISOString()}] FAST-FAIL REJECTED: ${item.title}\nURL: ${item.link || url}\nREASON: Missing allowed keywords\n\n`;
-            try {
-              await require('fs/promises').appendFile(logPath, logEntry, 'utf-8');
-              this.logger.debug(`Article rejected by fast-fail keyword filter: ${item.title}`);
-            } catch (err) {
-              this.logger.error('Failed to write to discarded-news.log', err);
-            }
-            continue;
-          }
-
-          const resource = item.link || url;
-          const timestamp = new Date().toISOString();
-          const body = item.content || item.contentSnippet || '';
-
-          // Format raw markdown draft with YAML frontmatter
-          let markdownContent = '---\n';
-          markdownContent += `type: Draft\n`;
-          markdownContent += `title: "${originalTitle.replace(/"/g, '\\"')}"\n`;
-          markdownContent += `description: "${originalDescription.replace(/[\n\r]+/g, ' ').replace(/"/g, '\\"')}"\n`;
-          markdownContent += `resource: "${resource}"\n`;
-          markdownContent += `timestamp: "${timestamp}"\n`;
-          markdownContent += '---\n\n';
-          markdownContent += body;
-
-          // Save raw article locally and upload to the raw/ folder of GitHub Wiki repo
-          await this.vaultExportService.saveArticle(filename, markdownContent);
           try {
-            await this.githubWikiService.uploadRawDraft(filename, markdownContent, originalTitle);
-          } catch (uploadError) {
-            this.logger.error(`Error uploading article ${filename} to GitHub Wiki`, uploadError);
+            const safeTitle = (item.title || 'untitled').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            const filename = `${safeTitle}.md`;
+
+            const exists = await this.vaultExportService.hasArticle(filename);
+            if (exists) {
+              this.logger.debug(`Article already processed, skipping: ${filename}`);
+              continue;
+            }
+
+            this.logger.log(`Processing new article: ${item.title}`);
+            
+            const originalTitle = item.title || 'Untitled';
+            const originalDescription = item.contentSnippet || item.content || '';
+            
+            const searchTitle = originalTitle.toLowerCase();
+            const searchDescription = originalDescription.toLowerCase();
+            
+            const hasKeyword = this.allowedKeywords.some(keyword => {
+              const kw = keyword.toLowerCase();
+              return searchTitle.includes(kw) || searchDescription.includes(kw);
+            });
+
+            if (!hasKeyword) {
+              const logPath = require('path').join(process.cwd(), '..', 'sources', 'discarded-news.log');
+              const logEntry = `[${new Date().toISOString()}] FAST-FAIL REJECTED: ${item.title}\nURL: ${item.link || url}\nREASON: Missing allowed keywords\n\n`;
+              try {
+                await require('fs/promises').appendFile(logPath, logEntry, 'utf-8');
+                this.logger.debug(`Article rejected by fast-fail keyword filter: ${item.title}`);
+              } catch (err) {
+                this.logger.error('Failed to write to discarded-news.log', err);
+              }
+              continue;
+            }
+
+            const resource = item.link || url;
+            const timestamp = new Date().toISOString();
+            const body = item.content || item.contentSnippet || '';
+
+            /**
+             * Formats the raw French RSS feed item directly to an OKF Markdown file.
+             * Sets the type to 'source' and references the original URL under 'resource'
+             * to guarantee provenance, matching the platform's editorial guidelines.
+             */
+            let markdownContent = '---\n';
+            markdownContent += `type: source\n`;
+            markdownContent += `title: "${originalTitle.replace(/"/g, '\\"')}"\n`;
+            markdownContent += `description: "${originalDescription.replace(/[\n\r]+/g, ' ').replace(/"/g, '\\"')}"\n`;
+            markdownContent += `resource: "${resource}"\n`;
+            markdownContent += `timestamp: "${timestamp}"\n`;
+            markdownContent += '---\n\n';
+            markdownContent += body;
+
+            // Save raw article locally and upload to the raw/ folder of GitHub Wiki repo
+            await this.vaultExportService.saveArticle(filename, markdownContent);
+            try {
+              await this.githubWikiService.uploadRawDraft(filename, markdownContent, originalTitle);
+            } catch (uploadError) {
+              this.logger.error(`Error uploading article ${filename} to GitHub Wiki`, uploadError);
+            }
+          } catch (itemError) {
+            this.logger.error(`Error processing item "${item.title || 'untitled'}" from feed ${url}`, itemError);
+            continue;
           }
         }
       } catch (error) {

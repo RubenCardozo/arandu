@@ -73,6 +73,8 @@ export const media = pgTable('media', {
   embedUrl: text('embed_url'),
   author: varchar('author', { length: 255 }),
   imageUrl: text('image_url'),
+  featured: boolean('featured').default(false).notNull(),
+  reviewed: boolean('reviewed').default(false).notNull(),
   publishedAt: timestamp('published_at').defaultNow().notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
