@@ -3,10 +3,12 @@ import { HttpModule } from '@nestjs/axios';
 import { VaultExportService } from './vault-export.service';
 import { RssService } from './rss.service';
 import { GithubWikiService } from '../github-wiki.service';
+import { MarkdownSyncService } from './markdown-sync.service';
+import { DatabaseModule } from '../../database/database.module';
 
 @Module({
-  imports: [HttpModule],
-  providers: [VaultExportService, RssService, GithubWikiService],
-  exports: [VaultExportService, RssService, GithubWikiService],
+  imports: [HttpModule, DatabaseModule],
+  providers: [VaultExportService, RssService, GithubWikiService, MarkdownSyncService],
+  exports: [VaultExportService, RssService, GithubWikiService, MarkdownSyncService],
 })
 export class RssModule {}

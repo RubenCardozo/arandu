@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import Parser from 'rss-parser';
 import { VaultExportService } from './vault-export.service';
 import { GithubWikiService } from '../github-wiki.service';
+import { MarkdownSyncService } from './markdown-sync.service';
 
 @Injectable()
 export class RssService implements OnApplicationBootstrap {
@@ -31,6 +32,7 @@ export class RssService implements OnApplicationBootstrap {
     private configService: ConfigService,
     private vaultExportService: VaultExportService,
     private githubWikiService: GithubWikiService,
+    private markdownSyncService: MarkdownSyncService,
   ) {
     this.parser = new Parser();
     
@@ -122,11 +124,30 @@ export class RssService implements OnApplicationBootstrap {
             markdownContent += `description: "${originalDescription.replace(/[\n\r]+/g, ' ').replace(/"/g, '\\"')}"\n`;
             markdownContent += `resource: "${resource}"\n`;
             markdownContent += `timestamp: "${timestamp}"\n`;
+            markdownContent += `featured: false\n`;
+            markdownContent += `reviewed: false\n`;
             markdownContent += '---\n\n';
             markdownContent += body;
 
             // Save raw article locally and upload to the raw/ folder of GitHub Wiki repo
             await this.vaultExportService.saveArticle(filename, markdownContent);
+            
+            // Sync metadata to Supabase media table
+            try {
+              await this.markdownSyncService.syncMediaArticle(
+                resource,
+                {
+                  title: originalTitle,
+                  description: originalDescription,
+                  featured: false,
+                  reviewed: false,
+                },
+                body,
+              );
+            } catch (syncError) {
+              this.logger.error(`Error syncing article ${filename} to Supabase media table`, syncError);
+            }
+
             try {
               await this.githubWikiService.uploadRawDraft(filename, markdownContent, originalTitle);
             } catch (uploadError) {

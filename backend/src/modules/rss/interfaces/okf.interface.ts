@@ -5,10 +5,20 @@ export interface OkfEntity {
   description?: string;
 }
 
+export interface OkfMetadata {
+  title?: string;
+  author?: string;
+  pubDate?: string;
+  imageUrls?: string[];
+  featured?: boolean;
+  reviewed?: boolean;
+  [key: string]: any;
+}
+
 export interface OkfFormat {
   type: string;
   contenido: string; // Markdown body content
   procedencia: string; // Original URL or source identifier
-  metadatos: Record<string, any>; // Key-value pairs for frontmatter
+  metadatos: OkfMetadata; // Key-value pairs for frontmatter
   entidades: OkfEntity[]; // Extracted entities
 }
