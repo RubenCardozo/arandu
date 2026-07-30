@@ -1,6 +1,7 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { eq } from 'drizzle-orm';
+import { DATABASE_CONNECTION } from '../../database';
 import * as schema from '../../database/schema';
 import { media } from '../../database/schema';
 import { OkfMetadata } from './interfaces/okf.interface';
@@ -13,9 +14,14 @@ import { OkfMetadata } from './interfaces/okf.interface';
 export class MarkdownSyncService {
   private readonly logger = new Logger(MarkdownSyncService.name);
 
+  /**
+   * Creates an instance of MarkdownSyncService.
+   *
+   * @param db Drizzle database instance injected from DatabaseModule.
+   */
   constructor(
-    @Inject('DRIZZLE_DB')
-    private readonly db: NodePgDatabase<typeof schema>,
+    @Inject(DATABASE_CONNECTION)
+    private readonly db: PostgresJsDatabase<typeof schema>,
   ) {}
 
   /**

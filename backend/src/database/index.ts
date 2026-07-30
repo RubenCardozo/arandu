@@ -3,6 +3,7 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import * as schema from './schema';
 
 export const DATABASE_CONNECTION = 'DATABASE_CONNECTION';
+export const DRIZZLE_DB = 'DRIZZLE_DB';
 
 export const dbConnectionProvider = {
   provide: DATABASE_CONNECTION,
@@ -15,3 +16,9 @@ export const dbConnectionProvider = {
     return drizzle(queryClient, { schema });
   },
 };
+
+export const drizzleDbProvider = {
+  provide: DRIZZLE_DB,
+  useExisting: DATABASE_CONNECTION,
+};
+

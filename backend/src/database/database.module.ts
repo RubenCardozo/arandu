@@ -1,9 +1,9 @@
 import { Module, Global } from '@nestjs/common';
-import { dbConnectionProvider } from './index';
+import { dbConnectionProvider, drizzleDbProvider } from './index';
 
 @Global()
 @Module({
-  providers: [dbConnectionProvider],
-  exports: [dbConnectionProvider],
+  providers: [dbConnectionProvider, drizzleDbProvider],
+  exports: [dbConnectionProvider, drizzleDbProvider],
 })
 export class DatabaseModule {}
