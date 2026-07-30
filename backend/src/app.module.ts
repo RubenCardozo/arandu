@@ -10,6 +10,7 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
 import { APP_GUARD } from '@nestjs/core';
 import { RssModule } from './modules/rss/rss.module';
+import { SyncModule } from './modules/sync/sync.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { RssModule } from './modules/rss/rss.module';
     RedirectModule,
     InteractionsModule,
     RssModule,
+    SyncModule,
     ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
