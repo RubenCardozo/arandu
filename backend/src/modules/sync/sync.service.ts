@@ -81,32 +81,35 @@ export class SyncService {
 
   /**
    * Resolves the physical local path of the Obsidian vault sources directory.
-   * Checks environment variables first, followed by default path candidates.
+   * Reads OBSIDIAN_VAULT_PATH via ConfigService or process.env, and falls back to safe relative paths for local development.
    *
-   * @returns Resolved absolute directory path or null if not found
+   * @returns Resolved directory path or null if not found
    */
   private resolveVaultPath(): string | null {
-    const envPath = this.configService.get<string>('OBSIDIAN_VAULT_PATH');
+    // 1. Check dynamic environment variable configured via NestJS ConfigService or process.env
+    const envPath =
+      this.configService.get<string>('OBSIDIAN_VAULT_PATH') ||
+      process.env.OBSIDIAN_VAULT_PATH;
+
     if (envPath && fs.existsSync(envPath)) {
       return envPath;
     }
 
-    // List of candidate directory paths to inspect
-    const homeDir = process.env.USERPROFILE || process.env.HOME || '';
-    const candidatePaths = [
-      path.join(homeDir, 'Documents', 'Projets GBN', 'arandu-backoffice', 'wiki', 'sources'),
-      path.join(homeDir, 'arandu-backoffice', 'wiki', 'sources'),
+    // 2. Safe relative fallback paths for local development or Docker containers
+    const relativeFallbacks = [
+      path.resolve(process.cwd(), 'wiki', 'sources'),
       path.resolve(process.cwd(), '..', 'arandu-backoffice', 'wiki', 'sources'),
       path.resolve(process.cwd(), 'arandu-backoffice', 'wiki', 'sources'),
     ];
 
-    for (const candidate of candidatePaths) {
+    for (const candidate of relativeFallbacks) {
       if (candidate && fs.existsSync(candidate)) {
         return candidate;
       }
     }
 
-    return envPath || null;
+    // Return explicit envPath if defined (even if not yet existing at check time) or fallback to first relative path
+    return envPath || relativeFallbacks[0];
   }
 
   /**
