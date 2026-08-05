@@ -71,7 +71,7 @@ export class GeminiService {
               },
               type: {
                 type: 'STRING',
-                description: 'Should be "article" if accepted.',
+                description: 'Allowed values: "article", "podcast", or "video". Must be "article" for news items.',
               },
               contenido: {
                 type: 'STRING',
@@ -137,6 +137,16 @@ export class GeminiService {
           }
           return null;
         }
+
+        // Automatic fallback mapping: normalize Gemini 'type' field to valid enum ('article', 'podcast', 'video')
+        const rawType = (data.type || 'article').toString().trim().toLowerCase();
+        if (rawType === 'podcast' || rawType === 'video' || rawType === 'article') {
+          data.type = rawType;
+        } else {
+          // Pre-processing fallback for unauthorized values like "news", "post", "source", "blog"
+          data.type = 'article';
+        }
+
         return data;
       }
       return null;

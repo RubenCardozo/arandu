@@ -15,7 +15,15 @@ describe('SyncService', () => {
 
   const mockSupabaseClient = {
     from: jest.fn().mockReturnValue({
-      upsert: jest.fn().mockResolvedValue({ data: [], error: null }),
+      select: jest.fn().mockReturnValue({
+        eq: jest.fn().mockReturnValue({
+          limit: jest.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+      }),
+      insert: jest.fn().mockResolvedValue({ data: [], error: null }),
+      update: jest.fn().mockReturnValue({
+        eq: jest.fn().mockResolvedValue({ data: [], error: null }),
+      }),
     }),
   };
 
@@ -39,23 +47,57 @@ describe('SyncService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should correctly parse YAML frontmatter and Markdown body using Regex', () => {
+  it('should correctly parse YAML frontmatter, H1 title, block-structured description, mapped type, and contentUrl', () => {
     const markdownContent = `---
-title: "Test OKF Article"
-procedencia: "https://example.com/article"
-resource: "https://example.com/article"
-contenido: "Custom OKF content"
+type: "source"
+resource: "https://example.com/article-source"
+author: "Geneva Reporter"
+category: "cultura"
 ---
-# Main Heading
+# Obras en la rue de Carouge: el tranvía 12 interrumpido durante el verano
 
-This is the body content of the article.`;
+Las obras de renovación de las vías del tranvía comenzarán este lunes.
 
-    const { metadata, body } = service.parseMarkdownOKF(markdownContent);
+## Impacto en el tráfico
 
-    expect(metadata.title).toBe('Test OKF Article');
-    expect(metadata.procedencia).toBe('https://example.com/article');
-    expect(metadata.resource).toBe('https://example.com/article');
-    expect(body).toContain('# Main Heading');
-    expect(body).toContain('This is the body content of the article.');
+El tráfico se verá interrumpido en varios sectores:
+* Línea 12 desviada por Plainpalais
+* Autobuses de sustitución puestos en servicio
+
+Se aconseja a los usuarios planificar sus desplazamientos.`;
+
+    const parsed = service.parseMarkdownOKF(markdownContent);
+
+    expect(parsed.title).toBe('Obras en la rue de Carouge: el tranvía 12 interrumpido durante el verano');
+    expect(parsed.type).toBe('article');
+    expect(parsed.contentUrl).toBe('https://example.com/article-source');
+    
+    const blocks = JSON.parse(parsed.description);
+    expect(blocks).toEqual([
+      {
+        type: 'text',
+        content: 'Las obras de renovación de las vías del tranvía comenzarán este lunes.',
+      },
+      {
+        type: 'subtitle',
+        content: 'Impacto en el tráfico',
+      },
+      {
+        type: 'text',
+        content: 'El tráfico se verá interrumpido en varios sectores:',
+      },
+      {
+        type: 'text',
+        content: '• Línea 12 desviada por Plainpalais',
+      },
+      {
+        type: 'text',
+        content: '• Autobuses de sustitución puestos en servicio',
+      },
+      {
+        type: 'text',
+        content: 'Se aconseja a los usuarios planificar sus desplazamientos.',
+      },
+    ]);
   });
 });

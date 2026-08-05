@@ -58,7 +58,14 @@ export class MarkdownSyncService {
     const reviewed = this.parseBoolean(metadata.reviewed);
     const title = metadata.title || 'Untitled';
     const author = metadata.author || null;
-    const type = metadata.type || 'article';
+    const rawType = (metadata.type || 'article').toString().trim().toLowerCase();
+    let type: 'podcast' | 'video' | 'article' = 'article';
+    if (rawType === 'podcast' || rawType === 'video') {
+      type = rawType;
+    } else {
+      // Automatic fallback mapping for unauthorized values (e.g. "news", "post", "source", "blog") to "article"
+      type = 'article';
+    }
     const category = metadata.category || null;
     const description = metadata.description || (body ? body.slice(0, 250).trim() : null);
     const imageUrl = metadata.imageUrl || (metadata.imageUrls && metadata.imageUrls.length > 0 ? metadata.imageUrls[0] : null);

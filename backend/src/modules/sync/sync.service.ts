@@ -1,202 +1,227 @@
-import { Injectable, Logger, BadRequestException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { SupabaseService } from '../../common/supabase.service';
+import { Injectable, Inject, Logger } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
+import { eq } from 'drizzle-orm';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+// Pointing accurately to backend/src/database/schema.ts
+import { media } from '../../database/schema';
 
 /**
- * Interface representing parsed OKF Markdown document data.
+ * Structured content block representation required by the Angular frontend.
  */
-export interface OkfParsedDocument {
-  title: string;
+interface ContentBlock {
+  type: 'text' | 'subtitle';
   content: string;
-  resource: string;
-  metadata: Record<string, string>;
 }
 
 /**
- * Interface representing the synchronization result summary.
+ * Return type required strictly by the SyncController signature.
  */
 export interface SyncResult {
   success: boolean;
-  syncedCount: number;
-  totalFiles: number;
-  vaultPath: string;
-  errors: string[];
-  records?: any[];
+  count: number;
+  message?: string;
 }
 
 @Injectable()
 export class SyncService {
   private readonly logger = new Logger(SyncService.name);
+  
+  // Dynamic path pointing to your locally synchronized private Obsidian vault folder from .env
+  private readonly sourcesPath = process.env.OBSIDIAN_VAULT_PATH
+    ? path.resolve(process.env.OBSIDIAN_VAULT_PATH.replace(/['"]/g, '')) // Cleans any quotes safely
+    : path.join(__dirname, '../../../../wiki/sources');
 
+  /**
+   * Constructs the service injecting the Drizzle database instance.
+   * @param db Drizzle database client instance connected to Supabase PostgreSQL.
+   */
   constructor(
-    private readonly configService: ConfigService,
-    private readonly supabaseService: SupabaseService,
+    @Inject('DATABASE_CONNECTION') private readonly db: NodePgDatabase<any>,
   ) {}
 
   /**
-   * Parses YAML frontmatter and body from a Markdown file string using a pure Regex approach.
-   * Extracts frontmatter metadata key-value pairs and isolates the Markdown body.
-   *
-   * @param fileContent Raw text content of the Markdown file
-   * @returns Object containing key-value metadata pairs and the main body text
+   * Main entrypoint called by the controller. Processes files from the Obsidian vault.
+   * @param vaultPath Optional directory path override for custom vaults.
    */
-  public parseMarkdownOKF(fileContent: string): { metadata: Record<string, string>; body: string } {
-    // Regex matching frontmatter delimited by triple-dashes at the top of the file
-    const frontmatterRegex = /^---[\r\n]+([\s\S]*?)[\r\n]+---[\r\n]*/;
-    const match = fileContent.match(frontmatterRegex);
+  async syncObsidianArticles(vaultPath?: string): Promise<SyncResult> {
+    try {
+      // Use custom path if provided by controller body, otherwise fallback to configured env path
+      const targetPath = vaultPath ? path.resolve(vaultPath.replace(/['"]/g, '')) : this.sourcesPath;
+      this.logger.log(`Scanning articles from Obsidian folder: ${targetPath}`);
+      
+      if (!fs.existsSync(targetPath)) {
+        this.logger.warn(`Sources path does not exist: ${targetPath}`);
+        return { success: false, count: 0, message: `Path not found: ${targetPath}` };
+      }
 
+      const files = fs.readdirSync(targetPath).filter(file => file.endsWith('.md'));
+      let syncedCount = 0;
+
+      for (const file of files) {
+        const filePath = path.join(targetPath, file);
+        const fileContent = fs.readFileSync(filePath, 'utf-8');
+        
+        // Parse the Obsidian OKF file content structure
+        const parsedData = this.parseOKFMarkdown(file, fileContent);
+        
+        this.logger.log(`Synchronizing article: "${parsedData.title}" into database.`);
+
+        // DB Insert or Update on Conflict
+        const existingRecord = await this.db
+          .select()
+          .from(media)
+          .where(eq(media.contentUrl, parsedData.contentUrl))
+          .execute();
+
+        if (existingRecord.length > 0) {
+          // Update existing article
+          await this.db
+            .update(media)
+            .set({
+              title: parsedData.title,
+              type: parsedData.type,
+              category: parsedData.category,
+              description: parsedData.description,
+              reviewed: parsedData.reviewed,
+              featured: parsedData.featured,
+            })
+            .where(eq(media.contentUrl, parsedData.contentUrl))
+            .execute();
+        } else {
+          // Insert new article record
+          await this.db
+            .insert(media)
+            .values({
+              title: parsedData.title,
+              type: parsedData.type,
+              category: parsedData.category,
+              description: parsedData.description,
+              contentUrl: parsedData.contentUrl,
+              reviewed: parsedData.reviewed,
+              featured: parsedData.featured,
+            })
+            .execute();
+        }
+
+        syncedCount++;
+      }
+
+      return { 
+        success: true, 
+        count: syncedCount, 
+        message: `Successfully synchronized ${syncedCount} articles.` 
+      };
+    } catch (error) {
+      this.logger.error('Failed to execute Markdown synchronization:', error);
+      return { 
+        success: false, 
+        count: 0, 
+        message: error instanceof Error ? error.message : String(error) 
+      };
+    }
+  }
+
+  /**
+   * Main parsing engine for Obsidian OKF documents.
+   * Extracts frontmatter metadata, cleans titles, and converts body lines to JSON blocks.
+   */
+  private parseOKFMarkdown(filename: string, fileContent: string) {
+    const frontmatterRegex = /^---\r?\n([\s\S]*?)\r?\n---/;
+    const match = fileContent.match(frontmatterRegex);
     const metadata: Record<string, string> = {};
     let body = fileContent;
 
-    if (match) {
-      const yamlBlock = match[1];
-      // Strip frontmatter from the document to retain only the body
+    // 1. Process YAML Frontmatter properties safely by accessing first capture group
+    if (match && match[3]) {
+      const yamlBlock = match[3];
       body = fileContent.replace(frontmatterRegex, '').trim();
-
-      // Split YAML block line by line for key-value extraction
-      const lines = yamlBlock.split(/\r?\n/);
+      const lines = yamlBlock.split('\n');
       for (const line of lines) {
-        const trimmedLine = line.trim();
-        // Skip empty lines and comment lines
-        if (!trimmedLine || trimmedLine.startsWith('#')) {
-          continue;
-        }
-
-        const colonIndex = trimmedLine.indexOf(':');
-        if (colonIndex !== -1) {
-          const key = trimmedLine.substring(0, colonIndex).trim();
-          let value = trimmedLine.substring(colonIndex + 1).trim();
-
-          // Strip wrapping single or double quotes from value
-          value = value.replace(/^['"]|['"]$/g, '');
-          metadata[key] = value;
+        const separatorIndex = line.indexOf(':');
+        if (separatorIndex !== -1) {
+          const key = line.substring(0, separatorIndex).trim();
+          const val = line.substring(separatorIndex + 1).trim().replace(/^["']|["']$/g, '');
+          metadata[key] = val;
         }
       }
     }
 
-    return { metadata, body };
-  }
-
-  /**
-   * Resolves the physical local path of the Obsidian vault sources directory.
-   * Reads OBSIDIAN_VAULT_PATH via ConfigService or process.env, and falls back to safe relative paths for local development.
-   *
-   * @returns Resolved directory path or null if not found
-   */
-  private resolveVaultPath(): string | null {
-    // 1. Check dynamic environment variable configured via NestJS ConfigService or process.env
-    const envPath =
-      this.configService.get<string>('OBSIDIAN_VAULT_PATH') ||
-      process.env.OBSIDIAN_VAULT_PATH;
-
-    if (envPath && fs.existsSync(envPath)) {
-      return envPath;
+    // 2. Extract Spanish H1 Heading (cleaning markdown hashtags) by accessing first capture group
+    const h1Regex = /^#\s+(.+)$/m;
+    const h1Match = body.match(h1Regex);
+    let title = '';
+    if (h1Match && h1Match[3]) {
+      title = h1Match[3].trim().replace(/^["']|["']$/g, '');
+      body = body.replace(h1Regex, '').trim(); // Remove H1 from the text body array
+    } else if (metadata.title) {
+      title = metadata.title;
+    } else {
+      title = filename.replace('.md', '').replace(/_/g, ' ');
     }
 
-    // 2. Safe relative fallback paths for local development or Docker containers
-    const relativeFallbacks = [
-      path.resolve(process.cwd(), 'wiki', 'sources'),
-      path.resolve(process.cwd(), '..', 'arandu-backoffice', 'wiki', 'sources'),
-      path.resolve(process.cwd(), 'arandu-backoffice', 'wiki', 'sources'),
-    ];
-
-    for (const candidate of relativeFallbacks) {
-      if (candidate && fs.existsSync(candidate)) {
-        return candidate;
-      }
+    // 3. Align types to database enum constraints ('podcast', 'video', 'article') with fallback mapping
+    const rawType = (metadata.type || 'article').toString().trim().toLowerCase();
+    let type = 'article';
+    if (rawType === 'podcast' || rawType === 'video') {
+      type = rawType;
+    } else {
+      // Fallback unauthorized values (e.g. 'source', 'news', 'post', 'blog') to 'article'
+      type = 'article';
     }
 
-    // Return explicit envPath if defined (even if not yet existing at check time) or fallback to first relative path
-    return envPath || relativeFallbacks[0];
-  }
+    const contentUrl = metadata.resource || metadata.provenance || 'https://arandu.ch';
+    const category = metadata.category || 'cultura';
+    const featured = metadata.featured === 'true';
+    const reviewed = metadata.reviewed === 'true' || true; // Default true for Obsidian validated notes
 
-  /**
-   * Synchronizes Obsidian OKF Markdown articles with the Supabase `noticias` table.
-   * Ingests files, parses metadata and body, and performs an upsert into Supabase.
-   *
-   * @param customVaultPath Optional override for vault sources folder path
-   * @returns SyncResult object summarizing the synchronization execution
-   */
-  async syncObsidianArticles(customVaultPath?: string): Promise<SyncResult> {
-    const vaultPath = customVaultPath || this.resolveVaultPath();
+    // 4. Transform body content into structured block array representation
+    const blocks: ContentBlock[] = [];
+    const lines = body.split(/\r?\n/);
+    let currentParagraphText = '';
 
-    if (!vaultPath || !fs.existsSync(vaultPath)) {
-      const errorMsg = `Obsidian vault sources directory not found at path: ${vaultPath || 'unspecified'}`;
-      this.logger.error(errorMsg);
-      throw new BadRequestException(errorMsg);
-    }
-
-    this.logger.log(`Starting OKF article ingestion from vault path: ${vaultPath}`);
-
-    // Read all .md files in the vault sources directory
-    const files = fs.readdirSync(vaultPath).filter((file) => file.endsWith('.md'));
-    this.logger.log(`Found ${files.length} Markdown file(s) for processing.`);
-
-    const syncedRecords: any[] = [];
-    const errors: string[] = [];
-
-    const supabase = this.supabaseService.getClient();
-
-    for (const file of files) {
-      const filePath = path.join(vaultPath, file);
-      try {
-        const rawContent = fs.readFileSync(filePath, 'utf-8');
-        const { metadata, body } = this.parseMarkdownOKF(rawContent);
-
-        // Extract OKF mandatory and optional fields with fallbacks
-        const title = metadata.title || metadata.titulo || file.replace(/\.md$/i, '');
-        const content = metadata.contenido || metadata.content || body;
-        const resource = metadata.procedencia || metadata.resource || metadata.original_url || metadata.url || '';
-
-        // Prepare object mapping field names for both English & Spanish schema variations
-        const payload = {
-          title,
-          content,
-          resource,
-          titulo: title,
-          contenido: content,
-          procedencia: resource,
-          updated_at: new Date().toISOString(),
-        };
-
-        // Perform upsert into Supabase `noticias` table
-        const { data, error } = await supabase
-          .from('noticias')
-          .upsert([payload], { onConflict: 'title' });
-
-        if (error) {
-          // If conflict on 'title' fails due to target column constraint name, attempt fallback upsert on 'titulo'
-          const fallbackResponse = await supabase
-            .from('noticias')
-            .upsert([payload], { onConflict: 'titulo' });
-
-          if (fallbackResponse.error) {
-            this.logger.warn(`Upsert failed for file ${file}: ${error.message}`);
-            errors.push(`File ${file}: ${error.message}`);
-            continue;
-          }
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      
+      if (!trimmedLine) {
+        if (currentParagraphText) {
+          blocks.push({ type: 'text', content: currentParagraphText.trim() });
+          currentParagraphText = '';
         }
+        continue;
+      }
 
-        syncedRecords.push({ file, title });
-        this.logger.log(`Successfully ingested article: "${title}" (${file})`);
-      } catch (err: any) {
-        const message = err?.message || String(err);
-        this.logger.error(`Error processing file ${file}: ${message}`);
-        errors.push(`File ${file}: ${message}`);
+      if (trimmedLine.startsWith('## ') || trimmedLine.startsWith('### ')) {
+        if (currentParagraphText) {
+          blocks.push({ type: 'text', content: currentParagraphText.trim() });
+          currentParagraphText = '';
+        }
+        const subtitleText = trimmedLine.replace(/^#+\s+/, '');
+        blocks.push({ type: 'subtitle', content: subtitleText });
+      } else if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ')) {
+        if (currentParagraphText) {
+          blocks.push({ type: 'text', content: currentParagraphText.trim() });
+          currentParagraphText = '';
+        }
+        const bulletText = '• ' + trimmedLine.replace(/^[-*]\s+/, '');
+        blocks.push({ type: 'text', content: bulletText });
+      } else {
+        currentParagraphText += (currentParagraphText ? '\n' : '') + trimmedLine;
       }
     }
 
-    this.logger.log(`Completed sync process. ${syncedRecords.length}/${files.length} articles ingested.`);
+    if (currentParagraphText) {
+      blocks.push({ type: 'text', content: currentParagraphText.trim() });
+    }
 
     return {
-      success: errors.length === 0,
-      syncedCount: syncedRecords.length,
-      totalFiles: files.length,
-      vaultPath,
-      errors,
-      records: syncedRecords,
+      title,
+      type,
+      category,
+      description: JSON.stringify(blocks), // Strictly stringified for text DB column
+      contentUrl,
+      featured,
+      reviewed,
     };
   }
 }

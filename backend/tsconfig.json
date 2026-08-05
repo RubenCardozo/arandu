@@ -24,5 +24,11 @@
     "paths": {
       "@arandu/types": ["../shared/types/index.ts"]
     }
-  }
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test",
+    "**/*.spec.ts"
+  ]
 }
