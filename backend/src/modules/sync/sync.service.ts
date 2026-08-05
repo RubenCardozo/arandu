@@ -123,6 +123,15 @@ export class SyncService {
   }
 
   /**
+   * Parses raw markdown content into structured OKF JSON format.
+   * @param content The raw markdown string
+   * @param filename Optional filename context
+   */
+  public parseMarkdownOKF(content: string, filename: string = 'document.md') {
+    return this.parseOKFMarkdown(filename, content);
+  }
+
+  /**
    * Main parsing engine for Obsidian OKF documents.
    * Extracts frontmatter metadata, cleans titles, and converts body lines to JSON blocks.
    */
@@ -133,8 +142,8 @@ export class SyncService {
     let body = fileContent;
 
     // 1. Process YAML Frontmatter properties safely by accessing first capture group
-    if (match && match[3]) {
-      const yamlBlock = match[3];
+    if (match && match[1]) {
+      const yamlBlock = match[1];
       body = fileContent.replace(frontmatterRegex, '').trim();
       const lines = yamlBlock.split('\n');
       for (const line of lines) {
@@ -151,8 +160,8 @@ export class SyncService {
     const h1Regex = /^#\s+(.+)$/m;
     const h1Match = body.match(h1Regex);
     let title = '';
-    if (h1Match && h1Match[3]) {
-      title = h1Match[3].trim().replace(/^["']|["']$/g, '');
+    if (h1Match && h1Match[1]) {
+      title = h1Match[1].trim().replace(/^["']|["']$/g, '');
       body = body.replace(h1Regex, '').trim(); // Remove H1 from the text body array
     } else if (metadata.title) {
       title = metadata.title;

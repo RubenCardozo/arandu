@@ -1,3 +1,4 @@
+import { describe, it, jest, beforeEach, expect } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { SyncService } from './sync.service';
@@ -7,7 +8,7 @@ describe('SyncService', () => {
   let service: SyncService;
 
   const mockConfigService = {
-    get: jest.fn().mockImplementation((key: string) => {
+    get: jest.fn().mockImplementation((key: any) => {
       if (key === 'OBSIDIAN_VAULT_PATH') return '/mock/path';
       return null;
     }),
@@ -17,12 +18,12 @@ describe('SyncService', () => {
     from: jest.fn().mockReturnValue({
       select: jest.fn().mockReturnValue({
         eq: jest.fn().mockReturnValue({
-          limit: jest.fn().mockResolvedValue({ data: [], error: null }),
+          limit: jest.fn<any>().mockResolvedValue({ data: [] as any[], error: null }),
         }),
       }),
-      insert: jest.fn().mockResolvedValue({ data: [], error: null }),
+      insert: jest.fn<any>().mockResolvedValue({ data: [] as any[], error: null }),
       update: jest.fn().mockReturnValue({
-        eq: jest.fn().mockResolvedValue({ data: [], error: null }),
+        eq: jest.fn<any>().mockResolvedValue({ data: [] as any[], error: null }),
       }),
     }),
   };

@@ -1,34 +1,21 @@
 {
   "compilerOptions": {
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
-    "resolvePackageJsonExports": true,
-    "esModuleInterop": true,
-    "isolatedModules": true,
+    "module": "commonjs",
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "ES2023",
+    "target": "es2021",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
+    "rootDir": "./",
     "incremental": true,
     "skipLibCheck": true,
-    "strictNullChecks": true,
-    "forceConsistentCasingInFileNames": true,
-    "noImplicitAny": true,
-    "strictBindCallApply": true,
-    "noFallthroughCasesInSwitch": true,
+    "types": ["node", "jest"],
     "paths": {
-      "@arandu/types": ["../shared/types/index.ts"]
+      "@arandu/types": ["../shared/types/index"]
     }
   },
-  "exclude": [
-    "node_modules",
-    "dist",
-    "test",
-    "**/*.spec.ts"
-  ]
+  "exclude": ["node_modules", "dist"]
 }
