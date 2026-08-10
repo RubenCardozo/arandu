@@ -1,7 +1,7 @@
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { ConfigService } from '@nestjs/config';
-import Parser from 'rss-parser';
+import * as Parser from 'rss-parser';
 import { VaultExportService } from './vault-export.service';
 import { GithubWikiService } from '../github-wiki.service';
 import { MarkdownSyncService } from './markdown-sync.service';
@@ -9,7 +9,7 @@ import { MarkdownSyncService } from './markdown-sync.service';
 @Injectable()
 export class RssService implements OnApplicationBootstrap {
   private readonly logger = new Logger(RssService.name);
-  private parser: Parser;
+  private parser: InstanceType<typeof Parser>;
   private feedUrls: string[];
 
   /**
@@ -34,7 +34,7 @@ export class RssService implements OnApplicationBootstrap {
     private githubWikiService: GithubWikiService,
     private markdownSyncService: MarkdownSyncService,
   ) {
-    this.parser = new Parser();
+    this.parser = new (Parser as any)();
     
     /**
      * Reads a comma-separated list of RSS feed URLs from the RSS_FEED_URLS environment variable.

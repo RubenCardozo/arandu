@@ -14,6 +14,8 @@ describe('SyncService', () => {
     }),
   };
 
+  const mockUpsert = jest.fn<any>().mockResolvedValue({ data: [] as any[], error: null });
+
   const mockSupabaseClient = {
     from: jest.fn().mockReturnValue({
       select: jest.fn().mockReturnValue({
@@ -25,6 +27,7 @@ describe('SyncService', () => {
       update: jest.fn().mockReturnValue({
         eq: jest.fn<any>().mockResolvedValue({ data: [] as any[], error: null }),
       }),
+      upsert: mockUpsert,
     }),
   };
 
@@ -33,6 +36,7 @@ describe('SyncService', () => {
   };
 
   beforeEach(async () => {
+    jest.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         SyncService,
@@ -48,7 +52,61 @@ describe('SyncService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should correctly parse YAML frontmatter, H1 title, block-structured description, mapped type, and contentUrl', () => {
+  it('should correctly parse all 13 frontmatter fields and markdown content', () => {
+    const markdownContent = `---
+id: "art-123"
+title: "Article Title Test"
+subtitle: "Article Subtitle Test"
+author: "Jane Doe"
+author_avatar: "https://example.com/avatar.jpg"
+source_name: "Tech News"
+source_url: "https://example.com/news/123"
+category: "technology"
+status: "published"
+published_at: "2026-08-09T10:00:00Z"
+featured: true
+order_priority: 5
+cover_image: "https://example.com/cover.jpg"
+---
+# Main Article Body Title
+
+This is the main markdown content of the article.
+It contains multiple paragraphs and details.`;
+
+    const parsed = service.parseArticleMarkdown(markdownContent, 'test-article.md');
+
+    expect(parsed).toEqual({
+      id: 'art-123',
+      title: 'Article Title Test',
+      subtitle: 'Article Subtitle Test',
+      author: 'Jane Doe',
+      author_avatar: 'https://example.com/avatar.jpg',
+      source_name: 'Tech News',
+      source_url: 'https://example.com/news/123',
+      category: 'technology',
+      status: 'published',
+      published_at: '2026-08-09T10:00:00Z',
+      featured: true,
+      order_priority: 5,
+      cover_image: 'https://example.com/cover.jpg',
+      content: `# Main Article Body Title\n\nThis is the main markdown content of the article.\nIt contains multiple paragraphs and details.`,
+    });
+  });
+
+  it('should generate a slug id from title when id is not provided in frontmatter', () => {
+    const markdownContent = `---
+title: "Sample Article Title for Slug!"
+category: "technology"
+---
+# Main Content
+
+Sample body text.`;
+
+    const parsed = service.parseArticleMarkdown(markdownContent, 'sample.md');
+    expect(parsed.id).toBe('sample-article-title-for-slug');
+  });
+
+  it('should correctly parse YAML frontmatter, H1 title, block-structured description, mapped type, and contentUrl for Obsidian OKF notes', () => {
     const markdownContent = `---
 type: "source"
 resource: "https://example.com/article-source"
@@ -72,7 +130,7 @@ Se aconseja a los usuarios planificar sus desplazamientos.`;
     expect(parsed.title).toBe('Obras en la rue de Carouge: el tranvía 12 interrumpido durante el verano');
     expect(parsed.type).toBe('article');
     expect(parsed.contentUrl).toBe('https://example.com/article-source');
-    
+
     const blocks = JSON.parse(parsed.description);
     expect(blocks).toEqual([
       {

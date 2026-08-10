@@ -1,0 +1,4 @@
+/* Component specific custom styles for hero-article */
+:host {
+  display: block;
+}

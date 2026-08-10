@@ -1,4 +1,5 @@
-import postgres from 'postgres';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const postgres = require('postgres');
 import { drizzle } from 'drizzle-orm/postgres-js';
 import * as schema from './schema';
 

@@ -13,6 +13,7 @@ import { SupabaseService } from '../../services/supabase.service';
 import { ServicesCatalogService } from '../../services/services-catalog.service';
 import { JobsService } from '../../services/jobs.service';
 import { SafeUrlPipe } from '../../pipes/safe-url.pipe';
+import { HeroArticleComponent } from '../../components/hero-article/hero-article.component';
 
 interface Headline {
   id: string;
@@ -60,7 +61,7 @@ interface Report {
 @Component({
   selector: 'app-inicio',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, SafeUrlPipe],
+  imports: [CommonModule, RouterModule, FormsModule, SafeUrlPipe, HeroArticleComponent],
   templateUrl: './inicio.component.html',
   styleUrls: ['./inicio.component.css']
 })

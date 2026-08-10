@@ -116,3 +116,22 @@ export const reports = pgTable('reports', {
   description: text('description'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
+
+export const articles = pgTable('articles', {
+  id: text('id').primaryKey(),
+  title: text('title').notNull(),
+  subtitle: text('subtitle'),
+  author: text('author'),
+  authorAvatar: text('author_avatar'),
+  sourceName: text('source_name'),
+  sourceUrl: text('source_url'),
+  category: text('category').default('noticia'),
+  status: text('status').default('published'),
+  publishedAt: timestamp('published_at', { withTimezone: true }),
+  featured: boolean('featured').default(false),
+  orderPriority: integer('order_priority').default(0),
+  coverImage: text('cover_image'),
+  content: text('content'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+});
+
