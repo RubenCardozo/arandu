@@ -1,0 +1,34 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Git repository files
+.git
+.gitignore
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Local testing configurations and test suites
+coverage
+test
+*.spec.ts
+*.e2e-spec.ts
+
+# IDE / Editor configuration directories
+.vscode
+.idea
+
+# OS temp files
+.DS_Store
+Thumbs.db
