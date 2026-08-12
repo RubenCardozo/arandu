@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ArticleService } from '../../services/article.service';
 import { ArticleViewModel } from '../../models/article.model';
@@ -14,11 +14,15 @@ import { ArticleViewModel } from '../../models/article.model';
   templateUrl: './hero-article.component.html',
   styleUrls: ['./hero-article.component.css']
 })
-export class HeroArticleComponent {
+export class HeroArticleComponent implements OnInit {
   /**
    * Injected ArticleService instance using Angular's `inject()` function.
    */
   public readonly articleService: ArticleService = inject(ArticleService);
+
+  ngOnInit(): void {
+    this.articleService.loadFeatured();
+  }
 
   /**
    * Accessor getter exposing the featuredArticle signal from the ArticleService.

@@ -6,7 +6,7 @@ author: "Rubén"
 author_avatar: "https://ui-avatars.com/api/?name=Ruben&background=random"
 source_name: "Arandu"
 source_url: "https://arandu.ch"
-category: "noticias"
+category: "publicidad"
 status: "published"
 published_at: "2026-08-10T10:00:00Z"
 featured: true
