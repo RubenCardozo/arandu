@@ -3,21 +3,17 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy shared folder required for @arandu/types
-COPY shared ./shared
-COPY frontend-public/package.json frontend-public/package-lock.json ./frontend-public/
-
-WORKDIR /app/frontend-public
+COPY package.json package-lock.json ./
 RUN npm ci
 
-COPY frontend-public ./
+COPY . .
 RUN npm run build
 
 # Stage 2: Serve static files via Nginx
 FROM nginx:alpine AS production
 
-COPY --from=builder /app/frontend-public/dist/frontend-public/browser /usr/share/nginx/html
-COPY frontend-public/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/dist/frontend-public/browser /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 

@@ -14,9 +14,9 @@
     "importHelpers": true,
     "target": "ES2022",
     "module": "preserve",
-    "rootDir": "..",
+    "rootDir": "./src",
     "paths": {
-      "@arandu/types": ["../shared/types/index.ts"]
+      "@arandu/types": ["./src/types/shared-types.ts"]
     }
   },
   "angularCompilerOptions": {
