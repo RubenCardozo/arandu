@@ -1,6 +1,6 @@
 export const environment = {
-  production: false,
+  production: true,
   supabaseUrl: 'https://ulzvqnphawocufhqyfet.supabase.co',
   supabaseKey: 'sb_publishable_AzXWXv2I5HzBX_-U3LIRiw_Yx-Eiz2X',
-  apiUrl: 'http://localhost:3000'
+  apiUrl: 'https://api.arandu.ch'
 };
