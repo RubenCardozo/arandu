@@ -28,7 +28,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # Install only production dependencies for a lightweight image
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 # Copy compiled JavaScript output from the builder stage
 COPY --from=builder /app/dist ./dist

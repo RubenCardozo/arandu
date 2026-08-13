@@ -9,13 +9,11 @@
     "target": "es2021",
     "sourceMap": true,
     "outDir": "./dist",
-    "rootDir": "./",
-    "incremental": true,
+    "rootDir": "./src",
+    "incremental": false,
     "skipLibCheck": true,
-    "types": ["node", "jest"],
-    "paths": {
-      "@arandu/types": ["../shared/types/index"]
-    }
+    "types": ["node", "jest"]
   },
-  "exclude": ["node_modules", "dist"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "drizzle.config.ts"]
 }
