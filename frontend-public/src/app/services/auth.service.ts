@@ -44,6 +44,7 @@ export class AuthService {
         email,
         password,
         options: {
+          emailRedirectTo: `${window.location.origin}/session`,
           data: {
             full_name: name,
             first_name: firstName,
