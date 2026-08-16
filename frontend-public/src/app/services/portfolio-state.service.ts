@@ -15,6 +15,9 @@ export class PortfolioStateService {
   // Control visibility of full-screen builder modal
   showVisualBuilder = signal<boolean>(false);
 
+  // Control visibility of Socials modal
+  showSocialsModal = signal<boolean>(false);
+
   // Portfolio Fields Signals
   title = signal<string>('');
   description = signal<string>('');
@@ -192,6 +195,14 @@ export class PortfolioStateService {
     this.responsiveMode.set(mode);
   }
 
+  /**
+   * Toggles the visibility of the socials customization modal.
+   * @param isOpen Boolean flag indicating if the modal should be opened (true) or closed (false).
+   */
+  toggleSocialsModal(isOpen: boolean): void {
+    this.showSocialsModal.set(isOpen);
+  }
+
   markDirty() {
     this.isDirty.set(true);
   }
@@ -225,6 +236,7 @@ export class PortfolioStateService {
     this.phoneFijo.set('');
     this.website.set('');
     this.landingHeroImage.set('');
+    this.showSocialsModal.set(false);
     this.isDirty.set(false);
 
     try {
