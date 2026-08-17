@@ -214,6 +214,7 @@ export class SessionComponent implements OnInit, OnDestroy {
 
   isModalOpen(): boolean {
     return this.portfolioState.showVisualBuilder() || 
+           this.portfolioState.showSocialsModal() ||
            this.showLandingPreviewModal || 
            this.showPreviewModal || 
            this.keywordsModalVisible;
@@ -2108,6 +2109,11 @@ export class SessionComponent implements OnInit, OnDestroy {
 
   removeSocialLink(key: string) {
     this.updateSocialLinkValue(key, '');
+  }
+
+  saveSocialLinks() {
+    this.portfolioState.isDirty.set(true);
+    this.cdr.detectChanges();
   }
 
   activeToolboxCategory = 'text';

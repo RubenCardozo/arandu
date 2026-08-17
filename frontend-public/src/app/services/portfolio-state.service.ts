@@ -18,6 +18,9 @@ export class PortfolioStateService {
   // Control visibility of Socials modal
   showSocialsModal = signal<boolean>(false);
 
+  // Active Mobile Tab State ('canvas' | 'tools' | 'preview')
+  activeMobileTab = signal<'canvas' | 'tools' | 'preview'>('canvas');
+
   // Portfolio Fields Signals
   title = signal<string>('');
   description = signal<string>('');
@@ -201,6 +204,14 @@ export class PortfolioStateService {
    */
   toggleSocialsModal(isOpen: boolean): void {
     this.showSocialsModal.set(isOpen);
+  }
+
+  /**
+   * Sets the active mobile tab in the portfolio builder.
+   * @param tab Mobile tab type ('canvas' | 'tools' | 'preview').
+   */
+  setMobileTab(tab: 'canvas' | 'tools' | 'preview'): void {
+    this.activeMobileTab.set(tab);
   }
 
   markDirty() {
